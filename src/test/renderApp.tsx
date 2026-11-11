@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { AppProviders } from '@/app/providers/AppProviders';
+import { resetJsonStudioState } from '@/features/json-studio/store';
 import { routes } from '@/app/router/routes';
 import { db } from '@/services/db/database';
 import { DEFAULT_PREFERENCES } from '@/services/preferences/preferences';
@@ -11,6 +12,7 @@ import { clearDatabase } from './db';
 
 /** Resets all app-wide state: IndexedDB singleton, preferences and UI stores. */
 export async function resetAppState(): Promise<void> {
+  resetJsonStudioState();
   await clearDatabase(db);
   usePreferencesStore.setState(DEFAULT_PREFERENCES);
   useUiStore.setState({
@@ -20,6 +22,19 @@ export async function resetAppState(): Promise<void> {
     mobileNavOpen: false,
   });
   window.localStorage.clear();
+}
+
+/** Replaces the content of an editor double (textarea) like a paste would. */
+export async function setEditorText(
+  user: ReturnType<typeof userEvent.setup>,
+  editor: HTMLElement,
+  text: string,
+): Promise<void> {
+  await user.clear(editor);
+  if (text) {
+    await user.click(editor);
+    await user.paste(text);
+  }
 }
 
 /** Renders the full application (real routes, layout and providers) at a path. */

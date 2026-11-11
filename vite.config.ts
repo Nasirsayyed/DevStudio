@@ -19,7 +19,9 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: true,
-    chunkSizeWarningLimit: 900,
+    // Monaco's core chunk (~2.6 MB raw, ~700 KB gzip) exceeds the default limit; it is lazy-loaded
+    // only when an editor is first shown.
+    chunkSizeWarningLimit: 3000,
     rollupOptions: {
       output: {
         manualChunks(id: string) {

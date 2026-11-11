@@ -94,16 +94,42 @@ data to chart.
   `errorElement` as a last resort; `AppError` hierarchy plus `toUserMessage()`; a toast queue
   via `useNotify()`; and a promise-based `useConfirm()`.
 
-## Reusable components (current)
+## Reusable components
 
-`ToolHeader`, `PageContainer`, `SectionCard`, `ToolCard`, `ToolIcon`, `EmptyState`, `LoadingState`,
-`ErrorBoundary`, `ConfirmationDialog` / `useConfirm`, `NotificationProvider` / `useNotify`,
-`SearchInput` (debounced, Esc to clear), `CopyButton`, `Kbd`, `EChart` (tree-shaken, SVG renderer,
-theme-aware).
+Lightweight components are exported from the `@/components` barrel. Heavier ones are **imported by
+path**, so that the app shell's barrel import never pulls them into the initial bundle (verified with
+the build's source maps).
 
-Planned with the modules that first need them: `CodeEditor` / `DiffEditor` (Monaco, Phase 4),
-`JsonViewer` (virtualized, Phase 4), `SplitPane`, `DownloadButton`, `FileDropZone` (Phase 4),
-`DataGrid` (Phase 4/9), `KeyValueEditor` (Phase 10), `ToolSidebar` (Phase 4).
+| Component                                                                                                                           | Import                                 | Notes                                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `ToolHeader`, `PageContainer`, `SectionCard`, `ToolCard`, `ToolIcon`, `Panel`, `EmptyState`, `LoadingState`, `ErrorBoundary`, `Kbd` | barrel                                 | Layout and states                                                                                  |
+| `NotificationProvider` / `useNotify`, `ConfirmationDialog` / `useConfirm`                                                           | barrel                                 | Toast queue (a closing toast is never re-opened); promise-based confirm                            |
+| `SearchInput`, `CopyButton`                                                                                                         | barrel                                 | Debounced search (no stale-value reverts); clipboard with feedback                                 |
+| `SplitPane`                                                                                                                         | barrel                                 | Resizable panes (pointer, ←/→, Home/End, double-click reset), persisted ratio, stacked on phones   |
+| `ToolWorkspace`, `ToolSidebar`                                                                                                      | barrel                                 | Full-height tool layout: module tool list (lg+), tool switcher (smaller), favorite toggle, toolbar |
+| `CodeEditor`, `DiffEditor`                                                                                                          | barrel (lazy wrappers)                 | Monaco loads on first render (see below)                                                           |
+| `JsonViewer`                                                                                                                        | `@/components/data-display/JsonViewer` | Virtualized ARIA tree, keyboard navigation, expand all / by level, highlight, reveal path          |
+| `DataGrid`                                                                                                                          | `@/components/data-display/DataGrid`   | Virtualized, sortable ARIA grid                                                                    |
+| `FileDropZone`, `UploadButton`                                                                                                      | `@/components/inputs/FileDropZone`     | Validated text files (type, size, binary detection, BOM strip)                                     |
+| `DownloadButton`                                                                                                                    | `@/components/inputs/DownloadButton`   | FileSaver download                                                                                 |
+| `EChart`                                                                                                                            | `@/components/charts/EChart`           | Tree-shaken ECharts, SVG renderer                                                                  |
+
+## Code editor (Monaco)
+
+- Monaco is **self-hosted** (`@monaco-editor/react` with `loader.config({ monaco })`), with no CDN
+  loader. That keeps the strict CSP intact and makes the editor work offline.
+- `components/code-editor/monacoEditorCore.ts` imports every editor contribution and its services
+  exactly as `editor.main` does, but **without its ~80 languages and the LSP client**. Importing only
+  `editor.api` leaves some contributions without their services (runtime "UNKNOWN service" errors).
+  Regenerate this list when upgrading Monaco.
+- Workers (`editor.worker`, `json.worker`) are bundled with Vite's `?worker` imports.
+- Monaco's own JSON diagnostics are disabled. DevStudio's analyzer (`core/json/parse.ts`) is the
+  single source of error markers, so messages and positions match the status bar and error panels.
+- Editor preferences from Settings (font size, tab size, word wrap, minimap) apply live. The theme
+  follows the app theme. Above 2 M characters a lighter "large file" configuration is used (no
+  folding, wrap, minimap, sticky scroll or bracket colorization).
+- `Ctrl/⌘+Enter` runs the current tool.
+- Size: about 970 KB gzip, loaded only when an editor is first shown.
 
 ## Theming
 
@@ -120,11 +146,49 @@ Motion is disabled under `prefers-reduced-motion`.
 - IndexedDB queries use indexes (`orderBy('count')`, `orderBy('updatedAt')`, compound and
   multi-entry indexes) rather than scanning whole tables in JS.
 - Search inputs are debounced; palette queries are tagged so stale results are never shown.
+- Heavy components are imported by path, not through the barrel (see Reusable components).
+- Monaco (about 970 KB gzip) and the JSON language worker load only when an editor is shown.
 - Known cost: `iconsax-reactjs` ships every variant per icon (about 31 KB gzip for the ~60 icons
   used). Icons are imported per name, so tree-shaking works. Replacing the package is a one-file
   change if needed.
 
-## Web Workers
+## Web Workers and heavy processing
 
-There is no heavy processing in this phase. The worker pool (typed RPC with cancellation) arrives
-in Phase 4 together with large-JSON processing. `core/` is already kept worker-safe for that reason.
+```
+features (useJsonOperation) ──► services/workers/jsonTasks ──► createTaskRunner
+                                                                 │
+                         size < 100 KB ──► main thread (after one yield)
+                         size ≥ 100 KB ──► worker pool (max 2) ──► workers/json.worker.ts
+                                                                 │      └─ core/tasks/protocol.handleTaskRequest
+                                                                 └─ AbortSignal → terminates only that worker
+```
+
+- **One operation table** (`core/json/operations.ts`) runs on both the main thread and in workers,
+  so there is no duplicated logic. Inputs are raw text, so parsing (the expensive part) also happens
+  off the main thread.
+- **Typed errors cross the boundary**: `serializeError`/`deserializeError` rebuild `ParseError`
+  (with line, column and `source`, e.g. "left" or "schema") and `ValidationError`.
+- **Cancellation**: every new run aborts the previous one; an aborted worker is terminated and
+  replaced. Results of stale runs are never shown.
+- **Resilience**: if a worker can't start (old browser or blocked by policy), the task falls back to
+  the main thread, and later tasks skip the worker path.
+- **Auto vs. manual**: inputs up to 1 MB re-run automatically (debounced 250 ms). Larger inputs run
+  on demand (Run button or `Ctrl/⌘+Enter`) so typing never triggers repeated multi-MB processing.
+
+## JSON Studio feature structure
+
+```
+features/json-studio/
+├── store.ts                 shared working document (input, secondary, csv, open document) + draft persistence
+├── hooks/                   useJsonOperation, useDocumentFromUrl (?document=id), useHistoryRecorder
+├── components/              TransformLayout (input → output), JsonToolLayout (input → custom view),
+│                            DualInputLayout (two inputs + results), JsonInputPanel, OutputPanel,
+│                            DocumentDialogs (open/save), StatusViews, OptionControls
+└── pages/                   16 tool pages, each a lazy chunk registered in tools/toolPages.ts
+```
+
+- The working document is **shared across all 16 tools**, so switching tools keeps your data. It is
+  saved as a draft in IndexedDB (debounced; drafts above 5 M characters are skipped) and restored
+  after a reload. Edits made while the draft is still loading are saved once it has loaded.
+- Tool options are remembered per tool (`hooks/usePersistentOptions`, validated localStorage).
+- Copying or downloading a result records a `toolHistory` entry (input/output truncated to 256 KB).

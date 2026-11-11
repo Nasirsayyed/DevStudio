@@ -10,28 +10,29 @@ Current schema version: **1**
 Index syntax: `&` = unique, `*` = multi-entry (array), `[a+b]` = compound. The first entry is the
 primary key. All `id`s are UUID v7 (time-sortable) strings.
 
-| Table           | Indexes                                                                        | Purpose                                                                          | Used since                               |
-| --------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | ---------------------------------------- |
-| `collections`   | `id, name, updatedAt`                                                          | API collections with folder tree and variables                                   | Phase 10                                 |
-| `apiRequests`   | `id, collectionId, folderId, name, method, updatedAt, [collectionId+folderId]` | Saved API requests                                                               | Phase 10 (searched by palette now)       |
-| `environments`  | `id, &name, updatedAt`                                                         | Environments and variables (`secret` flag, `persistSecrets` consent)             | Phase 10                                 |
-| `apiHistory`    | `id, requestId, method, status, createdAt, url`                                | Sent requests with truncated response snapshots                                  | Phase 10 (dashboard reads now)           |
-| `jsonDocuments` | `id, name, *tags, updatedAt`                                                   | Saved JSON documents                                                             | Phase 4 (dashboard and palette read now) |
-| `savedQueries`  | `id, name, dialect, kind, *tags, updatedAt`                                    | SQL scripts, schema designs (`kind=schema`), SQLite files (`kind=sqliteDb`)      | Phase 9                                  |
-| `codeSnippets`  | `id, title, language, category, *tags, isFavorite, updatedAt`                  | Snippets (`isFavorite` stored as 0/1, because booleans can't be indexed)         | Phase 8 (dashboard and palette read now) |
-| `favorites`     | `id, &[entityType+entityId], entityType, createdAt`                            | Favorites of any entity type (`tool`, `request`, `snippet`, `document`, `query`) | ✅ Now (tools)                           |
-| `toolHistory`   | `id, toolId, createdAt, [toolId+createdAt]`                                    | Restorable tool operations                                                       | Phase 4+ / 11                            |
-| `settings`      | `key`                                                                          | Structured settings (e.g. `dashboard.quickAccess`)                               | ✅ Now                                   |
-| `toolUsage`     | `toolId, count, lastUsedAt`                                                    | Per-tool open counters for dashboard statistics                                  | ✅ Now                                   |
+| Table           | Indexes                                                                        | Purpose                                                                          | Used since                                         |
+| --------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `collections`   | `id, name, updatedAt`                                                          | API collections with folder tree and variables                                   | Phase 10                                           |
+| `apiRequests`   | `id, collectionId, folderId, name, method, updatedAt, [collectionId+folderId]` | Saved API requests                                                               | Phase 10 (searched by palette now)                 |
+| `environments`  | `id, &name, updatedAt`                                                         | Environments and variables (`secret` flag, `persistSecrets` consent)             | Phase 10                                           |
+| `apiHistory`    | `id, requestId, method, status, createdAt, url`                                | Sent requests with truncated response snapshots                                  | Phase 10 (dashboard reads now)                     |
+| `jsonDocuments` | `id, name, *tags, updatedAt`                                                   | Saved JSON documents                                                             | ✅ Now (JSON Studio save/open, dashboard, palette) |
+| `savedQueries`  | `id, name, dialect, kind, *tags, updatedAt`                                    | SQL scripts, schema designs (`kind=schema`), SQLite files (`kind=sqliteDb`)      | Phase 9                                            |
+| `codeSnippets`  | `id, title, language, category, *tags, isFavorite, updatedAt`                  | Snippets (`isFavorite` stored as 0/1, because booleans can't be indexed)         | Phase 8 (dashboard and palette read now)           |
+| `favorites`     | `id, &[entityType+entityId], entityType, createdAt`                            | Favorites of any entity type (`tool`, `request`, `snippet`, `document`, `query`) | ✅ Now (tools)                                     |
+| `toolHistory`   | `id, toolId, createdAt, [toolId+createdAt]`                                    | Restorable tool operations                                                       | Phase 4+ / 11                                      |
+| `settings`      | `key`                                                                          | Structured settings (e.g. `dashboard.quickAccess`)                               | ✅ Now                                             |
+| `toolUsage`     | `toolId, count, lastUsedAt`                                                    | Per-tool open counters for dashboard statistics                                  | ✅ Now                                             |
 
 `toolUsage` is an addition to the specified tables. It keeps dashboard statistics O(top-N) through
 the `count` index instead of aggregating the whole history.
 
 ### Settings keys
 
-| Key                     | Value                                                    | Validation                                |
-| ----------------------- | -------------------------------------------------------- | ----------------------------------------- |
-| `dashboard.quickAccess` | `string[]` of tool ids (max 9, ordered, maps to Alt+1…9) | Zod; unknown tool ids are dropped on read |
+| Key                     | Value                                                                                                                             | Validation                                |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `dashboard.quickAccess` | `string[]` of tool ids (max 9, ordered, maps to Alt+1…9)                                                                          | Zod; unknown tool ids are dropped on read |
+| `jsonStudio.draft`      | `{ input, secondary, csv, document: {id,name} \| null }`, the JSON Studio working draft (fields above 5 M chars are stored empty) | Zod; invalid drafts are ignored           |
 
 ## Repositories
 
@@ -76,6 +77,13 @@ Key `devstudio:prefs:v1`. Only non-sensitive UI preferences live here:
 | `selectedEnvironmentId` | string \| null                                         | `null`               |
 | `editor`                | `{ fontSize 10–28, tabSize 2/4/8, wordWrap, minimap }` | `14, 2, true, false` |
 | `recentToolIds`         | string[] (unique, max 10, most recent first)           | `[]`                 |
+
+Other localStorage keys (per-browser conveniences, all optional and validated on read):
+
+| Key                          | Purpose                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `devstudio:options:<toolId>` | Remembered tool options (e.g. indentation, delimiter). Only known keys with the default's type are accepted |
+| `devstudio:split:<toolId>`   | Remembered split-pane ratio                                                                                 |
 
 Loading is defensive: parsing uses `safeJsonParse` (which strips `__proto__`/`constructor`/`prototype`),
 and each field falls back to its default individually when invalid. Storage that is unavailable

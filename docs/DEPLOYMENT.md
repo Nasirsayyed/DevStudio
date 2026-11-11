@@ -57,7 +57,7 @@ The dev server (`npm run dev`) does not send the CSP, because Vite's HMR uses in
 
 `.github/workflows/ci.yml` runs on pushes to `main` and on pull requests:
 
-1. **quality**: `npm ci`, typecheck, lint (zero warnings), Prettier check, tests with coverage,
+1. **quality**: `npm ci`, production dependency audit (fails on high/critical), typecheck, lint (zero warnings), Prettier check, tests with coverage,
    production build (uploaded as an artifact).
 2. **e2e**: installs Chromium and runs Playwright against the production build (the report is
    uploaded on failure).

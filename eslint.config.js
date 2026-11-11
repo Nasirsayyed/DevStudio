@@ -21,6 +21,12 @@ const FEATURES = [
   'module-overview',
 ];
 
+/** Monaco is heavy and needs special setup: only the code-editor components may import it. */
+const MONACO_BAN = {
+  group: ['monaco-editor', 'monaco-editor/*', '@monaco-editor/react'],
+  message: 'Use CodeEditor / DiffEditor from @/components instead of importing Monaco directly.',
+};
+
 /** Each feature may not import from any *other* feature (architecture rule 3). */
 const featureIsolation = FEATURES.map((feature) => ({
   files: [`src/features/${feature}/**/*.{ts,tsx}`],
@@ -39,6 +45,7 @@ const featureIsolation = FEATURES.map((feature) => ({
             message:
               'Features must not import from other features. Move shared code to core/, services/ or components/.',
           },
+          MONACO_BAN,
         ],
       },
     ],
@@ -123,6 +130,7 @@ export default tseslint.config(
               ],
               message: 'core/ must stay framework-free and side-effect free.',
             },
+            MONACO_BAN,
           ],
         },
       ],
@@ -140,10 +148,22 @@ export default tseslint.config(
               group: ['@/features/*', '@/components/*', '@/app/*', '@mui/*'],
               message: 'services/ must not depend on UI layers.',
             },
+            MONACO_BAN,
           ],
         },
       ],
     },
+  },
+  {
+    files: [
+      'src/app/**/*.{ts,tsx}',
+      'src/hooks/**/*.{ts,tsx}',
+      'src/stores/**/*.{ts,tsx}',
+      'src/tools/**/*.{ts,tsx}',
+      'src/components/**/*.{ts,tsx}',
+    ],
+    ignores: ['src/components/code-editor/**'],
+    rules: { 'no-restricted-imports': ['error', { patterns: [MONACO_BAN] }] },
   },
   ...featureIsolation,
   {
@@ -151,6 +171,10 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       'react-refresh/only-export-components': 'off',
+      // Tests navigate loosely-typed fixtures (e.g. generated schemas).
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
     },
   },
   {

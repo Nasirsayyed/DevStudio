@@ -12,3 +12,16 @@ export {
   type EntitySearchResult,
   type SearchEntityKind,
 } from './searchRepository';
+export {
+  jsonDocumentsRepository,
+  createJsonDocumentsRepository,
+  MAX_DOCUMENT_BYTES,
+  type SaveJsonDocumentInput,
+} from './jsonDocumentsRepository';
+export {
+  toolHistoryRepository,
+  createToolHistoryRepository,
+  truncateForHistory,
+  HISTORY_TEXT_LIMIT,
+  type RecordToolHistoryInput,
+} from './toolHistoryRepository';

@@ -38,15 +38,28 @@ export class ValidationError extends AppError {
   }
 }
 
+export interface ParsePosition {
+  line?: number;
+  column?: number;
+  /** Which input failed when an operation has several (e.g. "left", "schema"). */
+  source?: string;
+}
+
 export class ParseError extends AppError {
   readonly line: number | undefined;
   readonly column: number | undefined;
+  readonly source: string | undefined;
 
-  constructor(message: string, position: { line?: number; column?: number } = {}, cause?: unknown) {
-    super('PARSE', message, { cause, details: { ...position } });
+  constructor(message: string, position: ParsePosition = {}, cause?: unknown) {
+    const details: Record<string, unknown> = {};
+    if (position.line !== undefined) details.line = position.line;
+    if (position.column !== undefined) details.column = position.column;
+    if (position.source !== undefined) details.source = position.source;
+    super('PARSE', message, { cause, details });
     this.name = 'ParseError';
     this.line = position.line;
     this.column = position.column;
+    this.source = position.source;
   }
 }
 

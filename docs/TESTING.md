@@ -10,29 +10,36 @@
 
 ## Current results
 
-- **115 unit/component tests** in 18 files, all passing.
-- **7 Playwright tests**, all passing against the production build under the production CSP.
-- Coverage: about 87% statements overall; `core/` and `services/db` are at or near 100% statements.
+- **275 unit/component tests** in 29 files, all passing.
+- **13 Playwright tests**, all passing against a fresh production build under the production CSP
+  (dedicated port 4317, never reusing a running server).
+- Coverage: about 87% statements overall; `core/json` 96%, `core/tasks`, `core/files`, `core/security`
+  100%, `services/db` 98%. Monaco and the worker entry point are covered by Playwright (they are
+  replaced by doubles in jsdom).
 
 ## What is covered
 
-| Area               | Highlights                                                                                                                                                                              |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fuzzy search       | ranking order, case, regex metacharacters, stability, context and recency boosts                                                                                                        |
-| Hotkeys            | ⌘ vs Ctrl, exact modifiers, shifted symbols, `Alt+digit` on any layout (`¡` on macOS), editable targets                                                                                 |
-| Security           | prototype-pollution stripping at any depth, malformed JSON, CSP has no `unsafe-eval`, `vercel.json` mirrors the CSP config                                                              |
-| Preferences        | defaults, round trip, per-field fallback, corrupted JSON, pollution payloads, dedupe/cap, quota failure                                                                                 |
-| Theme persistence  | store → localStorage, cycling, reload (e2e), dark background actually applied (e2e)                                                                                                     |
-| IndexedDB          | all tables and indexes exist, data survives reconnect, unique favorites index, atomic concurrent increments, search prefix/substring/limits, recent ordering                            |
-| Quota handling     | native and Dexie-wrapped quota errors → `StorageQuotaError`                                                                                                                             |
-| Registry integrity | unique ids/paths, id = module.slug, aliases resolve to canonical tools, all spec tools present                                                                                          |
-| Shell              | sidebar links and `aria-current`, collapse persistence, breadcrumbs, theme menu, 404s, alias redirect                                                                                   |
-| Palette            | Ctrl+K and Escape, top-bar button, keyboard navigation with wrap-around, `aria-activedescendant`, `>` actions, IndexedDB entity results, empty state                                    |
-| Shortcuts          | `?` dialog, `Ctrl+B`, `Alt+1` quick access                                                                                                                                              |
-| Dashboard          | stats from IndexedDB, empty states, recent tools, inline search, quick-access customization persisted                                                                                   |
-| Settings           | theme/editor prefs, reset with confirm, cancel keeps data                                                                                                                               |
-| Components         | ErrorBoundary reset, confirmation (content stays during exit), toast queue, SearchInput debounce, no stale revert, Esc/clear, CopyButton success/failure                                |
-| E2E                | module navigation, SPA deep links, persistence across reloads, palette, IndexedDB favorites, mobile drawer, no horizontal scroll, **zero CSP violations or page errors** (auto fixture) |
+| Area               | Highlights                                                                                                                                                                                                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fuzzy search       | ranking order, case, regex metacharacters, stability, context and recency boosts                                                                                                                                                                                                                               |
+| Hotkeys            | ⌘ vs Ctrl, exact modifiers, shifted symbols, `Alt+digit` on any layout (`¡` on macOS), editable targets                                                                                                                                                                                                        |
+| Security           | prototype-pollution stripping at any depth, malformed JSON, CSP has no `unsafe-eval`, `vercel.json` mirrors the CSP config                                                                                                                                                                                     |
+| Preferences        | defaults, round trip, per-field fallback, corrupted JSON, pollution payloads, dedupe/cap, quota failure                                                                                                                                                                                                        |
+| Theme persistence  | store → localStorage, cycling, reload (e2e), dark background actually applied (e2e)                                                                                                                                                                                                                            |
+| IndexedDB          | all tables and indexes exist, data survives reconnect, unique favorites index, atomic concurrent increments, search prefix/substring/limits, recent ordering                                                                                                                                                   |
+| Quota handling     | native and Dexie-wrapped quota errors → `StorageQuotaError`                                                                                                                                                                                                                                                    |
+| Registry integrity | unique ids/paths, id = module.slug, aliases resolve to canonical tools, all spec tools present                                                                                                                                                                                                                 |
+| Shell              | sidebar links and `aria-current`, collapse persistence, breadcrumbs, theme menu, 404s, alias redirect                                                                                                                                                                                                          |
+| Palette            | Ctrl+K and Escape, top-bar button, keyboard navigation with wrap-around, `aria-activedescendant`, `>` actions, IndexedDB entity results, empty state                                                                                                                                                           |
+| Shortcuts          | `?` dialog, `Ctrl+B`, `Alt+1` quick access                                                                                                                                                                                                                                                                     |
+| Dashboard          | stats from IndexedDB, empty states, recent tools, inline search, quick-access customization persisted                                                                                                                                                                                                          |
+| Settings           | theme/editor prefs, reset with confirm, cancel keeps data                                                                                                                                                                                                                                                      |
+| Components         | ErrorBoundary reset, confirmation (content stays during exit), toast queue, SearchInput debounce, no stale revert, Esc/clear, CopyButton success/failure                                                                                                                                                       |
+| JSON analyzer      | 30+ malformed-input cases with exact messages and positions, CRLF/tabs, duplicate keys, agreement with `JSON.parse`, 6,000-level nesting without stack overflow                                                                                                                                                |
+| JSON transforms    | format/minify/beautify/sort, flatten↔unflatten round trips, conflicts, prototype pollution, CSV both ways (quoting, formula injection, delimiters, malformed rows), schema generation and validation, JSONPath (filters, sandboxing), search, structural diff (types, unordered arrays, truncation), tree rows |
+| Workers            | main-thread vs worker routing, pool reuse and queueing, typed error round trip, cancellation terminating only that worker, fallback when a worker can't start                                                                                                                                                  |
+| JSON Studio UI     | every tool page, error markers and Go-to-error, file upload and rejection, saved documents (save, open, deep link), history recording, large-input manual run, draft persistence and the draft-loading race                                                                                                    |
+| E2E                | module navigation, SPA deep links, persistence across reloads, palette, IndexedDB favorites, mobile drawer, no horizontal scroll, **zero CSP violations or page errors** (auto fixture)                                                                                                                        |
 
 ## Conventions
 
@@ -41,11 +48,18 @@
   IndexedDB layer (fake-indexeddb). Call `resetAppState()` in `beforeEach`.
 - Repository tests use `createTestDatabase()` for an isolated database per test.
 - Always include malformed and edge-case inputs for `core/` functions.
-- Bugs found by tests get a dedicated regression test (for example the `SearchInput` stale-debounce
-  revert and the confirmation dialog going blank during its exit transition).
+- Bugs found by tests get a dedicated regression test. Examples: the `SearchInput` stale-debounce
+  revert, the confirmation dialog going blank during its exit, a closing toast being re-opened by a
+  new one, edits lost while the draft was loading, and breadcrumbs overlapping the top bar on phones.
+- An e2e assertion must fail without the fix. Verify this by temporarily reverting the fix.
 
 ## Environment notes
 
+- Monaco can't run in jsdom: `MonacoCodeEditor`/`MonacoDiffEditor` are mocked globally with
+  accessible textarea doubles (`src/test/mocks/MockCodeEditor.tsx`). Note that textareas normalize
+  `\r\n` to `\n`.
+- jsdom has no layout; the setup reports 1024×768 for `client*`/`offset*` sizes and
+  `getBoundingClientRect` so virtualized lists render rows.
 - jsdom 31 declares `window.matchMedia` but leaves it unimplemented. `src/test/setup.ts` stubs it as
   desktop width and light scheme.
 - The e2e `webServer` builds and serves `dist/` through `vite preview`, which sends the production

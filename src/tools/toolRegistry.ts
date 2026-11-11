@@ -543,6 +543,13 @@ export function getTool(id: string): ToolDefinition | undefined {
   return TOOL_MAP.get(id);
 }
 
+/** Like getTool, but throws for unknown ids (for statically known tool ids). */
+export function requireTool(id: string): ToolDefinition {
+  const tool = TOOL_MAP.get(id);
+  if (!tool) throw new Error(`Unknown tool: ${id}`);
+  return tool;
+}
+
 export function getToolBySlug(moduleId: ModuleId, slug: string): ToolDefinition | undefined {
   return TOOL_MAP.get(`${moduleId}.${slug}`);
 }

@@ -21,7 +21,8 @@ let nextId = 1;
 /** App-wide toast queue: one visible at a time, newest queued last. */
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [queue, setQueue] = useState<QueuedNotification[]>([]);
-  const [open, setOpen] = useState(true);
+  // While a toast animates out it must not be re-opened by newer notifications.
+  const [closing, setClosing] = useState(false);
   const current = queue[0];
 
   const notify = useCallback((message: string, options: NotificationOptions = {}) => {
@@ -39,7 +40,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       action: options.action,
     };
     setQueue((q) => [...q, item].slice(-MAX_QUEUE));
-    setOpen(true);
   }, []);
 
   const api = useMemo<NotifyApi>(
@@ -55,12 +55,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handleClose = (_: unknown, reason?: string) => {
     if (reason === 'clickaway') return;
-    setOpen(false);
+    setClosing(true);
   };
 
   const handleExited = () => {
     setQueue((q) => q.slice(1));
-    setOpen(true);
+    setClosing(false);
   };
 
   return (
@@ -69,7 +69,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {current && (
         <Snackbar
           key={current.id}
-          open={open}
+          open={!closing}
           autoHideDuration={current.durationMs}
           onClose={handleClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -79,7 +79,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             severity={current.severity}
             variant="filled"
             onClose={() => {
-              setOpen(false);
+              setClosing(true);
             }}
             action={
               current.action ? (
@@ -88,7 +88,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                   size="small"
                   onClick={() => {
                     current.action?.onClick();
-                    setOpen(false);
+                    setClosing(true);
                   }}
                 >
                   {current.action.label}

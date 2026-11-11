@@ -52,9 +52,28 @@ security headers or anything user-visible across pages.
 - Errors shown to users: throw or convert to `AppError` subclasses; display with `toUserMessage()`.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
 
+## Heavy code and bundles
+
+- Import `JsonViewer`, `DataGrid`, `FileDropZone`/`UploadButton`, `DownloadButton` and `EChart` **by
+  path**, never through the `@/components` barrel (that would put them in the initial bundle).
+- Heavy pure operations go into an operation table in `core/` (see `core/json/operations.ts`) and run
+  through a task runner (`services/workers`). Never block the main thread on large input.
+- Monaco: only `components/code-editor/*` may import `monaco-editor`. When upgrading Monaco,
+  regenerate `monacoEditorCore.ts` from `editor.main.js` (see the header comment) and run the e2e suite.
+- `package.json` `overrides` pins Monaco's DOMPurify to a patched version. Remove the override once
+  a Monaco release depends on DOMPurify ≥ 3.4.17 (check with `npm ls dompurify`).
+- Never use Ajv or other code-generating validators (CSP forbids `unsafe-eval`). JSONPath must use
+  `eval: 'safe'`.
+
 ## Testing notes
 
 - Component tests render the real app with `renderApp(path)` from `src/test/renderApp.tsx`,
   and call `resetAppState()` in `beforeEach`.
 - Repository tests use isolated databases from `createTestDatabase()` (fake-indexeddb).
 - Query by role and accessible name (`getByRole('button', { name: ... })`), not by class or test id.
+- Monaco is replaced in jsdom by an accessible textarea double (`src/test/mocks/MockCodeEditor.tsx`,
+  wired in `src/test/setup.ts`). Use `setEditorText(user, editor, text)` to paste content. Problems
+  render as a list named "<editor label> problems".
+- jsdom has no layout; the setup reports a 1024×768 box so virtualized lists render rows.
+- MUI `Tooltip` replaces a child's accessible name unless `describeChild` is set. Use it when the
+  button already has visible text.

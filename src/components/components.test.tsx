@@ -124,6 +124,24 @@ describe('NotificationProvider', () => {
     expect(await screen.findByText('Failed!')).toBeInTheDocument();
   });
 
+  it('does not re-open a closing toast when a new one arrives', async () => {
+    const user = userEvent.setup();
+    wrap(
+      <NotificationProvider>
+        <Harness />
+      </NotificationProvider>,
+    );
+    await user.click(screen.getByRole('button', { name: 'ok' }));
+    expect(await screen.findByText('Saved!')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /close/i }));
+    // Arrives during the exit transition of "Saved!"
+    await user.click(screen.getByRole('button', { name: 'fail' }));
+    expect(await screen.findByText('Failed!', {}, { timeout: 1500 })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Saved!')).not.toBeInTheDocument();
+    });
+  });
+
   it('throws a helpful error outside the provider', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     expect(() => wrap(<Harness />)).toThrow(/NotificationProvider/);
@@ -227,5 +245,62 @@ describe('EmptyState', () => {
     expect(screen.getByText('Nothing here')).toBeInTheDocument();
     expect(screen.getByText('Add something')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+  });
+});
+
+describe('DataGrid', () => {
+  it('renders rows and sorts by column with aria-sort', async () => {
+    const { DataGrid } = await import('./data-display/DataGrid');
+    const user = userEvent.setup();
+    const rows = [
+      { name: 'b', size: 10 },
+      { name: 'a', size: 2 },
+      { name: 'c', size: 30 },
+    ];
+    wrap(
+      <DataGrid
+        ariaLabel="Files"
+        rows={rows}
+        rowKey={(r) => r.name}
+        columns={[
+          { id: 'name', header: 'Name', getValue: (r) => r.name },
+          { id: 'size', header: 'Size', getValue: (r) => r.size },
+        ]}
+      />,
+    );
+    const cells = () =>
+      screen
+        .getAllByRole('gridcell')
+        .filter((_, i) => i % 2 === 0)
+        .map((c) => c.textContent);
+    expect(cells()).toEqual(['b', 'a', 'c']);
+    await user.click(screen.getByRole('button', { name: 'Size' }));
+    expect(cells()).toEqual(['a', 'b', 'c']);
+    expect(screen.getAllByRole('columnheader')[1]).toHaveAttribute('aria-sort', 'ascending');
+    await user.click(screen.getByRole('button', { name: 'Size' }));
+    expect(cells()).toEqual(['c', 'b', 'a']);
+    await user.click(screen.getByRole('button', { name: 'Size' }));
+    expect(cells()).toEqual(['b', 'a', 'c']);
+  });
+});
+
+describe('SplitPane', () => {
+  it('resizes with the keyboard and remembers the ratio', async () => {
+    const { SplitPane } = await import('./layout/SplitPane');
+    const user = userEvent.setup();
+    const { unmount } = wrap(
+      <SplitPane storageKey="test" first={<p>left</p>} second={<p>right</p>} />,
+    );
+    const handle = screen.getByRole('separator', { name: 'Resize panes' });
+    expect(handle).toHaveAttribute('aria-valuenow', '50');
+    handle.focus();
+    await user.keyboard('{ArrowRight}{ArrowRight}');
+    expect(handle).toHaveAttribute('aria-valuenow', '54');
+    unmount();
+    wrap(<SplitPane storageKey="test" first={<p>left</p>} second={<p>right</p>} />);
+    expect(screen.getByRole('separator', { name: 'Resize panes' })).toHaveAttribute(
+      'aria-valuenow',
+      '54',
+    );
   });
 });

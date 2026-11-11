@@ -86,4 +86,21 @@ test.describe('responsive layout', () => {
     );
     expect(overflow, 'no horizontal page scroll').toBe(false);
   });
+
+  test('tool pages fit the screen and breadcrumbs never overlap the top bar', async ({ page }) => {
+    await page.goto('/json/formatter');
+    await page.getByRole('button', { name: 'Load sample' }).click();
+    await expect(page.getByText('✓ Valid JSON')).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    );
+    expect(overflow, 'no horizontal page scroll').toBe(false);
+    const current = page
+      .getByRole('navigation', { name: 'Breadcrumb' })
+      .locator('[aria-current="page"]');
+    await expect(current).toHaveText('JSON Formatter');
+    const crumbs = await current.boundingBox();
+    const search = await page.getByRole('button', { name: 'Open search' }).boundingBox();
+    expect(crumbs && search && crumbs.x + crumbs.width <= search.x).toBe(true);
+  });
 });

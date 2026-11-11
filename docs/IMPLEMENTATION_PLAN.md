@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–3 delivered (v0.1.0, 2026-11-11).** Next: Phase 4 (JSON Studio).
+Status: **Approved. Phases 1–4 delivered (v0.2.0).** Next: Phase 5 (Code Generators).
 Date: 2026-11-11
 
 ---
@@ -390,13 +390,21 @@ Implementation proceeded with the recommended options:
 5. **Optional CORS proxy URL**: deferred to Phase 10. If added, it will be off by default and clearly labeled.
 6. **Postman v2.1 import**: planned for Phase 10.
 
+Deviation in Phase 4: **`@cfworker/json-schema` instead of Ajv** for JSON Schema validation. Ajv
+compiles schemas with `new Function`, which the CSP (no `unsafe-eval`) blocks. `@cfworker/json-schema`
+interprets schemas, supports drafts 4, 7, 2019-09 and 2020-12, and is pinned to the long-established
+4.1.1 (several releases appeared within two weeks after a long quiet period, so as a supply-chain
+precaution the newest version was not used). `jsonpath-plus` always runs with `eval: 'safe'`, its
+sandboxed interpreter.
+
 Deviation found during installation: **ESLint 9.39** instead of 10, because
 `eslint-plugin-jsx-a11y@6.10` declares `eslint ^3–^9`. No peer dependency was forced.
 
 ## 11. Delivery log
 
-| Phase                  | Result                                                                                                                                    |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Architecture        | This document                                                                                                                             |
-| 2. Scaffold            | Vite 8 / React 19 / TS 6 strict, ESLint layer rules, Prettier, Vitest, Playwright, CI, Dexie schema v1, preferences service               |
-| 3. Shell and dashboard | Sidebar, top bar, routing, themes, command palette, shortcuts, dashboard, favorites, settings. 115 unit/component and 7 e2e tests passing |
+| Phase                  | Result                                                                                                                                                                                 |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Architecture        | This document                                                                                                                                                                          |
+| 2. Scaffold            | Vite 8 / React 19 / TS 6 strict, ESLint layer rules, Prettier, Vitest, Playwright, CI, Dexie schema v1, preferences service                                                            |
+| 3. Shell and dashboard | Sidebar, top bar, routing, themes, command palette, shortcuts, dashboard, favorites, settings. 115 unit/component and 7 e2e tests passing                                              |
+| 4. JSON Studio         | 16 tools, Monaco (self-hosted, CSP-safe), worker pool with cancellation, virtualized tree and grid, saved documents, drafts, tool history. 275 unit/component and 13 e2e tests passing |

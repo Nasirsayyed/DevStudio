@@ -10,13 +10,14 @@ an API request.
 
 ## Status
 
-| Area                                                                                           | State                     |
-| ---------------------------------------------------------------------------------------------- | ------------------------- |
-| Foundation: project, tooling, CI, architecture                                                 | ✅ Done                   |
-| App shell: sidebar, top bar, routing, themes, command palette, shortcuts                       | ✅ Done                   |
-| Dashboard, Favorites, Settings                                                                 | ✅ Done                   |
-| IndexedDB schema (all 11 tables), preferences, storage services                                | ✅ Done                   |
-| JSON Studio, Code Generators, Utilities, Text Tools, Snippets, SQL, API Studio, History/Backup | 🗓 Scheduled (Phases 4–11) |
+| Area                                                                              | State                     |
+| --------------------------------------------------------------------------------- | ------------------------- |
+| Foundation: project, tooling, CI, architecture                                    | ✅ Done                   |
+| App shell: sidebar, top bar, routing, themes, command palette, shortcuts          | ✅ Done                   |
+| Dashboard, Favorites, Settings                                                    | ✅ Done                   |
+| IndexedDB schema (all 11 tables), preferences, storage services                   | ✅ Done                   |
+| JSON Studio (16 tools, Monaco, Web Workers, saved documents)                      | ✅ Done                   |
+| Code Generators, Utilities, Text Tools, Snippets, SQL, API Studio, History/Backup | 🗓 Scheduled (Phases 5–11) |
 
 Tools that are not implemented yet are listed (so you can search, favorite and pin them),
 and their pages clearly say which phase delivers them. No placeholder UI pretends to work.
@@ -54,6 +55,7 @@ npm run dev          # http://localhost:5173
 | `Ctrl/⌘ Shift L` | Cycle theme (light → dark → system)                    |
 | `Alt 1…9`        | Open quick-access tool 1–9                             |
 | `Alt 0`          | Dashboard                                              |
+| `Ctrl/⌘ Enter`   | Run the current tool (editors)                         |
 | `?`              | Show all shortcuts                                     |
 
 ## Tech stack
@@ -62,7 +64,9 @@ React 19 · TypeScript 6 (strict) · Vite 8 · Material UI 9 · Iconsax (`iconsa
 Zustand 5 · Dexie 4 (IndexedDB) · React Router 8 · Zod 4 · Apache ECharts 6 · date-fns 4 ·
 Vitest 5 · React Testing Library · Playwright.
 
-Libraries for later modules (Monaco, sql.js, ajv, jose, PapaParse, JSZip and others) are
+Monaco Editor · `@cfworker/json-schema` · `jsonpath-plus` (safe evaluator) · PapaParse · FileSaver.
+
+Libraries for later modules (sql.js, jose, JSZip and others) are
 installed in the phase that uses them, so they never ship unused code.
 
 ## Documentation

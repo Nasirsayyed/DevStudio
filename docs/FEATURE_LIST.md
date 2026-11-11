@@ -48,6 +48,40 @@ Legend: ✅ implemented and tested · 🗓 scheduled (roadmap phase in brackets)
   applied to editors from Phase 4), storage usage and quota, request persistent storage,
   reset usage statistics (with confirmation), and the about panel.
 
+## JSON Studio (✅ Phase 4)
+
+All 16 tools share one working document (kept when switching tools, restored after reload),
+Monaco editors, file open and drag-and-drop, Open/Save of named documents, Copy/Download, and
+background processing for large inputs.
+
+| Tool                | Highlights                                                                                                                                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Formatter           | 2/4/tab indentation                                                                                                                                                                                                          |
+| Validator           | RFC 8259 analyzer: precise line/column and friendly messages (trailing commas, single quotes, comments, unquoted keys, `NaN`/`undefined`, BOM…), error context with caret, duplicate-key warnings with locations, statistics |
+| Minifier            | Size savings                                                                                                                                                                                                                 |
+| Beautifier          | Short primitive arrays/objects inlined up to a width; optional key sorting                                                                                                                                                   |
+| Tree Viewer         | Virtualized ARIA tree, keyboard navigation, expand all or by level, text highlight                                                                                                                                           |
+| Compare             | Structural diff: missing/added properties, value changes, **type differences**; arrays by position or ignoring order; Monaco text diff of normalized (sorted) JSON; equality detection                                       |
+| Path Finder         | Click any node: JSONPath, JavaScript accessor, JSON Pointer, value (all copyable)                                                                                                                                            |
+| JSONPath Tester     | Filters, recursive descent, bracket keys; safe evaluator (no `eval`); table and JSON views                                                                                                                                   |
+| Schema Generator    | Drafts 2020-12/2019-09/07, required inference across samples, nullable and mixed types, format detection (date-time, date, email, uri, uuid, ipv4), strict objects; "Validate with this schema"                              |
+| Schema Validator    | Drafts 4/7/2019-09/2020-12 (auto from `$schema`), specific errors with JSONPath locations; no remote `$ref` fetching                                                                                                         |
+| Flatten / Unflatten | Custom delimiter, `a.0` or `a[0]` notation, ambiguity warnings, conflict detection, prototype-pollution-safe                                                                                                                 |
+| Search              | Keys and/or values, contains/exact/regex, case sensitivity; results grid reveals matches in the tree                                                                                                                         |
+| Sort Keys           | Ascending/descending, natural numeric order, case-insensitive                                                                                                                                                                |
+| JSON → CSV          | Flattened columns, arrays as JSON or expanded, delimiter, header, **formula-injection protection**                                                                                                                           |
+| CSV → JSON          | Delimiter auto-detection, type conversion, nested objects from dotted headers, malformed-row reporting                                                                                                                       |
+
+Cross-cutting:
+
+- Inputs above 100 KB are processed in a **Web Worker**; above 1 MB processing is on demand
+  (Run / `Ctrl+Enter`). Running work is cancelled when the input changes.
+- Files are validated (type, 50 MB limit, binary detection, BOM removal).
+- Saved documents are stored in IndexedDB and appear on the dashboard and in the command palette
+  (`/json/formatter?document=<id>` deep links).
+- Copy and Download record a tool-history entry (shown in the Phase 11 History page).
+- Tool options and pane sizes are remembered per tool.
+
 ## Modules
 
 70 tools are registered, searchable and favoritable now. Their pages show their delivery phase.
