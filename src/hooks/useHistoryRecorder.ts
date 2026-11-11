@@ -7,9 +7,15 @@ import { toolHistoryRepository } from '@/services/db/repositories';
  */
 export function useHistoryRecorder(toolId: string) {
   return useCallback(
-    (label: string, input: string, output: string, options: Record<string, unknown> = {}) => {
+    (label: string, input: string, output: string, options: object = {}) => {
       toolHistoryRepository
-        .record({ toolId, label, input, output, options })
+        .record({
+          toolId,
+          label,
+          input,
+          output,
+          options: { ...options },
+        })
         .catch((error: unknown) => {
           console.warn('Could not record history', error);
         });

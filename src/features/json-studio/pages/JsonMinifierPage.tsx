@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 import { formatBytes } from '@/core/format/bytes';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonMinifierPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const payload = useMemo(() => (input.trim() ? { text: input } : null), [input]);
   return (
     <TransformLayout

@@ -3,7 +3,7 @@ import { Flash } from 'iconsax-reactjs';
 import type { ReactNode } from 'react';
 import { EmptyState, Kbd } from '@/components';
 import { ParseError, ValidationError, toUserMessage } from '@/core/errors/AppError';
-import type { OperationState } from '../hooks/useJsonOperation';
+import type { OperationState } from '@/hooks/useTaskOperation';
 
 /**
  * Renders idle / manual-run / error states for custom result views, or the

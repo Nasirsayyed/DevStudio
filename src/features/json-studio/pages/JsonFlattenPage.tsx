@@ -3,12 +3,12 @@ import { useMemo } from 'react';
 import type { ArrayNotation } from '@/core/json/flatten';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
-import { OptionsBar, SelectOption } from '../components/OptionControls';
+import { OptionsBar, SelectOption } from '@/components/workspace/OptionControls';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonFlattenPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const [opts, setOpts] = usePersistentOptions<{ delimiter: string; arrayNotation: ArrayNotation }>(
     'json.flatten',
     { delimiter: '.', arrayNotation: 'dot' },

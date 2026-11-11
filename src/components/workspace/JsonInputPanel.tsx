@@ -6,7 +6,7 @@ import { FileDropZone, UploadButton } from '@/components/inputs/FileDropZone';
 import type { ParseError } from '@/core/errors/AppError';
 import { type FileRules, JSON_FILE_RULES } from '@/core/files/fileValidation';
 import { formatBytes } from '@/core/format/bytes';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 import { OpenDocumentDialog, SaveDocumentDialog } from './DocumentDialogs';
 
 export interface JsonInputPanelProps {
@@ -21,7 +21,8 @@ export interface JsonInputPanelProps {
   reveal?: RevealRequest | null;
   /** Shows "Valid" in the status bar when true. */
   valid?: boolean;
-  language?: 'json' | 'plaintext';
+  /** Monaco language id ('json', 'plaintext', 'xml', …). */
+  language?: string;
   rules?: FileRules;
   sample?: string;
   /** Enables Open/Save of saved documents (main input only). */
@@ -52,9 +53,9 @@ export function JsonInputPanel({
   extraActions,
 }: JsonInputPanelProps) {
   const notify = useNotify();
-  const document = useJsonStudioStore((s) => s.document);
-  const loadDocument = useJsonStudioStore((s) => s.loadDocument);
-  const setDocument = useJsonStudioStore((s) => s.setDocument);
+  const document = useJsonWorkspaceStore((s) => s.document);
+  const loadDocument = useJsonWorkspaceStore((s) => s.loadDocument);
+  const setDocument = useJsonWorkspaceStore((s) => s.setDocument);
   const [openDialog, setOpenDialog] = useState(false);
   const [saveDialog, setSaveDialog] = useState(false);
   const [reveal, setReveal] = useState<RevealRequest | null>(null);
@@ -191,7 +192,7 @@ export function JsonInputPanel({
             </Button>
           ) : valid && value.trim() ? (
             <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
-              ✓ Valid {language === 'json' ? 'JSON' : ''}
+              ✓ Valid {language === 'json' ? 'JSON' : language === 'xml' ? 'XML' : ''}
             </Typography>
           ) : null}
         </>

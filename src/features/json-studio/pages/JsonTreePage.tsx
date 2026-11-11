@@ -3,12 +3,12 @@ import { Panel, SearchInput } from '@/components';
 import { JsonViewer } from '@/components/data-display/JsonViewer';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { JsonToolLayout } from '../components/JsonToolLayout';
-import { OperationStatusView } from '../components/StatusViews';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonTreePage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const payload = useMemo(() => (input.trim() ? { text: input } : null), [input]);
   const state = useJsonOperation('parse', payload);
   const [highlight, setHighlight] = useState('');

@@ -13,15 +13,18 @@ import {
   Tooltip,
 } from '@mui/material';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { Code1, Trash } from 'iconsax-reactjs';
 import { useState } from 'react';
 import { EmptyState, SearchInput, useConfirm, useNotify } from '@/components';
 import { toUserMessage } from '@/core/errors/AppError';
 import { formatBytes } from '@/core/format/bytes';
-import { jsonDocumentsRepository } from '@/services/db/repositories';
+import {
+  removeJsonDocument,
+  saveJsonDocument,
+  useJsonDocumentList,
+} from '@/hooks/useJsonDocuments';
 import type { JsonDocumentEntity } from '@/types/entities';
-import type { OpenDocument } from '../store';
+import type { OpenDocument } from '@/stores/jsonWorkspaceStore';
 
 export function OpenDocumentDialog({
   open,
@@ -33,10 +36,7 @@ export function OpenDocumentDialog({
   onOpen: (doc: JsonDocumentEntity) => void;
 }) {
   const [query, setQuery] = useState('');
-  const docs = useLiveQuery(
-    () => (open ? jsonDocumentsRepository.list(query) : Promise.resolve([])),
-    [open, query],
-  );
+  const docs = useJsonDocumentList(open, query);
   const confirm = useConfirm();
   const notify = useNotify();
 
@@ -49,7 +49,7 @@ export function OpenDocumentDialog({
     });
     if (!ok) return;
     try {
-      await jsonDocumentsRepository.remove(doc.id);
+      await removeJsonDocument(doc.id);
       notify.success(`Deleted "${doc.name}"`);
     } catch (error) {
       notify.error(toUserMessage(error));
@@ -136,7 +136,7 @@ export function SaveDocumentDialog({
   const save = async (asNew: boolean) => {
     setSaving(true);
     try {
-      const doc = await jsonDocumentsRepository.save({
+      const doc = await saveJsonDocument({
         ...(current && !asNew ? { id: current.id } : {}),
         name,
         content,

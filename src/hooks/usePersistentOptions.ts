@@ -3,17 +3,18 @@ import { safeJsonParse } from '@/core/security/safeJsonParse';
 
 const PREFIX = 'devstudio:options:';
 
-function load<T extends Record<string, unknown>>(key: string, defaults: T): T {
+function load<T extends object>(key: string, defaults: T): T {
   try {
     const raw = window.localStorage.getItem(PREFIX + key);
     if (!raw) return defaults;
     const parsed = safeJsonParse(raw);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return defaults;
     const stored = parsed as Record<string, unknown>;
-    const out: Record<string, unknown> = { ...defaults };
+    const base = defaults as Record<string, unknown>;
+    const out: Record<string, unknown> = { ...base };
     // Only accept known keys whose type matches the default.
-    for (const k of Object.keys(defaults)) {
-      if (k in stored && typeof stored[k] === typeof defaults[k]) out[k] = stored[k];
+    for (const k of Object.keys(base)) {
+      if (k in stored && typeof stored[k] === typeof base[k]) out[k] = stored[k];
     }
     return out as T;
   } catch {
@@ -25,7 +26,7 @@ function load<T extends Record<string, unknown>>(key: string, defaults: T): T {
  * Small per-tool options object remembered in localStorage (a per-browser
  * convenience; invalid or unknown stored fields fall back to defaults).
  */
-export function usePersistentOptions<T extends Record<string, unknown>>(key: string, defaults: T) {
+export function usePersistentOptions<T extends object>(key: string, defaults: T) {
   const [options, setOptions] = useState<T>(() => load(key, defaults));
   const update = useCallback(
     (patch: Partial<T>) => {

@@ -3,9 +3,9 @@ import { useMemo } from 'react';
 import { CSV_FILE_RULES } from '@/core/files/fileValidation';
 import { SAMPLE_USERS_CSV } from '@/core/json/samples';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
-import { OptionsBar, SelectOption, SwitchOption } from '../components/OptionControls';
+import { OptionsBar, SelectOption, SwitchOption } from '@/components/workspace/OptionControls';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 const DELIMITERS = [
   { value: '', label: 'Auto-detect' },
@@ -16,7 +16,7 @@ const DELIMITERS = [
 ] as const;
 
 export default function JsonFromCsvPage() {
-  const csv = useJsonStudioStore((s) => s.csv);
+  const csv = useJsonWorkspaceStore((s) => s.csv);
   const [opts, setOpts] = usePersistentOptions('json.from-csv', {
     delimiter: '',
     header: true,

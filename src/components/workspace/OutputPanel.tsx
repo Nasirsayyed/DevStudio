@@ -5,7 +5,7 @@ import { CodeEditor, CopyButton, EmptyState, Kbd, Panel, useNotify } from '@/com
 import { DownloadButton } from '@/components/inputs/DownloadButton';
 import { ParseError, toUserMessage } from '@/core/errors/AppError';
 import { formatBytes } from '@/core/format/bytes';
-import type { OperationState } from '../hooks/useJsonOperation';
+import type { OperationState } from '@/hooks/useTaskOperation';
 
 export interface OutputPanelProps<T> {
   title?: string;
@@ -18,6 +18,12 @@ export interface OutputPanelProps<T> {
   /** Called after copy/download (history recording). */
   onExported?: (kind: 'copy' | 'download') => void;
   onUseAsInput?: (text: string) => void;
+  /** Label of the "use as input" action. */
+  useAsInputLabel?: string;
+  /** Override the user's word-wrap preference (generated code reads better unwrapped). */
+  wordWrap?: boolean;
+  /** Additional header actions (e.g. ZIP download). */
+  extraActions?: ReactNode;
   /** Extra chips (e.g. "Saved 42%"). */
   meta?: ReactNode;
   /** Non-blocking warnings rendered above the output. */
@@ -36,6 +42,9 @@ export function OutputPanel<T>({
   mimeType = 'application/json',
   onExported,
   onUseAsInput,
+  useAsInputLabel = 'Use output as input',
+  extraActions,
+  wordWrap,
   meta,
   warnings,
   emptyHint = 'Paste, type, drop or open JSON in the input to see the result here.',
@@ -76,12 +85,13 @@ export function OutputPanel<T>({
               </Button>
             </Tooltip>
           )}
+          {extraActions}
           {onUseAsInput && (
-            <Tooltip title="Use output as input">
+            <Tooltip title={useAsInputLabel}>
               <span>
                 <IconButton
                   size="small"
-                  aria-label="Use output as input"
+                  aria-label={useAsInputLabel}
                   disabled={!hasOutput}
                   onClick={() => {
                     if (text !== undefined) onUseAsInput(text);
@@ -165,7 +175,13 @@ export function OutputPanel<T>({
       ) : children !== undefined ? (
         children
       ) : hasOutput ? (
-        <CodeEditor value={text} language={language} readOnly ariaLabel={title} />
+        <CodeEditor
+          value={text}
+          language={language}
+          readOnly
+          ariaLabel={title}
+          wordWrap={wordWrap}
+        />
       ) : null}
     </Panel>
   );

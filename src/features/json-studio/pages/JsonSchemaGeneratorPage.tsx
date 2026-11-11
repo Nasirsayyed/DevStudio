@@ -5,13 +5,13 @@ import { useNavigate } from 'react-router';
 import type { SchemaDraftOption } from '@/core/json/schemaGenerator';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
-import { OptionsBar, SelectOption, SwitchOption } from '../components/OptionControls';
+import { OptionsBar, SelectOption, SwitchOption } from '@/components/workspace/OptionControls';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonSchemaGeneratorPage() {
-  const input = useJsonStudioStore((s) => s.input);
-  const setSecondary = useJsonStudioStore((s) => s.setSecondary);
+  const input = useJsonWorkspaceStore((s) => s.input);
+  const setSecondary = useJsonWorkspaceStore((s) => s.setSecondary);
   const navigate = useNavigate();
   const [opts, setOpts] = usePersistentOptions<{
     draft: SchemaDraftOption;

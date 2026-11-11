@@ -11,13 +11,13 @@ import type { PathSegment } from '@/core/json/types';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
 import { JsonToolLayout } from '../components/JsonToolLayout';
-import { OptionsBar, SelectOption, SwitchOption } from '../components/OptionControls';
-import { OperationStatusView } from '../components/StatusViews';
+import { OptionsBar, SelectOption, SwitchOption } from '@/components/workspace/OptionControls';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonSearchPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const [opts, setOpts] = usePersistentOptions<{
     scope: 'both' | 'keys' | 'values';
     mode: 'contains' | 'exact' | 'regex';

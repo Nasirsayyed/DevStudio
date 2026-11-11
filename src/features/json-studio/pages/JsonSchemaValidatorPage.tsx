@@ -7,11 +7,11 @@ import { SAMPLE_ORDER_JSON, SAMPLE_SCHEMA_JSON } from '@/core/json/samples';
 import type { SchemaValidationIssue, ValidatorDraft } from '@/core/json/schemaValidator';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
 import { DualInputLayout } from '../components/DualInputLayout';
-import { JsonInputPanel } from '../components/JsonInputPanel';
-import { OptionsBar, SelectOption } from '../components/OptionControls';
-import { OperationStatusView } from '../components/StatusViews';
+import { JsonInputPanel } from '@/components/workspace/JsonInputPanel';
+import { OptionsBar, SelectOption } from '@/components/workspace/OptionControls';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 const DRAFTS = [
   { value: 'auto', label: 'Auto ($schema)' },
@@ -30,10 +30,10 @@ function locationLabel(pointer: string): string {
 }
 
 export default function JsonSchemaValidatorPage() {
-  const data = useJsonStudioStore((s) => s.input);
-  const schema = useJsonStudioStore((s) => s.secondary);
-  const setData = useJsonStudioStore((s) => s.setInput);
-  const setSchema = useJsonStudioStore((s) => s.setSecondary);
+  const data = useJsonWorkspaceStore((s) => s.input);
+  const schema = useJsonWorkspaceStore((s) => s.secondary);
+  const setData = useJsonWorkspaceStore((s) => s.setInput);
+  const setSchema = useJsonWorkspaceStore((s) => s.setSecondary);
   const [opts, setOpts] = usePersistentOptions<{ draft: ValidatorDraft }>('json.schema-validator', {
     draft: 'auto',
   });

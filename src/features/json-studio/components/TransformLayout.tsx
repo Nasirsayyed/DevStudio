@@ -7,12 +7,12 @@ import type {
   JsonOperationOutput,
 } from '@/core/json/operations';
 import { requireTool } from '@/tools/toolRegistry';
-import { useHistoryRecorder } from '../hooks/useHistoryRecorder';
+import { useHistoryRecorder } from '@/hooks/useHistoryRecorder';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useDocumentFromUrl } from '../hooks/useDocumentFromUrl';
-import { useJsonStudioStore } from '../store';
-import { JsonInputPanel } from './JsonInputPanel';
-import { OutputPanel } from './OutputPanel';
+import { useJsonDocumentFromUrl } from '@/hooks/useJsonDocumentFromUrl';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
+import { JsonInputPanel } from '@/components/workspace/JsonInputPanel';
+import { OutputPanel } from '@/components/workspace/OutputPanel';
 
 export interface TransformLayoutProps<K extends JsonOperationName> {
   toolId: string;
@@ -27,7 +27,7 @@ export interface TransformLayoutProps<K extends JsonOperationName> {
   outputMeta?: (result: JsonOperationOutput<K>) => ReactNode;
   outputWarnings?: (result: JsonOperationOutput<K>) => ReactNode;
   /** Options recorded in history with copy/download. */
-  historyOptions?: Record<string, unknown>;
+  historyOptions?: object;
   sample?: string;
   /** Input source: the shared JSON document (default) or the CSV input. */
   inputKind?: 'json' | 'csv';
@@ -55,12 +55,12 @@ export function TransformLayout<K extends JsonOperationName>({
   canReuseOutput = true,
 }: TransformLayoutProps<K>) {
   const tool = requireTool(toolId);
-  useDocumentFromUrl();
-  const json = useJsonStudioStore((s) => s.input);
-  const csv = useJsonStudioStore((s) => s.csv);
-  const setJson = useJsonStudioStore((s) => s.setInput);
-  const setCsv = useJsonStudioStore((s) => s.setCsv);
-  const loadDocument = useJsonStudioStore((s) => s.loadDocument);
+  useJsonDocumentFromUrl();
+  const json = useJsonWorkspaceStore((s) => s.input);
+  const csv = useJsonWorkspaceStore((s) => s.csv);
+  const setJson = useJsonWorkspaceStore((s) => s.setInput);
+  const setCsv = useJsonWorkspaceStore((s) => s.setCsv);
+  const loadDocument = useJsonWorkspaceStore((s) => s.loadDocument);
   const input = inputKind === 'csv' ? csv : json;
   const state = useJsonOperation(op, payload);
   const record = useHistoryRecorder(toolId);

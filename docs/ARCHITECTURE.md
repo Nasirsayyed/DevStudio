@@ -122,6 +122,7 @@ the build's source maps).
   exactly as `editor.main` does, but **without its ~80 languages and the LSP client**. Importing only
   `editor.api` leaves some contributions without their services (runtime "UNKNOWN service" errors).
   Regenerate this list when upgrading Monaco.
+- Syntax highlighting is registered for C#, TypeScript, Java, Python, SQL, XML, YAML, Markdown and HTML (Monarch tokenizers, loaded lazily per language).
 - Workers (`editor.worker`, `json.worker`) are bundled with Vite's `?worker` imports.
 - Monaco's own JSON diagnostics are disabled. DevStudio's analyzer (`core/json/parse.ts`) is the
   single source of error markers, so messages and positions match the status bar and error panels.
@@ -174,6 +175,38 @@ features (useJsonOperation) ──► services/workers/jsonTasks ──► creat
   the main thread, and later tasks skip the worker path.
 - **Auto vs. manual**: inputs up to 1 MB re-run automatically (debounced 250 ms). Larger inputs run
   on demand (Run button or `Ctrl/⌘+Enter`) so typing never triggers repeated multi-MB processing.
+
+## Shared workspace (used by JSON Studio and Code Generators)
+
+| Piece                                                                                       | Location                       | Purpose                                                                                                   |
+| ------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `useJsonWorkspaceStore`                                                                     | `stores/jsonWorkspaceStore.ts` | The shared working document (`input`, `secondary`, `csv`, `xml`, open document) and its draft persistence |
+| `useTaskOperation(key, execute, payload)`                                                   | `hooks/useTaskOperation.ts`    | Debounced auto-run / manual run, cancellation, stale-result protection, for **any** task runner           |
+| `useJsonDocumentFromUrl`, `useJsonDocuments`, `useHistoryRecorder`                          | `hooks/`                       | `?document=` deep links, saved-document storage access, tool history                                      |
+| `JsonInputPanel`, `OutputPanel`, `OperationStatusView`, `DocumentDialogs`, `OptionControls` | `components/workspace/`        | Reusable input/output panels and option controls                                                          |
+
+Each feature wraps `useTaskOperation` with its own runner (`useJsonOperation` → `jsonTasks`,
+`useCodegenOperation` → `codegenTasks`), so there is one implementation of run, debounce and cancel.
+
+## Code generation
+
+```
+JSON ─► core/codegen/model.inferTypeModel ─► TypeModel ─┬─► emitters/csharp.ts
+          (types, formats, nullability, optional,       ├─► emitters/typescript.ts
+           unions, dictionaries, merged classes,        ├─► emitters/java.ts
+           unique names)                                ├─► emitters/python.ts
+                                                        └─► emitters/sqlTable.ts
+```
+
+- One inference implementation feeds five emitters. Each emitter only maps model types to its
+  language, applying naming rules (reserved words, uniqueness, case) and options.
+- `classesFromRoot` gives reading order (C#, TS, Java). `classesDependencyFirst` gives definition
+  order (Python).
+- Emitters return `{ code, files, notes }`. `files` enables ZIP export (JSZip, loaded on demand).
+- XML ⇄ JSON (`core/converters/xml.ts`) uses fast-xml-parser, fast-xml-validator and
+  fast-xml-builder. DTD entity declarations are rejected and entity expansion is bounded.
+- `workers/codegen.worker.ts` + `services/workers/codegenTasks.ts` run generators off the main thread
+  for large inputs.
 
 ## JSON Studio feature structure
 

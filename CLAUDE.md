@@ -52,6 +52,14 @@ security headers or anything user-visible across pages.
 - Errors shown to users: throw or convert to `AppError` subclasses; display with `toUserMessage()`.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
 
+## Shared workspace
+
+- JSON-based tools share `useJsonWorkspaceStore` (document, drafts) and the panels in
+  `components/workspace/`. Don't create feature-local copies of them.
+- Run operations with `useTaskOperation(key, (p, o) => runner.run(op, p, o), payload)`, wrapped per
+  feature (see `useJsonOperation`, `useCodegenOperation`). Memoize `payload`; `null` means idle.
+- New code generators map `core/codegen/model.ts` types; never re-infer types in an emitter.
+
 ## Heavy code and bundles
 
 - Import `JsonViewer`, `DataGrid`, `FileDropZone`/`UploadButton`, `DownloadButton` and `EChart` **by

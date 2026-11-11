@@ -6,10 +6,10 @@ import { db } from '@/services/db/database';
 import { renderApp, resetAppState, setEditorText } from '@/test/renderApp';
 import {
   DRAFT_SETTING_KEY,
-  hydrateJsonStudioDraft,
-  resetJsonStudioState,
-  useJsonStudioStore,
-} from '../store';
+  hydrateJsonWorkspaceDraft,
+  resetJsonWorkspaceState,
+  useJsonWorkspaceStore,
+} from '@/stores/jsonWorkspaceStore';
 
 vi.mock('file-saver', () => ({ saveAs: vi.fn() }));
 
@@ -132,7 +132,7 @@ describe('saved documents', () => {
     expect(screen.getByRole('textbox', { name: 'Input' })).toHaveValue('{ "doc": 1 }');
 
     // Deep link used by the dashboard and command palette
-    useJsonStudioStore.setState({ input: '', document: null });
+    useJsonWorkspaceStore.setState({ input: '', document: null });
     await router.navigate(`/json/formatter?document=${saved!.id}`);
     await waitFor(() => {
       expect(screen.getByRole('textbox', { name: 'Input' })).toHaveValue('{ "doc": 1 }');
@@ -262,7 +262,7 @@ describe('transform tools', () => {
     });
     expect(screen.getByText(/Row 3: Too few fields/)).toBeInTheDocument();
     // The CSV input does not overwrite the shared JSON document.
-    expect(useJsonStudioStore.getState().input).toBe('');
+    expect(useJsonWorkspaceStore.getState().input).toBe('');
   });
 });
 
@@ -272,7 +272,7 @@ describe('large inputs and drafts', () => {
       Array.from({ length: 40_000 }, (_, i) => ({ id: i, name: `item ${i}` })),
     );
     expect(big.length).toBeGreaterThan(1_000_000);
-    useJsonStudioStore.setState({ input: big });
+    useJsonWorkspaceStore.setState({ input: big });
     const { user } = renderApp('/json/minifier');
     expect(await screen.findByText('Large input')).toBeInTheDocument();
     // Both the header and the empty state offer Run.
@@ -287,9 +287,9 @@ describe('large inputs and drafts', () => {
   });
 
   it('saves edits made while the draft is still loading', async () => {
-    const pending = hydrateJsonStudioDraft();
+    const pending = hydrateJsonWorkspaceDraft();
     // The user types before the IndexedDB read has completed.
-    useJsonStudioStore.getState().setInput('{"early":true}');
+    useJsonWorkspaceStore.getState().setInput('{"early":true}');
     await pending;
     await waitFor(
       async () => {
@@ -318,8 +318,8 @@ describe('large inputs and drafts', () => {
     );
     unmount();
     // Simulate a reload: memory is cleared, IndexedDB is kept.
-    resetJsonStudioState();
-    await hydrateJsonStudioDraft();
-    expect(useJsonStudioStore.getState().input).toBe('{"draft":true}');
+    resetJsonWorkspaceState();
+    await hydrateJsonWorkspaceDraft();
+    expect(useJsonWorkspaceStore.getState().input).toBe('{"draft":true}');
   });
 });

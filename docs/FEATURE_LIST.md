@@ -82,6 +82,33 @@ Cross-cutting:
 - Copy and Download record a tool-history entry (shown in the Phase 11 History page).
 - Tool options and pane sizes are remembered per tool.
 
+## Code Generators (✅ Phase 5)
+
+All generators read the **same JSON document** as JSON Studio (open/save/drafts included) and share
+one language-neutral type model, so every language sees the same types:
+
+- type inference across samples: int vs long, decimals with scale, booleans;
+- ISO date-time/date and UUID detection;
+- nullable and optional properties;
+- unions for mixed types;
+- dictionaries for objects keyed by ids or dates;
+- identical structures merged into one class;
+- name clashes resolved (`Item` → `OrderItem`).
+
+| Generator         | Highlights                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSON → C#         | Nullable reference types (`#nullable enable`, `string?`) and nullable value types (`int?`), `List<T>` / `IReadOnlyList<T>` / `T[]`, nested classes, `Dictionary<string, T>`, `[JsonPropertyName]` (System.Text.Json) or `[JsonProperty]` (Newtonsoft), always or only when names differ, PascalCase with unique and valid names, custom root class, namespace (file-scoped or block), automatic `using`s, class or record, `required` members, `double`/`decimal`, `DateTime`/`DateTimeOffset`/`string`, `Guid`; ZIP with one file per class |
+| JSON → TypeScript | `interface` or `type`, optional `?` vs `\| null`, quoted non-identifier keys, `Record<string, T>`, unions, `readonly`, `T[]`/`Array<T>`, optional `Date`                                                                                                                                                                                                                                                                                                                                                                                     |
+| JSON → Java       | Class with getters/setters, record (Java 16+) or Lombok; Jackson `@JsonProperty`; boxed types for nullable values; `java.time` and `UUID`; keyword escaping; one file with nested classes, or a ZIP with a package folder structure                                                                                                                                                                                                                                                                                                          |
+| JSON → Python     | dataclasses (dependencies first, defaults last), Pydantic v2 (aliases + `populate_by_name`), TypedDict (functional syntax for non-identifier keys, `NotRequired`), `datetime`/`UUID`                                                                                                                                                                                                                                                                                                                                                         |
+| JSON → SQL table  | SQL Server, PostgreSQL, MySQL, SQLite; primary key detection or surrogate identity; nested objects flattened or JSON columns; arrays as child tables with foreign keys (`ON DELETE CASCADE`) or JSON; lengths and precision inferred from data; reserved-word quoting; optional escaped INSERTs                                                                                                                                                                                                                                              |
+| JSON → XML        | Single-key root detection, array wrapping, attributes via prefix, escaping, invalid names renamed and reported                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| XML → JSON        | Attributes, text nodes, repeated elements, typed values, "always arrays"; syntax errors with line/column; entity-expansion protection; "Use as JSON document"                                                                                                                                                                                                                                                                                                                                                                                |
+| JSON → CSV        | Alias of JSON Studio's JSON → CSV (one implementation)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+
+All generators run in a background worker for large inputs. Their output has Monaco syntax
+highlighting (C#, TypeScript, Java, Python, SQL, XML), copy, download and history recording.
+
 ## Modules
 
 70 tools are registered, searchable and favoritable now. Their pages show their delivery phase.

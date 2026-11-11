@@ -8,9 +8,9 @@ import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import type { JsonValue, PathSegment } from '@/core/json/types';
 import { fontFamilies } from '@/theme/tokens';
 import { JsonToolLayout } from '../components/JsonToolLayout';
-import { OperationStatusView } from '../components/StatusViews';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 function PathRow({ label, value }: { label: string; value: string }) {
   return (
@@ -78,7 +78,7 @@ function SelectionDetails({ root, path }: { root: JsonValue; path: PathSegment[]
 }
 
 export default function JsonPathFinderPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const payload = useMemo(() => (input.trim() ? { text: input } : null), [input]);
   const state = useJsonOperation('parse', payload);
   const [selected, setSelected] = useState<PathSegment[] | null>(null);

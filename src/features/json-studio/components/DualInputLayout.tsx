@@ -2,7 +2,7 @@ import { Box, useMediaQuery, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
 import { SplitPane, ToolWorkspace } from '@/components';
 import { requireTool } from '@/tools/toolRegistry';
-import { useDocumentFromUrl } from '../hooks/useDocumentFromUrl';
+import { useJsonDocumentFromUrl } from '@/hooks/useJsonDocumentFromUrl';
 
 /** Two inputs side by side on top, results underneath. */
 export function DualInputLayout({
@@ -19,7 +19,7 @@ export function DualInputLayout({
   results: ReactNode;
 }) {
   const tool = requireTool(toolId);
-  useDocumentFromUrl();
+  useJsonDocumentFromUrl();
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'), { noSsr: true });
   return (

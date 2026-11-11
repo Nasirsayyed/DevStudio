@@ -2,13 +2,13 @@ import { useMemo } from 'react';
 import type { IndentOption } from '@/core/json/format';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
-import { OptionsBar, SelectOption, SwitchOption } from '../components/OptionControls';
-import { INDENT_OPTIONS } from '../components/optionValues';
+import { OptionsBar, SelectOption, SwitchOption } from '@/components/workspace/OptionControls';
+import { INDENT_OPTIONS } from '@/components/workspace/optionValues';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonSortKeysPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const [opts, setOpts] = usePersistentOptions<{
     direction: 'asc' | 'desc';
     natural: boolean;

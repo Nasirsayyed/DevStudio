@@ -29,10 +29,10 @@ the `count` index instead of aggregating the whole history.
 
 ### Settings keys
 
-| Key                     | Value                                                                                                                             | Validation                                |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| `dashboard.quickAccess` | `string[]` of tool ids (max 9, ordered, maps to Alt+1…9)                                                                          | Zod; unknown tool ids are dropped on read |
-| `jsonStudio.draft`      | `{ input, secondary, csv, document: {id,name} \| null }`, the JSON Studio working draft (fields above 5 M chars are stored empty) | Zod; invalid drafts are ignored           |
+| Key                     | Value                                                                                                                                                                                                                          | Validation                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| `dashboard.quickAccess` | `string[]` of tool ids (max 9, ordered, maps to Alt+1…9)                                                                                                                                                                       | Zod; unknown tool ids are dropped on read |
+| `jsonStudio.draft`      | `{ input, secondary, csv, xml, document: {id,name} \| null }`, the shared JSON workspace draft (JSON Studio and Code Generators; `xml` added in v0.3 and defaulted for older drafts) (fields above 5 M chars are stored empty) | Zod; invalid drafts are ignored           |
 
 ## Repositories
 

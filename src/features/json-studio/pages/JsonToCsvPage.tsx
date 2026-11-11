@@ -2,9 +2,9 @@ import { Chip } from '@mui/material';
 import { useMemo } from 'react';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
-import { OptionsBar, SelectOption, SwitchOption } from '../components/OptionControls';
+import { OptionsBar, SelectOption, SwitchOption } from '@/components/workspace/OptionControls';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 const DELIMITERS = [
   { value: ',', label: 'Comma (,)' },
@@ -16,7 +16,7 @@ const DELIMITERS = [
 const SAMPLE = `[\n  ${JSON.stringify((JSON.parse(SAMPLE_ORDER_JSON) as { items: unknown[] }).items[0])},\n  ${JSON.stringify((JSON.parse(SAMPLE_ORDER_JSON) as { items: unknown[] }).items[1])}\n]`;
 
 export default function JsonToCsvPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const [opts, setOpts] = usePersistentOptions<{
     delimiter: string;
     header: boolean;

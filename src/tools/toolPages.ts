@@ -25,6 +25,14 @@ export const TOOL_PAGES: Readonly<Partial<Record<string, ToolPageLoader>>> = {
   'json.sort-keys': () => import('@/features/json-studio/pages/JsonSortKeysPage'),
   'json.to-csv': () => import('@/features/json-studio/pages/JsonToCsvPage'),
   'json.from-csv': () => import('@/features/json-studio/pages/JsonFromCsvPage'),
+  // Code Generators (Phase 5) — "codegen.json-to-csv" is an alias of json.to-csv.
+  'codegen.csharp': () => import('@/features/code-generators/pages/CSharpGeneratorPage'),
+  'codegen.typescript': () => import('@/features/code-generators/pages/TypeScriptGeneratorPage'),
+  'codegen.java': () => import('@/features/code-generators/pages/JavaGeneratorPage'),
+  'codegen.python': () => import('@/features/code-generators/pages/PythonGeneratorPage'),
+  'codegen.sql-table': () => import('@/features/code-generators/pages/SqlTableGeneratorPage'),
+  'codegen.json-to-xml': () => import('@/features/code-generators/pages/JsonToXmlPage'),
+  'codegen.xml-to-json': () => import('@/features/code-generators/pages/XmlToJsonPage'),
 };
 
 export function getToolPageLoader(toolId: string): ToolPageLoader | undefined {

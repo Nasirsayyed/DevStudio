@@ -2,12 +2,12 @@ import { TextField } from '@mui/material';
 import { useMemo } from 'react';
 import { SAMPLE_FLAT_JSON } from '@/core/json/samples';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
-import { OptionsBar, SwitchOption } from '../components/OptionControls';
+import { OptionsBar, SwitchOption } from '@/components/workspace/OptionControls';
 import { TransformLayout } from '../components/TransformLayout';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 export default function JsonUnflattenPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const [opts, setOpts] = usePersistentOptions('json.unflatten', {
     delimiter: '.',
     detectArrays: true,

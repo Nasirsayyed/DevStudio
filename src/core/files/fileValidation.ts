@@ -17,6 +17,22 @@ export const JSON_FILE_RULES: FileRules = {
   extensions: ['.json', '.txt', '.geojson', '.har', '.map'],
   maxBytes: 50 * 1024 * 1024,
 };
+export const XML_FILE_RULES: FileRules = {
+  extensions: [
+    '.xml',
+    '.txt',
+    '.svg',
+    '.rss',
+    '.atom',
+    '.xsd',
+    '.wsdl',
+    '.config',
+    '.csproj',
+    '.xaml',
+    '.plist',
+  ],
+  maxBytes: 50 * 1024 * 1024,
+};
 export const CSV_FILE_RULES: FileRules = {
   extensions: ['.csv', '.tsv', '.txt'],
   maxBytes: 50 * 1024 * 1024,

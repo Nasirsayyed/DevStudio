@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–4 delivered (v0.2.0).** Next: Phase 5 (Code Generators).
+Status: **Approved. Phases 1–5 delivered (v0.3.0).** Next: Phase 6 (Developer Utilities).
 Date: 2026-11-11
 
 ---
@@ -408,3 +408,4 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 | 2. Scaffold            | Vite 8 / React 19 / TS 6 strict, ESLint layer rules, Prettier, Vitest, Playwright, CI, Dexie schema v1, preferences service                                                            |
 | 3. Shell and dashboard | Sidebar, top bar, routing, themes, command palette, shortcuts, dashboard, favorites, settings. 115 unit/component and 7 e2e tests passing                                              |
 | 4. JSON Studio         | 16 tools, Monaco (self-hosted, CSP-safe), worker pool with cancellation, virtualized tree and grid, saved documents, drafts, tool history. 275 unit/component and 13 e2e tests passing |
+| 5. Code Generators     | One type model, five emitters (C#, TS, Java, Python, SQL), XML ⇄ JSON, ZIP export, worker; shared workspace refactor. 346 unit/component and 16 e2e tests passing                      |

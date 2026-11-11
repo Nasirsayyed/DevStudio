@@ -8,11 +8,11 @@ import { SAMPLE_ORDER_JSON, SAMPLE_ORDER_JSON_V2 } from '@/core/json/samples';
 import { previewValue } from '@/core/json/search';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
 import { DualInputLayout } from '../components/DualInputLayout';
-import { JsonInputPanel } from '../components/JsonInputPanel';
-import { OptionsBar, SelectOption, SwitchOption } from '../components/OptionControls';
-import { OperationStatusView } from '../components/StatusViews';
+import { JsonInputPanel } from '@/components/workspace/JsonInputPanel';
+import { OptionsBar, SelectOption, SwitchOption } from '@/components/workspace/OptionControls';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 const KIND_META: Record<
   DiffKind,
@@ -25,10 +25,10 @@ const KIND_META: Record<
 };
 
 export default function JsonComparePage() {
-  const left = useJsonStudioStore((s) => s.input);
-  const right = useJsonStudioStore((s) => s.secondary);
-  const setLeft = useJsonStudioStore((s) => s.setInput);
-  const setRight = useJsonStudioStore((s) => s.setSecondary);
+  const left = useJsonWorkspaceStore((s) => s.input);
+  const right = useJsonWorkspaceStore((s) => s.secondary);
+  const setLeft = useJsonWorkspaceStore((s) => s.setInput);
+  const setRight = useJsonWorkspaceStore((s) => s.setSecondary);
   const [opts, setOpts] = usePersistentOptions<{
     arrayMode: 'index' | 'unordered';
     normalize: boolean;

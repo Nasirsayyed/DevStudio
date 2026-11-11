@@ -3,24 +3,24 @@ import { useSearchParams } from 'react-router';
 import { useNotify } from '@/components';
 import { toUserMessage } from '@/core/errors/AppError';
 import { jsonDocumentsRepository } from '@/services/db/repositories';
-import { hydrateJsonStudioDraft, useJsonStudioStore } from '../store';
+import { hydrateJsonWorkspaceDraft, useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 /** Opens `?document=<id>` (links from the dashboard and command palette), then removes the param. */
-export function useDocumentFromUrl(): void {
+export function useJsonDocumentFromUrl(): void {
   const [params, setParams] = useSearchParams();
-  const loadDocument = useJsonStudioStore((s) => s.loadDocument);
+  const loadDocument = useJsonWorkspaceStore((s) => s.loadDocument);
   const notify = useNotify();
   const id = params.get('document');
 
   useEffect(() => {
-    void hydrateJsonStudioDraft();
+    void hydrateJsonWorkspaceDraft();
   }, []);
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
     // Wait for the draft first so it cannot overwrite the requested document.
-    hydrateJsonStudioDraft()
+    hydrateJsonWorkspaceDraft()
       .then(() => jsonDocumentsRepository.get(id))
       .then((doc) => {
         if (cancelled) return;

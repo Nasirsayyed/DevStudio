@@ -12,11 +12,11 @@ import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';
 import { fontFamilies } from '@/theme/tokens';
 import { JsonToolLayout } from '../components/JsonToolLayout';
-import { OptionsBar } from '../components/OptionControls';
-import { OperationStatusView } from '../components/StatusViews';
-import { useHistoryRecorder } from '../hooks/useHistoryRecorder';
+import { OptionsBar } from '@/components/workspace/OptionControls';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
+import { useHistoryRecorder } from '@/hooks/useHistoryRecorder';
 import { parseErrorFor, useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 const EXAMPLES = [
   '$.items[*].name',
@@ -27,7 +27,7 @@ const EXAMPLES = [
 ];
 
 export default function JsonPathTesterPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const [opts, setOpts] = usePersistentOptions('json.jsonpath', { expression: '$.items[*].name' });
   const expression = useDebouncedValue(opts.expression, 200);
   const payload = useMemo(

@@ -19,24 +19,29 @@ interface JsonStudioState {
   secondary: string;
   /** CSV input of the CSV → JSON tool. */
   csv: string;
+  /** XML input of the XML → JSON tool. */
+  xml: string;
   /** Saved document currently loaded in `input`, if any. */
   document: OpenDocument | null;
   setInput: (input: string) => void;
   setSecondary: (secondary: string) => void;
   setCsv: (csv: string) => void;
+  setXml: (xml: string) => void;
   /** Replaces the input with a saved document (or plain text when doc is null). */
   loadDocument: (content: string, doc: OpenDocument | null) => void;
   setDocument: (doc: OpenDocument | null) => void;
 }
 
-export const useJsonStudioStore = create<JsonStudioState>()((set) => ({
+export const useJsonWorkspaceStore = create<JsonStudioState>()((set) => ({
   input: '',
   secondary: '',
   csv: '',
+  xml: '',
   document: null,
   setInput: (input) => set({ input }),
   setSecondary: (secondary) => set({ secondary }),
   setCsv: (csv) => set({ csv }),
+  setXml: (xml) => set({ xml }),
   loadDocument: (content, document) => set({ input: content, document }),
   setDocument: (document) => set({ document }),
 }));
@@ -54,11 +59,13 @@ const draftSchema = z.object({
   input: z.string(),
   secondary: z.string(),
   csv: z.string(),
+  // Added in v0.3; older drafts don't have it.
+  xml: z.string().default(''),
   document: z.object({ id: z.string(), name: z.string() }).nullable(),
 });
 type Draft = z.infer<typeof draftSchema>;
 
-const EMPTY_DRAFT: Draft = { input: '', secondary: '', csv: '', document: null };
+const EMPTY_DRAFT: Draft = { input: '', secondary: '', csv: '', xml: '', document: null };
 
 let hydration: Promise<void> | null = null;
 let hydrated = false;
@@ -73,12 +80,13 @@ function fit(text: string): string {
 function saveDraftSoon(): void {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    const { input, secondary, csv, document } = useJsonStudioStore.getState();
+    const { input, secondary, csv, xml, document } = useJsonWorkspaceStore.getState();
     settingsRepository
       .set(DRAFT_SETTING_KEY, {
         input: fit(input),
         secondary: fit(secondary),
         csv: fit(csv),
+        xml: fit(xml),
         document,
       })
       .catch((error: unknown) => {
@@ -92,12 +100,13 @@ function saveDraftSoon(): void {
  * never overwrites newer work) and saves changes, debounced. Changes made
  * while the draft is still loading are saved once loading completes.
  */
-export function hydrateJsonStudioDraft(): Promise<void> {
-  unsubscribe ??= useJsonStudioStore.subscribe((state, prev) => {
+export function hydrateJsonWorkspaceDraft(): Promise<void> {
+  unsubscribe ??= useJsonWorkspaceStore.subscribe((state, prev) => {
     if (
       state.input === prev.input &&
       state.secondary === prev.secondary &&
       state.csv === prev.csv &&
+      state.xml === prev.xml &&
       state.document === prev.document
     )
       return;
@@ -107,11 +116,12 @@ export function hydrateJsonStudioDraft(): Promise<void> {
   hydration ??= settingsRepository
     .get(DRAFT_SETTING_KEY, draftSchema, EMPTY_DRAFT)
     .then((draft) => {
-      const s = useJsonStudioStore.getState();
-      useJsonStudioStore.setState({
+      const s = useJsonWorkspaceStore.getState();
+      useJsonWorkspaceStore.setState({
         input: s.input || draft.input,
         secondary: s.secondary || draft.secondary,
         csv: s.csv || draft.csv,
+        xml: s.xml || draft.xml,
         document: s.input ? s.document : draft.document,
       });
     })
@@ -129,12 +139,12 @@ export function hydrateJsonStudioDraft(): Promise<void> {
 }
 
 /** Test helper: forget hydration state, pending saves and in-memory inputs. */
-export function resetJsonStudioState(): void {
+export function resetJsonWorkspaceState(): void {
   unsubscribe?.();
   unsubscribe = null;
   hydration = null;
   hydrated = false;
   pendingSave = false;
   clearTimeout(saveTimer);
-  useJsonStudioStore.setState({ input: '', secondary: '', csv: '', document: null });
+  useJsonWorkspaceStore.setState({ input: '', secondary: '', csv: '', xml: '', document: null });
 }

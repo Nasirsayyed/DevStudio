@@ -20,9 +20,9 @@ import { toJsonPath } from '@/core/json/path';
 import { SAMPLE_ORDER_JSON } from '@/core/json/samples';
 import { fontFamilies } from '@/theme/tokens';
 import { JsonToolLayout } from '../components/JsonToolLayout';
-import { OperationStatusView } from '../components/StatusViews';
+import { OperationStatusView } from '@/components/workspace/OperationStatusView';
 import { useJsonOperation } from '../hooks/useJsonOperation';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 function ErrorContext({ text, line, column }: { text: string; line: number; column: number }) {
   const lines = text.split('\n');
@@ -64,7 +64,7 @@ const STAT_LABELS: [keyof JsonAnalysis['stats'], string][] = [
 ];
 
 export default function JsonValidatorPage() {
-  const input = useJsonStudioStore((s) => s.input);
+  const input = useJsonWorkspaceStore((s) => s.input);
   const payload = useMemo(() => (input.length ? { text: input } : null), [input]);
   const state = useJsonOperation('analyze', payload);
   const [reveal, setReveal] = useState<RevealRequest | null>(null);

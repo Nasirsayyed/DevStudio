@@ -4,6 +4,37 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-11-11
+
+Code Generators (roadmap Phase 5).
+
+### Added
+
+- JSON → C#: nullable reference/value types, lists, nested classes, dictionaries,
+  `JsonPropertyName`/`JsonProperty`, PascalCase, root class name, namespace (file-scoped or block),
+  automatic usings, class/record, `required` members, decimal/DateTimeOffset/Guid options, and a
+  ZIP with one file per class.
+- JSON → TypeScript, Java (class/record/Lombok, Jackson), Python (dataclass/Pydantic v2/TypedDict)
+  and SQL tables (SQL Server/PostgreSQL/MySQL/SQLite, keys, child tables with foreign keys,
+  JSON columns, INSERTs).
+- JSON → XML and XML → JSON, with syntax errors located and entity-expansion protection.
+- One language-neutral type model shared by all generators (formats, nullability, optional,
+  unions, dictionaries, merged identical classes, unique valid names).
+- Code-generation worker; ZIP export (JSZip, loaded on demand); Monaco syntax highlighting for C#,
+  TypeScript, Java, Python, SQL, XML, YAML, Markdown and HTML.
+
+### Changed
+
+- Shared workspace: the JSON document store, drafts, input/output panels, document dialogs and the
+  operation hook moved from JSON Studio to shared layers, so generators reuse them. JSON Studio and
+  the generators work on the same document.
+- `useTaskOperation` is generic over any task runner.
+- Generated code is shown without word wrap.
+
+### Security
+
+- `fast-xml-parser` 5.12.0 (fixes GHSA-474x-hrwr-fgx4); XML DTD entity declarations are rejected.
+
 ## [0.2.0] - 2026-11-11
 
 JSON Studio (roadmap Phase 4).

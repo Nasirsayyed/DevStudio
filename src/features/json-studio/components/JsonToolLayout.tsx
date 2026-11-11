@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 import { type EditorMarker, type RevealRequest, SplitPane, ToolWorkspace } from '@/components';
 import type { ParseError } from '@/core/errors/AppError';
 import { requireTool } from '@/tools/toolRegistry';
-import { useDocumentFromUrl } from '../hooks/useDocumentFromUrl';
-import { useJsonStudioStore } from '../store';
-import { JsonInputPanel } from './JsonInputPanel';
+import { useJsonDocumentFromUrl } from '@/hooks/useJsonDocumentFromUrl';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
+import { JsonInputPanel } from '@/components/workspace/JsonInputPanel';
 
 export interface JsonToolLayoutProps {
   toolId: string;
@@ -32,9 +32,9 @@ export function JsonToolLayout({
   children,
 }: JsonToolLayoutProps) {
   const tool = requireTool(toolId);
-  useDocumentFromUrl();
-  const input = useJsonStudioStore((s) => s.input);
-  const setInput = useJsonStudioStore((s) => s.setInput);
+  useJsonDocumentFromUrl();
+  const input = useJsonWorkspaceStore((s) => s.input);
+  const setInput = useJsonWorkspaceStore((s) => s.setInput);
   return (
     <ToolWorkspace tool={tool} toolbar={toolbar}>
       <SplitPane

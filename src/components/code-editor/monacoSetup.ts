@@ -8,6 +8,16 @@ import * as monaco from './monacoEditorCore';
 import EditorWorker from 'monaco-editor/editor/editor.worker.js?worker';
 import JsonWorker from 'monaco-editor/language/json/json.worker.js?worker';
 import { jsonDefaults } from 'monaco-editor/languages/features/json/register.js';
+// Syntax highlighting (Monarch tokenizers, loaded lazily per language).
+import 'monaco-editor/languages/definitions/csharp/register.js';
+import 'monaco-editor/languages/definitions/typescript/register.js';
+import 'monaco-editor/languages/definitions/java/register.js';
+import 'monaco-editor/languages/definitions/python/register.js';
+import 'monaco-editor/languages/definitions/sql/register.js';
+import 'monaco-editor/languages/definitions/xml/register.js';
+import 'monaco-editor/languages/definitions/yaml/register.js';
+import 'monaco-editor/languages/definitions/markdown/register.js';
+import 'monaco-editor/languages/definitions/html/register.js';
 import { type ColorTokens, darkColors, lightColors } from '@/theme/tokens';
 
 interface MonacoEnvironmentScope {

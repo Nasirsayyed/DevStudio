@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { SAMPLE_ORDER_JSON, SAMPLE_ORDER_JSON_V2, SAMPLE_SCHEMA_JSON } from '@/core/json/samples';
 import { renderApp, resetAppState, setEditorText } from '@/test/renderApp';
-import { useJsonStudioStore } from '../store';
+import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 
 beforeEach(async () => {
   await resetAppState();
@@ -48,7 +48,9 @@ describe('JSON Validator', () => {
 
 describe('JSON Tree Viewer', () => {
   it('renders an expandable, keyboard-navigable tree', async () => {
-    useJsonStudioStore.setState({ input: '{"user":{"name":"Ada","roles":["admin"]},"ok":true}' });
+    useJsonWorkspaceStore.setState({
+      input: '{"user":{"name":"Ada","roles":["admin"]},"ok":true}',
+    });
     const { user } = renderApp('/json/tree');
     const tree = await screen.findByRole('tree', { name: 'JSON tree' });
     // Expanded to depth 2 by default
@@ -73,7 +75,7 @@ describe('JSON Tree Viewer', () => {
   });
 
   it('highlights matching text', async () => {
-    useJsonStudioStore.setState({ input: '{"customer":"Ahmed"}' });
+    useJsonWorkspaceStore.setState({ input: '{"customer":"Ahmed"}' });
     const { user } = renderApp('/json/tree');
     await screen.findByRole('tree', { name: 'JSON tree' });
     await user.type(screen.getByRole('searchbox', { name: 'Highlight in tree' }), 'hme');
@@ -85,7 +87,7 @@ describe('JSON Tree Viewer', () => {
 
 describe('JSON Path Finder', () => {
   it('shows JSONPath, JS accessor and JSON Pointer for the selected node', async () => {
-    useJsonStudioStore.setState({ input: '{"items":[{"first name":"A"}]}' });
+    useJsonWorkspaceStore.setState({ input: '{"items":[{"first name":"A"}]}' });
     const { user } = renderApp('/json/path-finder');
     const tree = await screen.findByRole('tree', { name: 'JSON tree' });
     await user.click(screen.getByRole('button', { name: 'Expand all' }));
@@ -101,7 +103,7 @@ describe('JSON Path Finder', () => {
 
 describe('JSONPath Tester', () => {
   it('evaluates expressions (including filters) and shows matches', async () => {
-    useJsonStudioStore.setState({ input: SAMPLE_ORDER_JSON });
+    useJsonWorkspaceStore.setState({ input: SAMPLE_ORDER_JSON });
     const { user } = renderApp('/json/jsonpath');
     const grid = await screen.findByRole('grid', { name: 'JSONPath matches' });
     expect(grid).toHaveTextContent('$.items[0].name');
@@ -113,7 +115,7 @@ describe('JSONPath Tester', () => {
   });
 
   it('reports invalid expressions next to the field', async () => {
-    useJsonStudioStore.setState({ input: '{}' });
+    useJsonWorkspaceStore.setState({ input: '{}' });
     const { user } = renderApp('/json/jsonpath');
     const field = await screen.findByRole('textbox', { name: 'JSONPath expression' });
     await user.clear(field);
@@ -126,7 +128,7 @@ describe('JSONPath Tester', () => {
 
 describe('JSON Search', () => {
   it('finds keys and values and reveals results in the tree', async () => {
-    useJsonStudioStore.setState({ input: SAMPLE_ORDER_JSON });
+    useJsonWorkspaceStore.setState({ input: SAMPLE_ORDER_JSON });
     const { user } = renderApp('/json/search');
     await user.type(await screen.findByRole('textbox', { name: 'Search for' }), 'keyboard');
     const grid = await screen.findByRole('grid', { name: 'Search results' });
@@ -144,7 +146,7 @@ describe('JSON Search', () => {
   });
 
   it('reports invalid regular expressions', async () => {
-    useJsonStudioStore.setState({ input: '{}' });
+    useJsonWorkspaceStore.setState({ input: '{}' });
     const { user } = renderApp('/json/search');
     await user.click(await screen.findByRole('combobox', { name: 'Match' }));
     await user.click(screen.getByRole('option', { name: 'Regular expression' }));
@@ -155,7 +157,7 @@ describe('JSON Search', () => {
 
 describe('JSON Compare', () => {
   it('detects missing properties, value changes and type differences', async () => {
-    useJsonStudioStore.setState({ input: SAMPLE_ORDER_JSON, secondary: SAMPLE_ORDER_JSON_V2 });
+    useJsonWorkspaceStore.setState({ input: SAMPLE_ORDER_JSON, secondary: SAMPLE_ORDER_JSON_V2 });
     renderApp('/json/compare');
     const summary = await screen.findByLabelText('Difference summary');
     expect(summary).toHaveTextContent('Added: 2');
@@ -170,13 +172,13 @@ describe('JSON Compare', () => {
   });
 
   it('reports identical documents and shows a sorted text diff', async () => {
-    useJsonStudioStore.setState({ input: '{"a":1,"b":[1,2]}', secondary: '{"b":[1,2],"a":1}' });
+    useJsonWorkspaceStore.setState({ input: '{"a":1,"b":[1,2]}', secondary: '{"b":[1,2],"a":1}' });
     renderApp('/json/compare');
     expect(await screen.findByText(/structurally identical/)).toBeInTheDocument();
   });
 
   it('points parse errors at the right editor', async () => {
-    useJsonStudioStore.setState({ input: '{"a":1}', secondary: '{"a":' });
+    useJsonWorkspaceStore.setState({ input: '{"a":1}', secondary: '{"a":' });
     renderApp('/json/compare');
     const problems = await screen.findByRole('list', { name: 'Right (changed) problems' });
     expect(problems).toHaveTextContent('Right document: Unexpected end of input');
@@ -186,7 +188,10 @@ describe('JSON Compare', () => {
   });
 
   it('can ignore array order', async () => {
-    useJsonStudioStore.setState({ input: '{"tags":["a","b"]}', secondary: '{"tags":["b","a"]}' });
+    useJsonWorkspaceStore.setState({
+      input: '{"tags":["a","b"]}',
+      secondary: '{"tags":["b","a"]}',
+    });
     const { user } = renderApp('/json/compare');
     expect(await screen.findByRole('grid', { name: 'Structural differences' })).toBeInTheDocument();
     await user.click(screen.getByRole('combobox', { name: 'Arrays' }));
@@ -199,7 +204,7 @@ describe('JSON Compare', () => {
 
 describe('JSON Schema Validator', () => {
   it('lists validation errors with JSONPath locations', async () => {
-    useJsonStudioStore.setState({
+    useJsonWorkspaceStore.setState({
       input: '{"order_id": 0, "customer_name": "A", "total_amount": 5, "items": []}',
       secondary: SAMPLE_SCHEMA_JSON,
     });
@@ -213,7 +218,7 @@ describe('JSON Schema Validator', () => {
   });
 
   it('points schema syntax errors at the schema editor', async () => {
-    useJsonStudioStore.setState({ input: '{}', secondary: '{"type": "object",}' });
+    useJsonWorkspaceStore.setState({ input: '{}', secondary: '{"type": "object",}' });
     renderApp('/json/schema-validator');
     expect(await screen.findByRole('list', { name: 'JSON Schema problems' })).toHaveTextContent(
       'Schema: Trailing comma',
