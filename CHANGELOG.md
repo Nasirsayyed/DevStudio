@@ -4,6 +4,38 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-11-12
+
+Developer Utilities (roadmap Phase 6).
+
+### Added
+
+- 18 utilities: Base64 (UTF-8, URL-safe, line wrapping, binary detection with hex dump and
+  download, file → Base64/data URL), URL encode/decode with a URL and query-string parser, HTML
+  entities, JWT decoder, JWT signature verifier, UUID (v1/v4/v5/v6/v7/nil/max, inspector), .NET
+  GUID formats, random strings, passwords with entropy meter, hashes (MD5, SHA-1/224/256/384/512,
+  Keccak, RIPEMD-160, HMAC, chunked file hashing with progress and cancel, compare), lorem ipsum,
+  Unix timestamps (auto unit detection), time zone converter with DST notes, date difference
+  (calendar, totals, business days, ISO 8601 duration), color converter with WCAG contrast, cron
+  explainer with next runs in any time zone, MIME type lookup and User-Agent parser.
+- JWT verification with `jose` and Web Crypto: HMAC secrets (text, Base64, hex), PEM public keys
+  and X.509 certificates, JWK and JWKS, issuer/audience/clock-tolerance checks. The decoder always
+  states that it has **not** verified the signature.
+
+### Security
+
+- Random values (passwords, strings, UUIDs, lorem) come from `crypto.getRandomValues` with
+  rejection sampling (no modulo bias).
+- Tokens, keys, secrets, HMAC keys and generated passwords/strings are never persisted or written
+  to history. `alg: none`, private keys and PKCS#1 keys are refused by the verifier, and private
+  JWK members are stripped.
+- A verification result is tied to the exact inputs it was computed for; editing the token or key
+  hides it.
+
+### Fixed
+
+- Number fields can be cleared and retyped (they used to snap to the minimum).
+
 ## [0.3.0] - 2026-11-11
 
 Code Generators (roadmap Phase 5).

@@ -18,7 +18,8 @@ an API request.
 | IndexedDB schema (all 11 tables), preferences, storage services          | ✅ Done                   |
 | JSON Studio (16 tools, Monaco, Web Workers, saved documents)             | ✅ Done                   |
 | Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)          | ✅ Done                   |
-| Utilities, Text Tools, Snippets, SQL, API Studio, History/Backup         | 🗓 Scheduled (Phases 6–11) |
+| Developer Utilities (18 tools, JWT verification, hashing, time zones)    | ✅ Done                   |
+| Text Tools, Snippets, SQL, API Studio, History/Backup                    | 🗓 Scheduled (Phases 7–11) |
 
 Tools that are not implemented yet are listed (so you can search, favorite and pin them),
 and their pages clearly say which phase delivers them. No placeholder UI pretends to work.
@@ -67,8 +68,11 @@ Vitest 5 · React Testing Library · Playwright.
 
 Monaco Editor · `@cfworker/json-schema` · `jsonpath-plus` (safe evaluator) · PapaParse · FileSaver · JSZip · fast-xml-parser/-builder/-validator.
 
-Libraries for later modules (sql.js, jose and others) are
-installed in the phase that uses them, so they never ship unused code.
+Utilities: `jose` (JWT verification, Web Crypto), `crypto-js` (MD5/SHA/Keccak/RIPEMD/HMAC),
+`@date-fns/tz`, `cron-parser` + `cronstrue`, `entities`, `mime`, `ua-parser-js`.
+
+Libraries for later modules (sql.js and others) are installed in the phase that uses them. Each
+library is loaded only with the page that needs it, so the initial bundle stays small.
 
 ## Documentation
 
@@ -90,3 +94,6 @@ installed in the phase that uses them, so they never ship unused code.
   production and in the end-to-end tests.
 - All untrusted JSON (imports, stored preferences) is parsed with prototype-pollution
   protection and validated with Zod.
+- Tokens, keys, secrets and generated passwords are never stored or written to history. Random
+  values come from `crypto.getRandomValues`. The JWT decoder never claims a signature is valid;
+  only the verifier (Web Crypto) does.

@@ -51,6 +51,9 @@ security headers or anything user-visible across pages.
 - The CSP lives in `config/security-headers.ts` and must match `vercel.json` (a test enforces this).
 - Errors shown to users: throw or convert to `AppError` subclasses; display with `toUserMessage()`.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
+- Secrets (tokens, keys, HMAC keys, passwords, generated random values) are never persisted: no
+  `usePersistentOptions`, IndexedDB or history entries. Use `core/random/secureRandom` for any
+  random value; never `Math.random()`. Never call a JWT "verified" unless `verifyJwt` said so.
 
 ## Shared workspace
 

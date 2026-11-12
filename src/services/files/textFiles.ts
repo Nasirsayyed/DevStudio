@@ -1,3 +1,5 @@
+import { ValidationError } from '@/core/errors/AppError';
+import { formatBytes } from '@/core/format/bytes';
 import { saveAs } from 'file-saver';
 import {
   type FileRules,
@@ -16,4 +18,22 @@ export async function readTextFile(file: File, rules: FileRules): Promise<string
 export function downloadText(content: string, filename: string, mimeType = 'text/plain'): void {
   const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
   saveAs(blob, filename, { autoBom: false });
+}
+
+/** Reads a file as bytes after checking its size. */
+export async function readFileBytes(file: File, maxBytes: number): Promise<Uint8Array> {
+  if (file.size > maxBytes)
+    throw new ValidationError(
+      `"${file.name}" is ${formatBytes(file.size)}; the limit is ${formatBytes(maxBytes)}.`,
+    );
+  return new Uint8Array(await file.arrayBuffer());
+}
+
+/** Downloads raw bytes as a file. */
+export function downloadBytes(
+  bytes: Uint8Array,
+  filename: string,
+  mimeType = 'application/octet-stream',
+): void {
+  saveAs(new Blob([new Uint8Array(bytes)], { type: mimeType }), filename, { autoBom: false });
 }

@@ -1,21 +1,28 @@
 import { Box, Button, IconButton, Stack, Tooltip, Typography, alpha } from '@mui/material';
 import { DocumentUpload } from 'iconsax-reactjs';
 import { type DragEvent, type ReactNode, useRef, useState } from 'react';
-import { type FileRules, JSON_FILE_RULES } from '@/core/files/fileValidation';
+import { type FileRules, JSON_FILE_RULES, validateFileMeta } from '@/core/files/fileValidation';
 import { toUserMessage } from '@/core/errors/AppError';
 import { readTextFile } from '@/services/files/textFiles';
 
 export interface FileTextHandlers {
   rules?: FileRules;
   onText: (text: string, file: File) => void;
+  /** Receive the validated File itself instead of its text (binary files). */
+  onFile?: (file: File) => void;
   onError: (message: string) => void;
 }
 
 async function handleFile(
   file: File,
-  { rules = JSON_FILE_RULES, onText, onError }: FileTextHandlers,
+  { rules = JSON_FILE_RULES, onText, onFile, onError }: FileTextHandlers,
 ) {
   try {
+    if (onFile) {
+      validateFileMeta(file, rules);
+      onFile(file);
+      return;
+    }
     onText(await readTextFile(file, rules), file);
   } catch (error) {
     onError(toUserMessage(error, `Could not read "${file.name}".`));

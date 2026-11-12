@@ -208,6 +208,27 @@ JSON ─► core/codegen/model.inferTypeModel ─► TypeModel ─┬─► emit
 - `workers/codegen.worker.ts` + `services/workers/codegenTasks.ts` run generators off the main thread
   for large inputs.
 
+## Developer utilities
+
+```
+core/encoding (base64, url, html)  core/jwt (decode, verify)  core/random (secureRandom)
+core/generators (uuid, password, randomString, lorem)  core/hash  core/datetime (timestamp,
+timezone, dateDiff)  core/color  core/cron  core/mime  core/useragent
+        ▲
+features/dev-utilities/  pages (18), components (UtilityPage, TextTransformCard, ResultTable,
+                         GeneratedList, TimeZoneSelect, NumberField…), store (in-memory JWT)
+```
+
+- All logic is pure and unit-tested in `core/`. Randomness goes through a `RandomSource`
+  (`crypto.getRandomValues` by default) so tests are deterministic.
+- **Secrets are never persisted.** The JWT is handed from the decoder to the verifier through an
+  in-memory Zustand store; keys, HMAC keys, passwords and random strings stay in component state.
+  Only non-secret options use `usePersistentOptions`.
+- `core/jwt/verify.ts` (jose) is imported dynamically when the user clicks Verify. Each heavy
+  library (`crypto-js`, `cron-parser`, `mime`, `ua-parser-js`, `entities`) is only in its page chunk.
+- File hashing reads 2 MB slices and feeds incremental hashers, yielding to the UI between chunks
+  (progress and cancel).
+
 ## JSON Studio feature structure
 
 ```

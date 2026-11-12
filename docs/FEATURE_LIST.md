@@ -109,15 +109,40 @@ one language-neutral type model, so every language sees the same types:
 All generators run in a background worker for large inputs. Their output has Monaco syntax
 highlighting (C#, TypeScript, Java, Python, SQL, XML), copy, download and history recording.
 
+## Developer Utilities (✅ Phase 6)
+
+Everything runs locally. Options are remembered per tool; **tokens, keys, secrets, HMAC keys and
+generated passwords/strings are never stored** (not in localStorage, IndexedDB or history).
+
+| Tool              | Highlights                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Base64            | UTF-8 text, URL-safe alphabet, 64/76 line wrapping; tolerant decoding (whitespace, missing padding, data: URLs) with precise errors; binary output as hex dump + typed download; file → Base64 or data URL (10 MB) |
+| URL encode/decode | Component, full-URL and form modes; `+` as space; URL parser (components, query parameters decoded, embedded-password warning)                                                                                     |
+| HTML entities     | Minimal, non-ASCII named/numeric or all named entities; decodes every HTML5 named and numeric entity                                                                                                               |
+| JWT decoder       | Accepts `Bearer` prefixes and quotes; coloured parts; header, payload, claims table with meanings and dates; expiry status; detects JWE; **always says the signature is not verified**                             |
+| JWT verifier      | `jose` + Web Crypto: HMAC secret (text/Base64/hex), PEM public key or X.509 certificate, JWK or JWKS (`kid` selection); issuer, audience, clock tolerance; rejects `alg: none` and private keys                    |
+| UUID / GUID       | v1, v4, v5 (namespaces), v6, v7, nil, max; bulk (1,000), uppercase, no hyphens; inspector (version, variant, embedded time); .NET `D N B P X` formats                                                              |
+| Random string     | Presets (alphanumeric, hex, Base64URL, Crockford…) or custom characters; up to 4,096 × 1,000; uniform (rejection sampling)                                                                                         |
+| Password          | Character classes, look-alike exclusion, excluded characters, at least one of each class, entropy in bits with strength meter                                                                                      |
+| Hash              | MD5, SHA-1/224/256/384/512, Keccak-256/512, RIPEMD-160, HMAC; text or file (chunked, progress, cancel); hex/HEX/Base64; compare with an expected hash; weak algorithms flagged                                     |
+| Lorem ipsum       | Paragraphs, sentences or words                                                                                                                                                                                     |
+| Unix timestamp    | Live clock; seconds/ms/µs/ns auto-detection; ISO, RFC 2822, relative, calendar, any zone; date → timestamp                                                                                                         |
+| Time zones        | Convert a wall time across a remembered list of IANA zones; offsets, abbreviations, DST badge, day shift, DST gap/overlap notes                                                                                    |
+| Date difference   | Calendar difference (years…seconds), totals, business days, ISO 8601 duration, in any zone                                                                                                                         |
+| Color             | HEX/HEX+alpha, rgb(), hsl() (comma and space syntax), named colors; HSV, CMYK; WCAG contrast on white, black and a custom background with AA/AAA ratings and a preview                                             |
+| Cron              | 5- or 6-field expressions and `@` macros; plain-English description; field table; next 10 runs in any time zone; presets                                                                                           |
+| MIME types        | Search ~1,000 IANA and vendor types by extension, file name or type                                                                                                                                                |
+| User agent        | Browser, engine, OS, device, CPU, bots/tools; your browser's Client Hints when available                                                                                                                           |
+
 ## Modules
 
-70 tools are registered, searchable and favoritable now. Their pages show their delivery phase.
+70 tools are registered, searchable and favoritable. Tools of later phases show their delivery phase.
 
 | Module                      | Tools                                                                                                                                                                                         | Phase |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| JSON Studio                 | Formatter, Validator, Minifier, Beautifier, Tree Viewer, Compare, Path Finder, JSONPath Tester, Schema Generator, Schema Validator, Flatten, Unflatten, Search, Sort Keys, JSON→CSV, CSV→JSON | 🗓 4   |
-| Code Generators             | JSON → C#, TypeScript, Java, Python, SQL table, XML; XML → JSON; JSON → CSV (alias of JSON Studio's)                                                                                          | 🗓 5   |
-| Developer Utilities         | Base64, URL, HTML entities, JWT decoder, JWT verifier, UUID, GUID, random string, password, hash, lorem ipsum, Unix timestamp, timezone, date diff, color, cron, MIME, user agent             | 🗓 6   |
+| JSON Studio                 | Formatter, Validator, Minifier, Beautifier, Tree Viewer, Compare, Path Finder, JSONPath Tester, Schema Generator, Schema Validator, Flatten, Unflatten, Search, Sort Keys, JSON→CSV, CSV→JSON | ✅ 4  |
+| Code Generators             | JSON → C#, TypeScript, Java, Python, SQL table, XML; XML → JSON; JSON → CSV (alias of JSON Studio's)                                                                                          | ✅ 5  |
+| Developer Utilities         | Base64, URL, HTML entities, JWT decoder, JWT verifier, UUID, GUID, random string, password, hash, lorem ipsum, Unix timestamp, timezone, date diff, color, cron, MIME, user agent             | ✅ 6  |
 | Text Tools                  | Text diff, code diff, find & replace, counters, line tools, reverse, case converter, Markdown preview, HTML preview, XML formatter, YAML formatter                                            | 🗓 7   |
 | Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | 🗓 8   |
 | SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | 🗓 9   |
