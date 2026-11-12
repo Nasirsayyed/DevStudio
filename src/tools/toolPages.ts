@@ -52,6 +52,18 @@ export const TOOL_PAGES: Readonly<Partial<Record<string, ToolPageLoader>>> = {
   'utils.cron': () => import('@/features/dev-utilities/pages/CronPage'),
   'utils.mime': () => import('@/features/dev-utilities/pages/MimePage'),
   'utils.user-agent': () => import('@/features/dev-utilities/pages/UserAgentPage'),
+  // Text Tools (Phase 7)
+  'text.text-diff': () => import('@/features/text-tools/pages/TextDiffPage'),
+  'text.code-diff': () => import('@/features/text-tools/pages/CodeDiffPage'),
+  'text.find-replace': () => import('@/features/text-tools/pages/FindReplacePage'),
+  'text.counter': () => import('@/features/text-tools/pages/CounterPage'),
+  'text.line-tools': () => import('@/features/text-tools/pages/LineToolsPage'),
+  'text.reverse': () => import('@/features/text-tools/pages/ReversePage'),
+  'text.case-converter': () => import('@/features/text-tools/pages/CaseConverterPage'),
+  'text.markdown-preview': () => import('@/features/text-tools/pages/MarkdownPreviewPage'),
+  'text.html-preview': () => import('@/features/text-tools/pages/HtmlPreviewPage'),
+  'text.xml-formatter': () => import('@/features/text-tools/pages/XmlFormatterPage'),
+  'text.yaml-formatter': () => import('@/features/text-tools/pages/YamlFormatterPage'),
 };
 
 export function getToolPageLoader(toolId: string): ToolPageLoader | undefined {

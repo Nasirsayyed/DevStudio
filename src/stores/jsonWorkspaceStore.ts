@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { create } from 'zustand';
-import { settingsRepository } from '@/services/db/repositories';
+import { createDraftPersistence, fitDraft, MAX_DRAFT_CHARS } from './draftPersistence';
 
 export interface OpenDocument {
   id: string;
@@ -51,9 +51,7 @@ export const useJsonWorkspaceStore = create<JsonStudioState>()((set) => ({
 /* ------------------------------------------------------------------------ */
 
 export const DRAFT_SETTING_KEY = 'jsonStudio.draft';
-/** Inputs larger than this are not kept as drafts (save them as documents instead). */
-export const MAX_DRAFT_CHARS = 5_000_000;
-const DRAFT_DEBOUNCE_MS = 800;
+export { MAX_DRAFT_CHARS };
 
 const draftSchema = z.object({
   input: z.string(),
@@ -65,86 +63,35 @@ const draftSchema = z.object({
 });
 type Draft = z.infer<typeof draftSchema>;
 
-const EMPTY_DRAFT: Draft = { input: '', secondary: '', csv: '', xml: '', document: null };
+const drafts = createDraftPersistence<JsonStudioState, Draft>({
+  store: useJsonWorkspaceStore,
+  key: DRAFT_SETTING_KEY,
+  schema: draftSchema,
+  empty: { input: '', secondary: '', csv: '', xml: '', document: null },
+  label: 'JSON Studio',
+  select: (s) => ({
+    input: fitDraft(s.input),
+    secondary: fitDraft(s.secondary),
+    csv: fitDraft(s.csv),
+    xml: fitDraft(s.xml),
+    document: s.document,
+  }),
+  restore: (s, draft) => ({
+    input: s.input || draft.input,
+    secondary: s.secondary || draft.secondary,
+    csv: s.csv || draft.csv,
+    xml: s.xml || draft.xml,
+    document: s.input ? s.document : draft.document,
+  }),
+});
 
-let hydration: Promise<void> | null = null;
-let hydrated = false;
-let pendingSave = false;
-let unsubscribe: (() => void) | null = null;
-let saveTimer: ReturnType<typeof setTimeout> | undefined;
-
-function fit(text: string): string {
-  return text.length > MAX_DRAFT_CHARS ? '' : text;
-}
-
-function saveDraftSoon(): void {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    const { input, secondary, csv, xml, document } = useJsonWorkspaceStore.getState();
-    settingsRepository
-      .set(DRAFT_SETTING_KEY, {
-        input: fit(input),
-        secondary: fit(secondary),
-        csv: fit(csv),
-        xml: fit(xml),
-        document,
-      })
-      .catch((error: unknown) => {
-        console.warn('Could not save JSON Studio draft', error);
-      });
-  }, DRAFT_DEBOUNCE_MS);
-}
-
-/**
- * Restores the last draft once per session (only into empty fields, so it
- * never overwrites newer work) and saves changes, debounced. Changes made
- * while the draft is still loading are saved once loading completes.
- */
+/** Restores the JSON workspace draft once per session and keeps saving changes. */
 export function hydrateJsonWorkspaceDraft(): Promise<void> {
-  unsubscribe ??= useJsonWorkspaceStore.subscribe((state, prev) => {
-    if (
-      state.input === prev.input &&
-      state.secondary === prev.secondary &&
-      state.csv === prev.csv &&
-      state.xml === prev.xml &&
-      state.document === prev.document
-    )
-      return;
-    if (hydrated) saveDraftSoon();
-    else pendingSave = true;
-  });
-  hydration ??= settingsRepository
-    .get(DRAFT_SETTING_KEY, draftSchema, EMPTY_DRAFT)
-    .then((draft) => {
-      const s = useJsonWorkspaceStore.getState();
-      useJsonWorkspaceStore.setState({
-        input: s.input || draft.input,
-        secondary: s.secondary || draft.secondary,
-        csv: s.csv || draft.csv,
-        xml: s.xml || draft.xml,
-        document: s.input ? s.document : draft.document,
-      });
-    })
-    .catch((error: unknown) => {
-      console.warn('Could not restore JSON Studio draft', error);
-    })
-    .finally(() => {
-      hydrated = true;
-      if (pendingSave) {
-        pendingSave = false;
-        saveDraftSoon();
-      }
-    });
-  return hydration;
+  return drafts.hydrate();
 }
 
 /** Test helper: forget hydration state, pending saves and in-memory inputs. */
 export function resetJsonWorkspaceState(): void {
-  unsubscribe?.();
-  unsubscribe = null;
-  hydration = null;
-  hydrated = false;
-  pendingSave = false;
-  clearTimeout(saveTimer);
+  drafts.reset();
   useJsonWorkspaceStore.setState({ input: '', secondary: '', csv: '', xml: '', document: null });
 }

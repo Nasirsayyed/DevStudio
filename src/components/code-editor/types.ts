@@ -37,6 +37,10 @@ export interface DiffEditorProps {
   modified: string;
   language?: string;
   sideBySide?: boolean;
+  /** Ignore leading/trailing whitespace changes (default true, like VS Code). */
+  ignoreTrimWhitespace?: boolean;
+  /** Wrap long lines. */
+  wordWrap?: boolean;
   ariaLabel: string;
   height?: number | string;
 }

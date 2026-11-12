@@ -4,6 +4,54 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-11-12
+
+Text Tools (roadmap Phase 7).
+
+### Added
+
+- Text Diff: side-by-side or inline, changed words or characters highlighted, ignore whitespace
+  and case, collapsible unchanged regions, swap, unified diff copy/download; large inputs are
+  compared in a Web Worker with a time limit.
+- Code Diff: Monaco diff editor with 27 languages (language picked from opened file names), inline
+  or side by side, whitespace and wrap options.
+- Find and Replace: plain text or regular expressions (Unicode, whole words, `^$` per line, dotAll),
+  `$1`/`$<name>` replacements, `\n`/`\t` escapes, a match list with line, column and context,
+  "Apply to text".
+- Word & Character Counter (graphemes, code points, UTF-16 units, UTF-8 bytes, words, sentences,
+  paragraphs, lines, reading/speaking time, top words, character limits), Line Tools (sort
+  alphabetically/naturally/numerically/by length, secure shuffle, dedupe, trim, filter, prefix/
+  suffix, numbering), Reverse Text (emoji-safe) and a Case Converter with 15 styles.
+- Markdown Preview (GitHub-flavoured, copy/download HTML) and HTML Preview (viewport sizes), both
+  sanitized and rendered in a sandboxed frame.
+- XML Formatter (format/minify; comments, CDATA, DOCTYPE and mixed content kept; attribute
+  wrapping) and YAML Formatter (format with comments kept, sort keys, YAML ⇄ JSON, multiple
+  documents, merge keys).
+- The working text of the Text Tools is shared between tools and kept as a draft. The XML Formatter
+  shares its XML with XML → JSON, and JSON → YAML reads the JSON document.
+
+### Changed
+
+- Draft persistence is a reusable helper (`stores/draftPersistence.ts`), used by JSON Studio and
+  Text Tools.
+- Task runners accept `preferWorker` and `timeoutMs` (the worker is terminated on timeout).
+
+### Security
+
+- HTML from Markdown or pasted HTML is sanitized with DOMPurify: scripts, event handlers,
+  `javascript:` URLs, frames, forms and `<base>`/`<meta>` are removed, form controls are disabled,
+  and every external resource (images, CSS `url()`/`@import`, media) is blocked so previews never
+  contact other servers. Previews run in a sandboxed iframe with its own restrictive CSP. A
+  22-payload XSS corpus is part of the tests.
+- User regular expressions run in a worker with a 5-second limit, so catastrophic backtracking
+  cannot freeze the page.
+- YAML alias expansion is capped (billion-laughs protection) and `__proto__`/`constructor` keys
+  are dropped.
+
+### Fixed
+
+- A unified diff no longer reports the last line as changed when only a final newline differs.
+
 ## [0.4.0] - 2026-11-12
 
 Developer Utilities (roadmap Phase 6).

@@ -106,6 +106,34 @@ describe('createTaskRunner', () => {
     vi.unstubAllGlobals();
   });
 
+  it('runs small inputs in a worker when preferWorker is set', async () => {
+    vi.stubGlobal('Worker', FakeWorker);
+    const create = vi.fn(() => new FakeWorker() as unknown as Worker);
+    const runner = createTaskRunner({ ops, createWorker: create, workerThreshold: 1000 });
+    await expect(runner.run('double', { n: 3 }, { size: 1, preferWorker: true })).resolves.toBe(6);
+    expect(create).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it('stops a worker that exceeds its time limit and keeps working afterwards', async () => {
+    vi.stubGlobal('Worker', FakeWorker);
+    FakeWorker.terminated = 0;
+    let delay = 200;
+    const runner = createTaskRunner({
+      ops,
+      createWorker: () => new FakeWorker(delay) as unknown as Worker,
+      workerThreshold: 0,
+    });
+    const error = await runner
+      .run('double', { n: 1 }, { size: 1, timeoutMs: 20 })
+      .catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: 'TIMEOUT' });
+    expect(FakeWorker.terminated).toBe(1);
+    delay = 1;
+    await expect(runner.run('double', { n: 5 }, { size: 1, timeoutMs: 1000 })).resolves.toBe(10);
+    vi.unstubAllGlobals();
+  });
+
   it('rejects immediately when already aborted', async () => {
     const runner = createTaskRunner({ ops, workerThreshold: 0 });
     const controller = new AbortController();

@@ -134,6 +134,28 @@ generated passwords/strings are never stored** (not in localStorage, IndexedDB o
 | MIME types        | Search ~1,000 IANA and vendor types by extension, file name or type                                                                                                                                                |
 | User agent        | Browser, engine, OS, device, CPU, bots/tools; your browser's Client Hints when available                                                                                                                           |
 
+## Text Tools (✅ Phase 7)
+
+The find & replace, counter, line, reverse and case tools share one working text (kept when
+switching tools and restored after a reload). Large inputs are processed in a Web Worker.
+
+| Tool             | Highlights                                                                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Text Diff        | Side by side or inline; changed words or characters highlighted; ignore whitespace/case; unchanged regions collapsed with context; swap; unified diff (copy/download); virtualized                                              |
+| Code Diff        | Monaco diff editor, 27 languages (detected from opened file names), inline/side by side, ignore leading/trailing whitespace, wrap                                                                                               |
+| Find and Replace | Plain or regex (Unicode), match case, whole words, `^$` per line, `.` matches newlines; `$1` `$<name>` `$&`; `\n` `\t` escapes; match list (line, column, context); apply to text; regexes run in a worker with a 5 s limit     |
+| Counter          | Words, unique words, characters with/without spaces (graphemes: 👍🏽 = 1), code points, UTF-16 units, UTF-8 bytes, sentences, paragraphs, lines, reading/speaking time, top words, character limits (SMS, X, LinkedIn…)           |
+| Line Tools       | Trim, collapse spaces, remove empty, filter (keep/remove containing), dedupe (exact, ignore case/spaces, drop all repeated), sort (A–Z, natural, numeric, length, reverse, secure shuffle), prefix/suffix, numbering; CRLF kept |
+| Reverse Text     | Characters (emoji and accents intact), word order, line order, letters in each word, each line                                                                                                                                  |
+| Case Converter   | camelCase, PascalCase, snake_case, SCREAMING_SNAKE, kebab-case, COBOL-CASE, Train-Case, dot.case, path/case, lower, UPPER, Title, Sentence, aLtErNaTiNg, iNVERSE (acronym-aware, per line)                                      |
+| Markdown Preview | GitHub-flavoured (tables, task lists, strikethrough), line breaks option, word count and reading time, generated HTML view, copy/download a standalone HTML file                                                                |
+| HTML Preview     | Full documents with their `<style>`, viewport sizes (desktop/tablet/phone), sanitized source view, report of what was removed                                                                                                   |
+| XML Formatter    | Format (2/4/tabs, attribute wrapping, self-closing) or minify; comments, CDATA, PIs, DOCTYPE, mixed content and `xml:space="preserve"` kept; errors with line/column; shares the XML with XML → JSON                            |
+| YAML Formatter   | Format (comments and anchors kept, indent, quotes, wrapping, sort keys, list indentation), YAML → JSON (multi-document, merge keys), JSON → YAML from the shared JSON document; errors with line/column                         |
+
+Previews are **sanitized** (no scripts, event handlers, `javascript:` URLs, frames or forms), never
+load external resources, and render in a **sandboxed iframe** with its own Content Security Policy.
+
 ## Modules
 
 70 tools are registered, searchable and favoritable. Tools of later phases show their delivery phase.
@@ -143,7 +165,7 @@ generated passwords/strings are never stored** (not in localStorage, IndexedDB o
 | JSON Studio                 | Formatter, Validator, Minifier, Beautifier, Tree Viewer, Compare, Path Finder, JSONPath Tester, Schema Generator, Schema Validator, Flatten, Unflatten, Search, Sort Keys, JSON→CSV, CSV→JSON | ✅ 4  |
 | Code Generators             | JSON → C#, TypeScript, Java, Python, SQL table, XML; XML → JSON; JSON → CSV (alias of JSON Studio's)                                                                                          | ✅ 5  |
 | Developer Utilities         | Base64, URL, HTML entities, JWT decoder, JWT verifier, UUID, GUID, random string, password, hash, lorem ipsum, Unix timestamp, timezone, date diff, color, cron, MIME, user agent             | ✅ 6  |
-| Text Tools                  | Text diff, code diff, find & replace, counters, line tools, reverse, case converter, Markdown preview, HTML preview, XML formatter, YAML formatter                                            | 🗓 7   |
+| Text Tools                  | Text diff, code diff, find & replace, counters, line tools, reverse, case converter, Markdown preview, HTML preview, XML formatter, YAML formatter                                            | ✅ 7  |
 | Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | 🗓 8   |
 | SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | 🗓 9   |
 | API Testing                 | Request builder, environments, collection runner, history, response compare                                                                                                                   | 🗓 10  |

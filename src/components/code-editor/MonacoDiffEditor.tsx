@@ -10,6 +10,8 @@ export default function MonacoDiffEditor({
   modified,
   language = 'json',
   sideBySide = true,
+  ignoreTrimWhitespace = true,
+  wordWrap = false,
   ariaLabel,
   height = '100%',
 }: DiffEditorProps) {
@@ -32,6 +34,9 @@ export default function MonacoDiffEditor({
           readOnly: true,
           originalEditable: false,
           renderSideBySide: sideBySide,
+          ignoreTrimWhitespace,
+          wordWrap: wordWrap ? 'on' : 'off',
+          diffWordWrap: wordWrap ? 'on' : 'off',
           fontFamily: fontFamilies.mono,
           fontSize: prefs.fontSize,
           automaticLayout: true,

@@ -33,6 +33,20 @@ export const XML_FILE_RULES: FileRules = {
   ],
   maxBytes: 50 * 1024 * 1024,
 };
+/** Any text file (binary content is still rejected when read). */
+export const TEXT_FILE_RULES: FileRules = { extensions: [], maxBytes: 50 * 1024 * 1024 };
+export const MARKDOWN_FILE_RULES: FileRules = {
+  extensions: ['.md', '.markdown', '.mdown', '.mkd', '.txt'],
+  maxBytes: 10 * 1024 * 1024,
+};
+export const HTML_FILE_RULES: FileRules = {
+  extensions: ['.html', '.htm', '.xhtml', '.svg', '.txt'],
+  maxBytes: 10 * 1024 * 1024,
+};
+export const YAML_FILE_RULES: FileRules = {
+  extensions: ['.yaml', '.yml', '.json', '.txt'],
+  maxBytes: 50 * 1024 * 1024,
+};
 export const CSV_FILE_RULES: FileRules = {
   extensions: ['.csv', '.tsv', '.txt'],
   maxBytes: 50 * 1024 * 1024,

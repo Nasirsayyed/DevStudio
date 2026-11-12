@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { resetJsonWorkspaceState } from '@/stores/jsonWorkspaceStore';
+import { resetTextWorkspaceState } from '@/stores/textWorkspaceStore';
 import { routes } from '@/app/router/routes';
 import { db } from '@/services/db/database';
 import { DEFAULT_PREFERENCES } from '@/services/preferences/preferences';
@@ -13,6 +14,7 @@ import { clearDatabase } from './db';
 /** Resets all app-wide state: IndexedDB singleton, preferences and UI stores. */
 export async function resetAppState(): Promise<void> {
   resetJsonWorkspaceState();
+  resetTextWorkspaceState();
   await clearDatabase(db);
   usePreferencesStore.setState(DEFAULT_PREFERENCES);
   useUiStore.setState({

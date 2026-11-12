@@ -48,6 +48,11 @@ security headers or anything user-visible across pages.
 - Every IndexedDB write goes through a repository using `safeWrite()` (quota → `StorageQuotaError`).
 - Parse untrusted JSON with `safeJsonParse()` and validate it with Zod.
 - Never use `eval`, `new Function`, or `dangerouslySetInnerHTML` with unsanitized content.
+- Render user HTML only through `sanitizeHtml()` + `previewDocument()` (`services/html/sanitize`)
+  in a sandboxed iframe (see `features/text-tools/components/PreviewFrame.tsx`). Never add
+  `allow-scripts` or `allow-same-origin` to that sandbox.
+- User-supplied regular expressions must run in a worker with a timeout
+  (`runner.run(op, p, { preferWorker: true, timeoutMs })`), never on the main thread.
 - The CSP lives in `config/security-headers.ts` and must match `vercel.json` (a test enforces this).
 - Errors shown to users: throw or convert to `AppError` subclasses; display with `toUserMessage()`.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
@@ -59,6 +64,8 @@ security headers or anything user-visible across pages.
 
 - JSON-based tools share `useJsonWorkspaceStore` (document, drafts) and the panels in
   `components/workspace/`. Don't create feature-local copies of them.
+- Text tools share `useTextWorkspaceStore`. Persist working inputs with `createDraftPersistence`
+  (`stores/draftPersistence.ts`) instead of writing new draft logic.
 - Run operations with `useTaskOperation(key, (p, o) => runner.run(op, p, o), payload)`, wrapped per
   feature (see `useJsonOperation`, `useCodegenOperation`). Memoize `payload`; `null` means idle.
 - New code generators map `core/codegen/model.ts` types; never re-infer types in an emitter.

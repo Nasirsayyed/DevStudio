@@ -19,7 +19,8 @@ an API request.
 | JSON Studio (16 tools, Monaco, Web Workers, saved documents)             | ✅ Done                   |
 | Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)          | ✅ Done                   |
 | Developer Utilities (18 tools, JWT verification, hashing, time zones)    | ✅ Done                   |
-| Text Tools, Snippets, SQL, API Studio, History/Backup                    | 🗓 Scheduled (Phases 7–11) |
+| Text Tools (diff, find & replace, counters, previews, XML/YAML)          | ✅ Done                   |
+| Snippets, SQL, API Studio, History/Backup                                | 🗓 Scheduled (Phases 8–11) |
 
 Tools that are not implemented yet are listed (so you can search, favorite and pin them),
 and their pages clearly say which phase delivers them. No placeholder UI pretends to work.
@@ -68,6 +69,8 @@ Vitest 5 · React Testing Library · Playwright.
 
 Monaco Editor · `@cfworker/json-schema` · `jsonpath-plus` (safe evaluator) · PapaParse · FileSaver · JSZip · fast-xml-parser/-builder/-validator.
 
+Text: `diff` (jsdiff), `marked` + `DOMPurify`, `yaml`.
+
 Utilities: `jose` (JWT verification, Web Crypto), `crypto-js` (MD5/SHA/Keccak/RIPEMD/HMAC),
 `@date-fns/tz`, `cron-parser` + `cronstrue`, `entities`, `mime`, `ua-parser-js`.
 
@@ -94,6 +97,8 @@ library is loaded only with the page that needs it, so the initial bundle stays 
   production and in the end-to-end tests.
 - All untrusted JSON (imports, stored preferences) is parsed with prototype-pollution
   protection and validated with Zod.
+- Markdown and HTML previews are sanitized (DOMPurify), never load external resources and run in
+  a sandboxed frame without scripts.
 - Tokens, keys, secrets and generated passwords are never stored or written to history. Random
   values come from `crypto.getRandomValues`. The JWT decoder never claims a signature is valid;
   only the verifier (Web Crypto) does.

@@ -29,7 +29,16 @@ export interface JsonInputPanelProps {
   documents?: boolean;
   onRun?: () => void;
   extraActions?: ReactNode;
+  /** Called after a file was opened (e.g. to pick a language from its name). */
+  onFileLoaded?: (fileName: string) => void;
 }
+
+const VALID_LABELS: Record<string, string> = {
+  json: 'JSON',
+  xml: 'XML',
+  yaml: 'YAML',
+  html: 'HTML',
+};
 
 function countLines(text: string): number {
   let n = 1;
@@ -51,6 +60,7 @@ export function JsonInputPanel({
   documents = false,
   onRun,
   extraActions,
+  onFileLoaded,
 }: JsonInputPanelProps) {
   const notify = useNotify();
   const document = useJsonWorkspaceStore((s) => s.document);
@@ -134,6 +144,7 @@ export function JsonInputPanel({
             label="Open file"
             onText={(text, file) => {
               setText(text, `Loaded ${file.name}`);
+              onFileLoaded?.(file.name);
             }}
             onError={notify.error}
           />
@@ -192,7 +203,7 @@ export function JsonInputPanel({
             </Button>
           ) : valid && value.trim() ? (
             <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
-              ✓ Valid {language === 'json' ? 'JSON' : language === 'xml' ? 'XML' : ''}
+              ✓ Valid {VALID_LABELS[language] ?? ''}
             </Typography>
           ) : null}
         </>

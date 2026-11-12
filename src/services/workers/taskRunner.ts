@@ -5,6 +5,13 @@ export interface RunOptions {
   signal?: AbortSignal;
   /** Approximate input size in characters; decides main thread vs worker. */
   size?: number;
+  /**
+   * Run in a worker whatever the size (when workers are available), e.g. for user-supplied
+   * regular expressions that could backtrack catastrophically.
+   */
+  preferWorker?: boolean;
+  /** Worker runs only: stop the worker and reject with a TIMEOUT error after this many ms. */
+  timeoutMs?: number;
 }
 
 export interface TaskRunner<Ops extends OperationTable> {
@@ -104,6 +111,7 @@ export function createTaskRunner<Ops extends OperationTable>(
     op: K,
     payload: unknown,
     signal?: AbortSignal,
+    timeoutMs?: number,
   ) => {
     const pooled = await acquire();
     if (signal?.aborted) {
@@ -112,7 +120,21 @@ export function createTaskRunner<Ops extends OperationTable>(
     }
     const id = nextId++;
     return new Promise<ReturnType<Ops[K]>>((resolve, reject) => {
+      const timer =
+        timeoutMs === undefined
+          ? undefined
+          : setTimeout(() => {
+              cleanup();
+              discard(pooled);
+              reject(
+                new AppError(
+                  'TIMEOUT',
+                  `The operation took longer than ${String(Math.round(timeoutMs / 1000))} s and was stopped.`,
+                ),
+              );
+            }, timeoutMs);
       const cleanup = () => {
+        clearTimeout(timer);
         pooled.worker.removeEventListener('message', onMessage);
         pooled.worker.removeEventListener('error', onError);
         signal?.removeEventListener('abort', onAbort);
@@ -154,11 +176,12 @@ export function createTaskRunner<Ops extends OperationTable>(
 
   return {
     run(op, payload, options = {}) {
-      const { signal, size = 0 } = options;
+      const { signal, size = 0, preferWorker = false, timeoutMs } = options;
       if (signal?.aborted) return Promise.reject(abortError());
       const canUseWorker =
         !workersBroken && createWorker !== undefined && typeof Worker !== 'undefined';
-      if (canUseWorker && size >= workerThreshold) return runInWorker(op, payload, signal);
+      if (canUseWorker && (preferWorker || size >= workerThreshold))
+        return runInWorker(op, payload, signal, timeoutMs);
       return runOnMainThread(op, payload, signal);
     },
     dispose() {

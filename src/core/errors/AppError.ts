@@ -10,6 +10,7 @@ export type AppErrorCode =
   | 'STORAGE_QUOTA'
   | 'STORAGE'
   | 'WORKER'
+  | 'TIMEOUT'
   | 'NOT_FOUND'
   | 'UNKNOWN';
 

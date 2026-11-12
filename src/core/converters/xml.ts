@@ -17,6 +17,26 @@ export interface XmlToJsonOptions {
 }
 
 /**
+ * Checks well-formedness (single root, matching tags, quoted attributes…) and throws a
+ * `ParseError` with the line and column of the first problem.
+ */
+export function validateXmlSyntax(text: string): void {
+  try {
+    SyntaxValidator.validate(text, { allowBooleanAttributes: true, multipleRoots: false });
+  } catch (error) {
+    const e = error as { message?: string; line?: number; col?: number };
+    const line = typeof e.line === 'number' ? e.line : undefined;
+    const column = typeof e.col === 'number' ? e.col : undefined;
+    const where = line !== undefined ? ` (line ${line}, column ${column ?? 1})` : '';
+    throw new ParseError(
+      `${e.message ?? 'Invalid XML'}${where}`,
+      { ...(line !== undefined ? { line } : {}), ...(column !== undefined ? { column } : {}) },
+      error,
+    );
+  }
+}
+
+/**
  * Converts XML to JSON. DTD entity declarations are rejected up front and
  * entity expansion is bounded, preventing "billion laughs" style attacks; no
  * external entities or resources are ever resolved.
@@ -34,19 +54,7 @@ export function xmlToJson(text: string, options: XmlToJsonOptions = {}): JsonVal
       'XML entity declarations (<!ENTITY …>) are not supported, for security reasons.',
     );
   }
-  try {
-    SyntaxValidator.validate(text, { allowBooleanAttributes: true, multipleRoots: false });
-  } catch (error) {
-    const e = error as { message?: string; line?: number; col?: number };
-    const line = typeof e.line === 'number' ? e.line : undefined;
-    const column = typeof e.col === 'number' ? e.col : undefined;
-    const where = line !== undefined ? ` (line ${line}, column ${column ?? 1})` : '';
-    throw new ParseError(
-      `${e.message ?? 'Invalid XML'}${where}`,
-      { ...(line !== undefined ? { line } : {}), ...(column !== undefined ? { column } : {}) },
-      error,
-    );
-  }
+  validateXmlSyntax(text);
   const parser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: attributePrefix,

@@ -229,6 +229,33 @@ features/dev-utilities/  pages (18), components (UtilityPage, TextTransformCard,
 - File hashing reads 2 MB slices and feeds incremental hashers, yielding to the UI between chunks
   (progress and cancel).
 
+## Text tools
+
+```
+core/text (case, lines, reverse, stats, findReplace, diff, operations)   core/markdown
+core/formatters (xml, yaml)       services/html/sanitize (DOMPurify, needs the DOM)
+        ▲
+workers/text.worker.ts ◄── services/workers/textTasks ◄── features/text-tools/hooks (useTextOperation)
+features/text-tools/  pages (11), components (TextToolLayout, CompareLayout, TextInput, DiffView,
+                      PreviewFrame, TransformOutput, SanitizerNotice)
+stores/textWorkspaceStore  shared working text + drafts (via stores/draftPersistence)
+```
+
+- Every text operation is in one table (`core/text/operations.ts`) and runs on the main thread
+  for small inputs or in the text worker for large ones. The table's libraries (jsdiff, marked,
+  yaml) form one chunk (about 55 KB gzipped) that loads with the first Text Tools page.
+- **Regular expressions typed by the user always run in the worker** (`preferWorker`) with a
+  5-second limit (`timeoutMs`): on timeout the worker is terminated and a `TIMEOUT` error explains
+  catastrophic backtracking. Line filtering is plain-text only for the same reason.
+- **Previews**: Markdown is rendered in the worker; the HTML is then sanitized on the main thread
+  (DOMPurify needs a DOM), wrapped in a document with its own CSP
+  (`default-src 'none'; img-src data:; style-src 'unsafe-inline'`) and shown in an iframe with
+  `sandbox="allow-popups allow-popups-to-escape-sandbox"` (no scripts, opaque origin). External
+  resources are removed during sanitization, so nothing is fetched and no CSP violation occurs.
+- The diff view is virtualized (TanStack Virtual with measured rows) and folds unchanged runs.
+- Drafts: `createDraftPersistence` restores a store's fields from the settings table once per
+  session (only into empty fields) and saves changes, debounced; JSON Studio and Text Tools use it.
+
 ## JSON Studio feature structure
 
 ```
