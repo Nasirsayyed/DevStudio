@@ -38,6 +38,10 @@ export const SNIPPET_FILE_RULES: FileRules = {
   extensions: ['.json', '.code-snippets', '.jsonc'],
   maxBytes: 20 * 1024 * 1024,
 };
+export const SQL_FILE_RULES: FileRules = {
+  extensions: ['.sql', '.ddl', '.txt', '.psql', '.mysql'],
+  maxBytes: 50 * 1024 * 1024,
+};
 /** Any text file (binary content is still rejected when read). */
 export const TEXT_FILE_RULES: FileRules = { extensions: [], maxBytes: 50 * 1024 * 1024 };
 export const MARKDOWN_FILE_RULES: FileRules = {

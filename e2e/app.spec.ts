@@ -6,13 +6,13 @@ test.describe('DevStudio shell', () => {
     await expect(page).toHaveTitle('DevStudio');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const nav = page.getByRole('navigation', { name: 'Main navigation' });
-    await nav.getByRole('link', { name: 'SQL Tools' }).click();
-    await expect(page).toHaveURL(/\/sql$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'SQL Tools' })).toBeVisible();
-    await page.getByRole('link', { name: /SQL Formatter/ }).click();
-    await expect(page).toHaveURL(/\/sql\/formatter$/);
-    await expect(page.getByText('Scheduled for Phase 9')).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText('SQL Tools');
+    await nav.getByRole('link', { name: 'API Testing' }).click();
+    await expect(page).toHaveURL(/\/api$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'API Testing' })).toBeVisible();
+    await page.getByRole('link', { name: /Request Builder/ }).click();
+    await expect(page).toHaveURL(/\/api\/requests$/);
+    await expect(page.getByText('Scheduled for Phase 10')).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText('API Testing');
   });
 
   test('deep links work (SPA fallback) and unknown routes show 404', async ({ page }) => {

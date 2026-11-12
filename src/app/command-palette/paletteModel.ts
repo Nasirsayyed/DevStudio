@@ -115,7 +115,7 @@ export function entityPath(entity: EntitySearchResult): string {
     case 'document':
       return `/json/formatter?document=${id}`;
     case 'query':
-      return `/sql?query=${id}`;
+      return `/sql/formatter?query=${id}`;
     case 'snippet':
       return `/snippets?snippet=${id}`;
     case 'history':

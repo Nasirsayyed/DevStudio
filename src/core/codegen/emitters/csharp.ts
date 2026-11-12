@@ -19,7 +19,8 @@ export interface CSharpOptions {
   fileScopedNamespace: boolean;
   /** Emit `#nullable enable` and `string?` for nullable reference types. */
   nullableReferenceTypes: boolean;
-  attributes: 'system-text-json' | 'newtonsoft' | 'none';
+  /** JSON name attributes, or Entity Framework data annotations (classes mapped from SQL). */
+  attributes: 'system-text-json' | 'newtonsoft' | 'data-annotations' | 'none';
   /** Emit name attributes on every property, or only when the C# name differs from the JSON key. */
   attributeMode: 'always' | 'when-different';
   typeKind: 'class' | 'record';
@@ -122,7 +123,7 @@ class CSharpEmitter {
       case 'integer':
         return { type: t.long ? 'long' : 'int', usings: [] };
       case 'number':
-        return { type: this.o.numberType, usings: [] };
+        return { type: t.float ? 'double' : this.o.numberType, usings: [] };
       case 'boolean':
         return { type: 'bool', usings: [] };
       case 'any':
@@ -170,13 +171,33 @@ class CSharpEmitter {
     return ' = new();';
   }
 
-  private attribute(jsonName: string, propName: string): string | null {
-    if (this.o.attributes === 'none') return null;
-    if (this.o.attributeMode === 'when-different' && jsonName === propName) return null;
-    const literal = JSON.stringify(jsonName);
-    return this.o.attributes === 'system-text-json'
-      ? `[JsonPropertyName(${literal})]`
-      : `[JsonProperty(${literal})]`;
+  private attributes(
+    p: ModelClass['properties'][number],
+    propName: string,
+    typeName: string,
+  ): string[] {
+    if (this.o.attributes === 'none') return [];
+    if (this.o.attributes === 'data-annotations') {
+      const c = p.column;
+      if (!c) return [];
+      const out: string[] = [];
+      if (c.primaryKey) out.push('[Key]');
+      if (c.identity) out.push('[DatabaseGenerated(DatabaseGeneratedOption.Identity)]');
+      if (this.o.attributeMode === 'always' || c.name !== propName)
+        out.push(`[Column(${JSON.stringify(c.name)})]`);
+      if (!typeName.endsWith('?') && !VALUE_TYPES.has(typeName) && !c.primaryKey)
+        out.push('[Required]');
+      if (c.maxLength !== null && p.type.kind === 'string')
+        out.push(`[MaxLength(${String(c.maxLength)})]`);
+      return out;
+    }
+    if (this.o.attributeMode === 'when-different' && p.jsonName === propName) return [];
+    const literal = JSON.stringify(p.jsonName);
+    return [
+      this.o.attributes === 'system-text-json'
+        ? `[JsonPropertyName(${literal})]`
+        : `[JsonProperty(${literal})]`,
+    ];
   }
 
   emitClass(c: ModelClass, indent: string): string {
@@ -191,14 +212,20 @@ class CSharpEmitter {
           `Property "${p.jsonName}" in ${name} was named "${propName}" to keep names unique.`,
         );
       }
-      const resolved = this.resolveWithNullability(p.type, p.optional);
+      const binary = p.column !== undefined && /binary|blob|bytea|image/i.test(p.column.sqlType);
+      const resolved = binary
+        ? {
+            type: p.type.nullable && this.o.nullableReferenceTypes ? 'byte[]?' : 'byte[]',
+            usings: [],
+          }
+        : this.resolveWithNullability(p.type, p.optional);
       if (p.type.kind === 'union') {
         lines.push(
           `${indent}    // Mixed JSON types: ${p.type.types.map((u) => u.kind).join(' | ')}`,
         );
       }
-      const attr = this.attribute(p.jsonName, propName);
-      if (attr) lines.push(`${indent}    ${attr}`);
+      for (const attr of this.attributes(p, propName, resolved.type))
+        lines.push(`${indent}    ${attr}`);
       const required = this.o.requiredMembers && !resolved.type.endsWith('?') && !p.optional;
       const init = required ? '' : this.initializer(p.type, resolved.type);
       lines.push(
@@ -207,7 +234,19 @@ class CSharpEmitter {
       if (i < c.properties.length - 1) lines.push('');
     });
     const keyword = this.o.typeKind === 'record' ? 'record' : 'class';
-    return [`${indent}public ${keyword} ${name}`, `${indent}{`, ...lines, `${indent}}`].join('\n');
+    const classAttrs =
+      this.o.attributes === 'data-annotations' && c.table
+        ? [
+            `${indent}[Table(${JSON.stringify(c.table.name)}${c.table.schema ? `, Schema = ${JSON.stringify(c.table.schema)}` : ''})]`,
+          ]
+        : [];
+    return [
+      ...classAttrs,
+      `${indent}public ${keyword} ${name}`,
+      `${indent}{`,
+      ...lines,
+      `${indent}}`,
+    ].join('\n');
   }
 
   usings(types: readonly TypeRef[]): string[] {
@@ -215,6 +254,10 @@ class CSharpEmitter {
     for (const t of types) for (const u of this.resolve(t).usings) set.add(u);
     if (this.o.attributes === 'system-text-json') set.add('System.Text.Json.Serialization');
     if (this.o.attributes === 'newtonsoft') set.add('Newtonsoft.Json');
+    if (this.o.attributes === 'data-annotations') {
+      set.add('System.ComponentModel.DataAnnotations');
+      set.add('System.ComponentModel.DataAnnotations.Schema');
+    }
     return [...set].sort((a, b) =>
       a.startsWith('System') === b.startsWith('System')
         ? a.localeCompare(b)
@@ -260,18 +303,31 @@ export function generateCSharp(
     detectDictionaries: o.detectDictionaries,
     detectUuids: o.useGuid,
   });
+  return generateCSharpFromModel(model, o);
+}
+
+/**
+ * Emits C# for an existing type model (e.g. tables mapped from SQL). `header` replaces the
+ * JSON deserialization hint at the top of the file.
+ */
+export function generateCSharpFromModel(
+  model: TypeModel,
+  options: Partial<CSharpOptions> = {},
+  header?: string[],
+): GeneratedCode {
+  const o: CSharpOptions = { ...DEFAULT_CSHARP_OPTIONS, ...options };
+  o.namespace = o.namespace.trim() ? sanitizeNamespace(o.namespace) : '';
   const e = new CSharpEmitter(o);
   e.assignClassNames(model);
   const ordered = classesFromRoot(model);
   const root = e.className(model.rootClass);
   const usage = model.rootIsArray ? `List<${root}>` : root;
-  const header = [
-    `// Generated by DevStudio. Deserialize with: JsonSerializer.Deserialize<${usage}>(json)`,
-  ];
   const code = e.file(
     ordered.map((c) => e.emitClass(c, '')),
     e.usings(collectTypes(model)),
-    header,
+    header ?? [
+      `// Generated by DevStudio. Deserialize with: JsonSerializer.Deserialize<${usage}>(json)`,
+    ],
   );
   const files: GeneratedFile[] = ordered.map((c) => ({
     path: `${e.className(c.name)}.cs`,

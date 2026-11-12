@@ -17,7 +17,12 @@ interface Nullable {
 export type TypeRef =
   | ({ kind: 'string'; format?: StringFormat; maxLength: number } & Nullable)
   | ({ kind: 'integer'; long: boolean } & Nullable)
-  | ({ kind: 'number'; integerDigits: number; scale: number } & Nullable)
+  | ({
+      kind: 'number';
+      integerDigits: number;
+      scale: number;
+      /** Binary floating point (SQL FLOAT/REAL). */ float?: boolean;
+    } & Nullable)
   | ({ kind: 'boolean' } & Nullable)
   | ({ kind: 'any' } & Nullable)
   | ({ kind: 'array'; items: TypeRef } & Nullable)
@@ -25,17 +30,30 @@ export type TypeRef =
   | ({ kind: 'class'; name: string } & Nullable)
   | ({ kind: 'union'; types: TypeRef[] } & Nullable);
 
+/** Database details of a property mapped from a SQL column (SQL → code generators). */
+export interface SqlColumnMeta {
+  name: string;
+  sqlType: string;
+  primaryKey: boolean;
+  /** IDENTITY / SERIAL / AUTO_INCREMENT. */
+  identity: boolean;
+  maxLength: number | null;
+}
+
 export interface ModelProperty {
-  /** Original JSON key. */
+  /** Original JSON key (or column name). */
   jsonName: string;
   type: TypeRef;
   /** Missing in some of the sampled objects. */
   optional: boolean;
+  column?: SqlColumnMeta;
 }
 
 export interface ModelClass {
   name: string;
   properties: ModelProperty[];
+  /** Source table when the class was mapped from SQL. */
+  table?: { name: string; schema: string | null };
 }
 
 export interface TypeModel {

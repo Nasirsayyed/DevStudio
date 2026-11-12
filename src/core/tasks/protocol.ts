@@ -49,8 +49,14 @@ export function deserializeError(e: SerializedError): AppError {
   return new AppError(e.code, e.message, e.details ? { details: e.details } : {});
 }
 
-/** Executes a request against an operation table (used inside workers and in tests). */
-export function handleTaskRequest(ops: OperationTable, request: TaskRequest): TaskResponse {
+/**
+ * Executes a request against an operation table (used inside workers and in tests). Operations
+ * may be synchronous or return a promise (e.g. when they load a parser on demand).
+ */
+export async function handleTaskRequest(
+  ops: OperationTable,
+  request: TaskRequest,
+): Promise<TaskResponse> {
   const fn = Object.prototype.hasOwnProperty.call(ops, request.op) ? ops[request.op] : undefined;
   if (!fn)
     return {
@@ -59,7 +65,7 @@ export function handleTaskRequest(ops: OperationTable, request: TaskRequest): Ta
       error: { name: 'Error', code: 'UNKNOWN', message: `Unknown operation: ${request.op}` },
     };
   try {
-    return { id: request.id, ok: true, result: fn(request.payload as never) };
+    return { id: request.id, ok: true, result: await fn(request.payload as never) };
   } catch (error) {
     return { id: request.id, ok: false, error: serializeError(error) };
   }

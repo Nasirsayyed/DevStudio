@@ -4,9 +4,9 @@ import { jsonOperations } from '../json/operations';
 import { deserializeError, handleTaskRequest, serializeError } from './protocol';
 
 describe('task protocol', () => {
-  it('executes operations and returns results', () => {
+  it('executes operations and returns results', async () => {
     expect(
-      handleTaskRequest(jsonOperations, {
+      await handleTaskRequest(jsonOperations, {
         id: 1,
         op: 'minify',
         payload: { text: '{ "a" : [1, 2] }' },
@@ -18,8 +18,8 @@ describe('task protocol', () => {
     });
   });
 
-  it('serializes ParseErrors with their position and rebuilds them', () => {
-    const res = handleTaskRequest(jsonOperations, {
+  it('serializes ParseErrors with their position and rebuilds them', async () => {
+    const res = await handleTaskRequest(jsonOperations, {
       id: 2,
       op: 'format',
       payload: { text: '{\n "a": }', indent: 2 },
@@ -32,8 +32,8 @@ describe('task protocol', () => {
     expect((err as ParseError).column).toBe(7);
   });
 
-  it('keeps the failing input source for multi-input operations', () => {
-    const res = handleTaskRequest(jsonOperations, {
+  it('keeps the failing input source for multi-input operations', async () => {
+    const res = await handleTaskRequest(jsonOperations, {
       id: 5,
       op: 'diff',
       payload: { left: '{}', right: '[1,', options: {}, normalize: false },
@@ -54,12 +54,14 @@ describe('task protocol', () => {
     expect(serializeError('text').message).toBe('text');
   });
 
-  it('rejects unknown and inherited operation names', () => {
-    expect(handleTaskRequest(jsonOperations, { id: 3, op: 'nope', payload: {} })).toMatchObject({
+  it('rejects unknown and inherited operation names', async () => {
+    expect(
+      await handleTaskRequest(jsonOperations, { id: 3, op: 'nope', payload: {} }),
+    ).toMatchObject({
       ok: false,
     });
-    expect(handleTaskRequest(jsonOperations, { id: 4, op: 'toString', payload: {} })).toMatchObject(
-      { ok: false },
-    );
+    expect(
+      await handleTaskRequest(jsonOperations, { id: 4, op: 'toString', payload: {} }),
+    ).toMatchObject({ ok: false });
   });
 });

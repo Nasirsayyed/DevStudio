@@ -231,6 +231,15 @@ describe('SQL table', () => {
     );
   });
 
+  it('escapes backslashes in MySQL INSERTs so values cannot end the string early', () => {
+    const code = generateSqlTable([{ id: 1, name: "a\\' OR 1=1 -- " }], {
+      dialect: 'mysql',
+      tableName: 'people',
+      includeInserts: true,
+    }).code;
+    expect(code).toContain("(1, 'a\\\\'' OR 1=1 -- ')");
+  });
+
   it('generates escaped INSERT statements', () => {
     const code = generateSqlTable(
       [

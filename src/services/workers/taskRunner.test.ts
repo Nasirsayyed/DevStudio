@@ -22,7 +22,9 @@ class FakeWorker extends EventTarget {
   }
   postMessage(data: TaskRequest) {
     setTimeout(() => {
-      this.dispatchEvent(new MessageEvent('message', { data: handleTaskRequest(ops, data) }));
+      void handleTaskRequest(ops, data).then((response) => {
+        this.dispatchEvent(new MessageEvent('message', { data: response }));
+      });
     }, this.delay);
   }
   terminate() {

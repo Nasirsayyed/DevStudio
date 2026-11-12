@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { resetJsonWorkspaceState } from '@/stores/jsonWorkspaceStore';
+import { resetSqlWorkspaceState } from '@/stores/sqlWorkspaceStore';
 import { resetTextWorkspaceState } from '@/stores/textWorkspaceStore';
 import { routes } from '@/app/router/routes';
 import { db } from '@/services/db/database';
@@ -15,6 +16,7 @@ import { clearDatabase } from './db';
 export async function resetAppState(): Promise<void> {
   resetJsonWorkspaceState();
   resetTextWorkspaceState();
+  resetSqlWorkspaceState();
   await clearDatabase(db);
   usePreferencesStore.setState(DEFAULT_PREFERENCES);
   useUiStore.setState({

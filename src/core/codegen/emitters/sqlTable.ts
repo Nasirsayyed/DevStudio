@@ -8,8 +8,10 @@ import {
   inferTypeModel,
 } from '../model';
 import { NameScope, singularizeName, toIdentifier, toSnakeCase } from '../naming';
+import { sqlStringLiteral } from '../../sql/literals';
 
-export type SqlDialect = 'mssql' | 'postgresql' | 'mysql' | 'sqlite';
+export type { SqlDialect } from '../../sql/dialects';
+import type { SqlDialect } from '../../sql/dialects';
 
 export interface SqlTableOptions {
   dialect: SqlDialect;
@@ -306,8 +308,7 @@ class SqlEmitter {
   }
 
   private stringLiteral(s: string): string {
-    const escaped = s.replace(/'/g, "''");
-    return this.o.dialect === 'mssql' ? `N'${escaped}'` : `'${escaped}'`;
+    return sqlStringLiteral(s, this.o.dialect);
   }
 
   insertStatements(table: Table, rows: JsonValue[]): string[] {

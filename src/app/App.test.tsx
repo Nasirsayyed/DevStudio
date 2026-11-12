@@ -91,15 +91,15 @@ describe('application shell', () => {
 
 describe('tool routes', () => {
   it('renders a scheduled tool honestly and records usage', async () => {
-    renderApp('/sql/formatter');
+    renderApp('/api/requests');
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'SQL Formatter' }),
+      await screen.findByRole('heading', { level: 1, name: 'Request Builder' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Scheduled for Phase 9')).toBeInTheDocument();
+    expect(screen.getByText('Scheduled for Phase 10')).toBeInTheDocument();
     await waitFor(async () => {
-      expect((await db.toolUsage.get('sql.formatter'))?.count).toBeGreaterThanOrEqual(1);
+      expect((await db.toolUsage.get('api.requests'))?.count).toBeGreaterThanOrEqual(1);
     });
-    expect(usePreferencesStore.getState().recentToolIds[0]).toBe('sql.formatter');
+    expect(usePreferencesStore.getState().recentToolIds[0]).toBe('api.requests');
   });
 
   it('redirects alias tools to their canonical tool', async () => {

@@ -64,6 +64,18 @@ export const TOOL_PAGES: Readonly<Partial<Record<string, ToolPageLoader>>> = {
   'text.html-preview': () => import('@/features/text-tools/pages/HtmlPreviewPage'),
   'text.xml-formatter': () => import('@/features/text-tools/pages/XmlFormatterPage'),
   'text.yaml-formatter': () => import('@/features/text-tools/pages/YamlFormatterPage'),
+  // SQL Tools (Phase 9)
+  'sql.formatter': () => import('@/features/sql-toolkit/pages/SqlFormatterPage'),
+  'sql.minifier': () => import('@/features/sql-toolkit/pages/SqlMinifierPage'),
+  'sql.validator': () => import('@/features/sql-toolkit/pages/SqlValidatorPage'),
+  'sql.query-generator': () => import('@/features/sql-toolkit/pages/QueryGeneratorPage'),
+  'sql.select-generator': () => import('@/features/sql-toolkit/pages/SelectGeneratorPage'),
+  'sql.insert-generator': () => import('@/features/sql-toolkit/pages/InsertGeneratorPage'),
+  'sql.update-generator': () => import('@/features/sql-toolkit/pages/UpdateGeneratorPage'),
+  'sql.delete-generator': () => import('@/features/sql-toolkit/pages/DeleteGeneratorPage'),
+  'sql.to-csharp': () => import('@/features/sql-toolkit/pages/SqlToCSharpPage'),
+  'sql.to-typescript': () => import('@/features/sql-toolkit/pages/SqlToTypeScriptPage'),
+  'sql.compare': () => import('@/features/sql-toolkit/pages/SqlComparePage'),
 };
 
 export function getToolPageLoader(toolId: string): ToolPageLoader | undefined {

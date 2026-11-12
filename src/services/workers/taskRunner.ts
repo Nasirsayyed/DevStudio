@@ -19,7 +19,7 @@ export interface TaskRunner<Ops extends OperationTable> {
     op: K,
     payload: Parameters<Ops[K]>[0],
     options?: RunOptions,
-  ): Promise<ReturnType<Ops[K]>>;
+  ): Promise<Awaited<ReturnType<Ops[K]>>>;
   /** Terminates all workers (e.g. on page unload or in tests). */
   dispose(): void;
 }
@@ -66,12 +66,12 @@ export function createTaskRunner<Ops extends OperationTable>(
     op: K,
     payload: unknown,
     signal?: AbortSignal,
-  ) => {
+  ): Promise<Awaited<ReturnType<Ops[K]>>> => {
     // Yield once so the UI can paint a "processing" state first.
     await new Promise((resolve) => setTimeout(resolve, 0));
     if (signal?.aborted) throw abortError();
-    const fn = ops[op] as (p: unknown) => ReturnType<Ops[K]>;
-    return fn(payload);
+    const fn = ops[op] as (p: unknown) => unknown;
+    return (await fn(payload)) as Awaited<ReturnType<Ops[K]>>;
   };
 
   const acquire = (): Promise<PooledWorker> => {
@@ -112,14 +112,14 @@ export function createTaskRunner<Ops extends OperationTable>(
     payload: unknown,
     signal?: AbortSignal,
     timeoutMs?: number,
-  ) => {
+  ): Promise<Awaited<ReturnType<Ops[K]>>> => {
     const pooled = await acquire();
     if (signal?.aborted) {
       release(pooled);
       throw abortError();
     }
     const id = nextId++;
-    return new Promise<ReturnType<Ops[K]>>((resolve, reject) => {
+    return new Promise<Awaited<ReturnType<Ops[K]>>>((resolve, reject) => {
       const timer =
         timeoutMs === undefined
           ? undefined
@@ -143,7 +143,7 @@ export function createTaskRunner<Ops extends OperationTable>(
         if (event.data.id !== id) return;
         cleanup();
         release(pooled);
-        if (event.data.ok) resolve(event.data.result as ReturnType<Ops[K]>);
+        if (event.data.ok) resolve(event.data.result as Awaited<ReturnType<Ops[K]>>);
         else reject(deserializeError(event.data.error));
       };
       const onError = (event: ErrorEvent) => {

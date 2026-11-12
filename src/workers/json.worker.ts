@@ -6,5 +6,7 @@ import { type TaskRequest, handleTaskRequest } from '@/core/tasks/protocol';
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 
 scope.onmessage = (event: MessageEvent<TaskRequest>) => {
-  scope.postMessage(handleTaskRequest(jsonOperations, event.data));
+  void handleTaskRequest(jsonOperations, event.data).then((response) => {
+    scope.postMessage(response);
+  });
 };

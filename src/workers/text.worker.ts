@@ -6,5 +6,7 @@ import { textOperations } from '@/core/text/operations';
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 
 scope.onmessage = (event: MessageEvent<TaskRequest>) => {
-  scope.postMessage(handleTaskRequest(textOperations, event.data));
+  void handleTaskRequest(textOperations, event.data).then((response) => {
+    scope.postMessage(response);
+  });
 };

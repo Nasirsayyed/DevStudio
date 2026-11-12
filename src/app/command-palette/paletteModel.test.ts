@@ -107,7 +107,7 @@ describe('entityPath', () => {
     expect(entityPath({ ...snippet, id: 'a/b' })).toBe('/snippets?snippet=a%2Fb');
     expect(entityPath({ ...snippet, kind: 'request' })).toBe('/api/requests?request=s1');
     expect(entityPath({ ...snippet, kind: 'document' })).toBe('/json/formatter?document=s1');
-    expect(entityPath({ ...snippet, kind: 'query' })).toBe('/sql?query=s1');
+    expect(entityPath({ ...snippet, kind: 'query' })).toBe('/sql/formatter?query=s1');
     expect(entityPath({ ...snippet, kind: 'history' })).toBe('/history?entry=s1');
   });
 });
