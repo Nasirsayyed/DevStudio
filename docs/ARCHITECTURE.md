@@ -256,6 +256,28 @@ stores/textWorkspaceStore  shared working text + drafts (via stores/draftPersist
 - Drafts: `createDraftPersistence` restores a store's fields from the settings table once per
   session (only into empty fields) and saves changes, debounced; JSON Studio and Text Tools use it.
 
+## Snippet Manager
+
+```
+core/snippets (model: rules + Zod schema, search: ranking/filters/facets, exchange: import/export)
+core/languages (language list, aliases, extensions; shared with the code editor and Code Diff)
+services/db/repositories/snippetsRepository (imported by path)
+features/snippets/  SnippetsPage (URL state ?snippet=<id> / ?new=1), SnippetFilters, SnippetList
+                    (virtualized listbox), SnippetEditor (react-hook-form), ImportDialog
+```
+
+- The library is read with `useLiveQuery`, so lists, counts and an open snippet update after any
+  change (also from other tabs); an open snippet follows external changes unless it has local
+  edits. Filtering and ranking happen in memory (`filterSnippets`), which is fast for thousands of
+  snippets.
+- The form and the repository use the same Zod schema (`snippetDraftSchema`); the repository
+  validates again before every write.
+- Unsaved changes: in-page navigation asks first, `useBlocker` guards route changes, and a
+  `beforeunload` handler guards closing the tab.
+- `MonacoCodeEditor` owns its text while the user types: values it emitted are remembered until
+  the parent echoes them back, so late echoes (React Hook Form updates `Controller` values one
+  render later) never overwrite newer keystrokes; any other value is applied as an undoable edit.
+
 ## JSON Studio feature structure
 
 ```

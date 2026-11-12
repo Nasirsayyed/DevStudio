@@ -55,6 +55,10 @@ security headers or anything user-visible across pages.
   (`runner.run(op, p, { preferWorker: true, timeoutMs })`), never on the main thread.
 - The CSP lives in `config/security-headers.ts` and must match `vercel.json` (a test enforces this).
 - Errors shown to users: throw or convert to `AppError` subclasses; display with `toUserMessage()`.
+- Forms: React Hook Form with `zodResolver` and the same Zod schema the repository validates with
+  (see `core/snippets/model.ts`). Read field values with `useWatch`, not `watch()` (React Compiler).
+- Import repositories that pull in feature logic (e.g. `snippetsRepository`) by path, not from the
+  `services/db/repositories` barrel, which is part of the initial bundle.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
 - Secrets (tokens, keys, HMAC keys, passwords, generated random values) are never persisted: no
   `usePersistentOptions`, IndexedDB or history entries. Use `core/random/secureRandom` for any

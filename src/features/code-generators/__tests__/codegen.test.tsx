@@ -40,10 +40,12 @@ describe('JSON → C#', () => {
     await user.type(ns, 'Shop.Orders');
     await user.click(screen.getByRole('combobox', { name: 'Decimals' }));
     await user.click(screen.getByRole('option', { name: 'decimal' }));
+    // Both edits re-run the generator (debounced); wait for the run that includes both.
     await waitFor(async () => {
-      expect((await output()).textContent).toContain('namespace Shop.Orders;');
+      const text = (await output()).textContent;
+      expect(text).toContain('namespace Shop.Orders;');
+      expect(text).toContain('public decimal TotalAmount { get; set; }');
     });
-    expect((await output()).textContent).toContain('public decimal TotalAmount { get; set; }');
   });
 
   it('downloads one file per class as a ZIP and records history', async () => {

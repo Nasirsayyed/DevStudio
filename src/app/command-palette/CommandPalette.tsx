@@ -97,6 +97,12 @@ function useActions(close: () => void): PaletteAction[] {
         run: () => void navigate(m.path),
       })),
       {
+        id: 'snippet:new',
+        title: 'New snippet',
+        keywords: ['snippet', 'create', 'code', 'save'],
+        run: () => void navigate('/snippets?new=1'),
+      },
+      {
         id: 'theme:light',
         title: 'Switch to light theme',
         keywords: ['theme', 'appearance'],

@@ -18,7 +18,7 @@ primary key. All `id`s are UUID v7 (time-sortable) strings.
 | `apiHistory`    | `id, requestId, method, status, createdAt, url`                                | Sent requests with truncated response snapshots                                  | Phase 10 (dashboard reads now)                     |
 | `jsonDocuments` | `id, name, *tags, updatedAt`                                                   | Saved JSON documents                                                             | ✅ Now (JSON Studio save/open, dashboard, palette) |
 | `savedQueries`  | `id, name, dialect, kind, *tags, updatedAt`                                    | SQL scripts, schema designs (`kind=schema`), SQLite files (`kind=sqliteDb`)      | Phase 9                                            |
-| `codeSnippets`  | `id, title, language, category, *tags, isFavorite, updatedAt`                  | Snippets (`isFavorite` stored as 0/1, because booleans can't be indexed)         | Phase 8 (dashboard and palette read now)           |
+| `codeSnippets`  | `id, title, language, category, *tags, isFavorite, updatedAt`                  | Snippets (`isFavorite` stored as 0/1, because booleans can't be indexed)         | Phase 8                                            |
 | `favorites`     | `id, &[entityType+entityId], entityType, createdAt`                            | Favorites of any entity type (`tool`, `request`, `snippet`, `document`, `query`) | ✅ Now (tools)                                     |
 | `toolHistory`   | `id, toolId, createdAt, [toolId+createdAt]`                                    | Restorable tool operations                                                       | Phase 4+ / 11                                      |
 | `settings`      | `key`                                                                          | Structured settings (e.g. `dashboard.quickAccess`)                               | ✅ Now                                             |
@@ -39,13 +39,14 @@ the `count` index instead of aggregating the whole history.
 Features never touch Dexie directly. Each repository is created with
 `createXRepository(db = defaultDb)` so tests can inject an isolated database.
 
-| Repository            | Responsibilities                                                                                                                    |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `favoritesRepository` | `list(type)`, `isFavorite`, atomic `toggle` (transaction), `remove`, `count`                                                        |
-| `toolUsageRepository` | atomic `recordUse`, `top(n)` via the `count` index, `totalUses`, `clear`                                                            |
-| `settingsRepository`  | typed `get(key, zodSchema, fallback)`, `set`, `remove`                                                                              |
-| `workspaceRepository` | counts per table, recent items by `updatedAt`/`createdAt` index                                                                     |
-| `searchRepository`    | palette search: indexed case-insensitive prefix query, then a bounded (500 most recent) substring scan, at most N results per table |
+| Repository            | Responsibilities                                                                                                                                                                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `favoritesRepository` | `list(type)`, `isFavorite`, atomic `toggle` (transaction), `remove`, `count`                                                                                                                                                                                |
+| `toolUsageRepository` | atomic `recordUse`, `top(n)` via the `count` index, `totalUses`, `clear`                                                                                                                                                                                    |
+| `settingsRepository`  | typed `get(key, zodSchema, fallback)`, `set`, `remove`                                                                                                                                                                                                      |
+| `workspaceRepository` | counts per table, recent items by `updatedAt`/`createdAt` index                                                                                                                                                                                             |
+| `snippetsRepository`  | validated `save` (Zod), `toggleFavorite` (keeps `updatedAt`), `duplicate`, `remove`/`removeMany`/`restore` (undo), `renameCategory`, `deleteCategory`, atomic `applyImport(plan)`. Imported by path, not from the barrel, to stay out of the initial bundle |
+| `searchRepository`    | palette search: indexed case-insensitive prefix query, then a bounded (500 most recent) substring scan, at most N results per table                                                                                                                         |
 
 ## Writes and quota handling
 
@@ -53,10 +54,19 @@ Every write goes through `safeWrite()` (`services/db/safeWrite.ts`):
 
 - `QuotaExceededError` (including Dexie-wrapped `inner` errors and legacy codes 22/1014) becomes a
   `StorageQuotaError` with an actionable message.
+- Application errors thrown on purpose inside a transaction (`ValidationError`, `NotFoundError`)
+  are rethrown unchanged, also when Dexie wraps them in `inner`.
 - Any other failure becomes a `StorageError("Could not save data: …")`.
 
 Settings → Storage shows `navigator.storage.estimate()` usage and can request persistent storage
 (`navigator.storage.persist()`) to protect data from eviction.
+
+## Snippet file format
+
+Exports are JSON: `{ "format": "devstudio-snippets", "version": 1, "exportedAt": ISO date,
+"snippets": [{ id, title, description, code, language, category, tags, isFavorite, createdAt,
+updatedAt }] }` (dates as ISO strings). Imports also accept a bare array of snippets and VS Code
+snippet files. Files from a newer format version are refused.
 
 ## Migrations
 

@@ -4,6 +4,43 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-11-12
+
+Snippet Manager (roadmap Phase 8).
+
+### Added
+
+- Snippet Manager at `/snippets`: create, edit, duplicate and delete (with undo) snippets with a
+  title, description, language (27, with syntax highlighting), category and tags; favorites.
+- Library navigation by category (rename and delete), language and tag, with counts; search across
+  titles, tags, categories, descriptions and code (all words must match, title hits rank first);
+  four sort orders; a virtualized, keyboard-navigable list.
+- Forms use react-hook-form with the same Zod schema as the repository; `Ctrl/⌘+S` saves.
+- Unsaved changes are protected when switching snippets, navigating away (router blocker) and
+  closing or reloading the tab.
+- Import of DevStudio exports and VS Code snippet files (`.code-snippets`, `<language>.json`,
+  comments and trailing commas allowed): every item is validated, invalid items are listed and
+  skipped, and duplicates can be skipped, replaced or imported as copies. Imports are atomic.
+- Export of all or the filtered snippets as JSON, or as a VS Code snippets file; download a single
+  snippet as a source file with the right extension.
+- "New snippet" in the command palette; dashboard and palette links open snippets directly.
+- Responsive layout: three panes on large screens, two on tablets, list then editor on phones.
+
+### Fixed
+
+- Typing quickly into a code editor inside a form could lose characters, because a late echo of
+  an older value overwrote newer keystrokes. The editor now ignores echoes of values it emitted.
+- `safeWrite` no longer rewrites intentional application errors (validation, not found), also
+  when Dexie wraps them.
+- A Code Generator test waited for only one of two option changes (flaky).
+
+### Security
+
+- ESLint forbids importing Ajv anywhere (it needs `unsafe-eval`); it is only present on disk as an
+  optional peer of `@hookform/resolvers` and is not bundled.
+- Imported snippet files are parsed with prototype-pollution protection and validated with Zod
+  (at most 10,000 snippets, 1,000,000 characters of code each, 20 MB per file).
+
 ## [0.5.0] - 2026-11-12
 
 Text Tools (roadmap Phase 7).

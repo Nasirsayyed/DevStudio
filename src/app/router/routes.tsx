@@ -8,6 +8,7 @@ import {
   NotFoundPage,
   ScheduledModulePage,
   SettingsPage,
+  SnippetsPage,
   ToolRoutePage,
 } from './lazyPages';
 import { RouteErrorPage } from './RouteErrorPage';
@@ -36,7 +37,7 @@ export const routes: RouteObject[] = [
           { path: ':toolSlug', element: <ToolRoutePage key={id} moduleId={id} /> },
         ],
       })),
-      { path: 'snippets', element: <ScheduledModulePage moduleId="snippets" /> },
+      { path: 'snippets', element: <SnippetsPage /> },
       { path: 'history', element: <ScheduledModulePage moduleId="history" /> },
       { path: 'favorites', element: <FavoritesPage /> },
       { path: 'settings', element: <SettingsPage /> },

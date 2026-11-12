@@ -27,6 +27,12 @@ const MONACO_BAN = {
   message: 'Use CodeEditor / DiffEditor from @/components instead of importing Monaco directly.',
 };
 
+/** Code-generating validators need 'unsafe-eval', which the CSP forbids (see CLAUDE.md). */
+const EVAL_LIBS_BAN = {
+  group: ['ajv', 'ajv/*', 'ajv-*', '@hookform/resolvers/ajv', '@hookform/resolvers/ajv/*'],
+  message: 'Ajv generates code at runtime (needs unsafe-eval). Use Zod or @cfworker/json-schema.',
+};
+
 /** Each feature may not import from any *other* feature (architecture rule 3). */
 const featureIsolation = FEATURES.map((feature) => ({
   files: [`src/features/${feature}/**/*.{ts,tsx}`],
@@ -46,6 +52,7 @@ const featureIsolation = FEATURES.map((feature) => ({
               'Features must not import from other features. Move shared code to core/, services/ or components/.',
           },
           MONACO_BAN,
+          EVAL_LIBS_BAN,
         ],
       },
     ],
@@ -131,6 +138,7 @@ export default tseslint.config(
               message: 'core/ must stay framework-free and side-effect free.',
             },
             MONACO_BAN,
+            EVAL_LIBS_BAN,
           ],
         },
       ],
@@ -149,6 +157,7 @@ export default tseslint.config(
               message: 'services/ must not depend on UI layers.',
             },
             MONACO_BAN,
+            EVAL_LIBS_BAN,
           ],
         },
       ],
@@ -163,7 +172,7 @@ export default tseslint.config(
       'src/components/**/*.{ts,tsx}',
     ],
     ignores: ['src/components/code-editor/**'],
-    rules: { 'no-restricted-imports': ['error', { patterns: [MONACO_BAN] }] },
+    rules: { 'no-restricted-imports': ['error', { patterns: [MONACO_BAN, EVAL_LIBS_BAN] }] },
   },
   ...featureIsolation,
   {

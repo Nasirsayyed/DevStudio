@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–7 delivered (v0.5.0).** Next: Phase 8 (Snippet Manager).
+Status: **Approved. Phases 1–8 delivered (v0.6.0).** Next: Phase 9 (SQL Tools).
 Date: 2026-11-11
 
 ---
@@ -411,3 +411,4 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 | 5. Code Generators     | One type model, five emitters (C#, TS, Java, Python, SQL), XML ⇄ JSON, ZIP export, worker; shared workspace refactor. 346 unit/component and 16 e2e tests passing                                                                   |
 | 6. Developer Utilities | 18 utilities; JWT verification (jose + Web Crypto: secret, PEM, JWK, JWKS), secure random, chunked file hashing, IANA time zones with DST notes. 454 unit/component and 20 e2e tests passing                                        |
 | 7. Text Tools          | 11 tools; jsdiff, marked + DOMPurify (sandboxed previews, external resources blocked), token-level XML formatter, `yaml`; regex worker with timeout; shared text workspace with drafts. 555 unit/component and 25 e2e tests passing |
+| 8. Snippet Manager     | CRUD, categories, tags, favorites, search, DevStudio/VS Code import and export, react-hook-form + Zod, unsaved-changes guards; fixed lost keystrokes in form-bound editors. 581 unit/component and 30 e2e tests passing             |

@@ -1,6 +1,6 @@
 import { Autocomplete, TextField } from '@mui/material';
 import { DiffEditor, EmptyState, Panel } from '@/components';
-import { CODE_LANGUAGES, languageForFile } from '@/components/code-editor/languages';
+import { CODE_LANGUAGES, languageForFile } from '@/core/languages/languages';
 import { OptionsBar, SwitchOption } from '@/components/workspace/OptionControls';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePersistentOptions } from '@/hooks/usePersistentOptions';

@@ -82,6 +82,13 @@ export class StorageError extends AppError {
   }
 }
 
+export class NotFoundError extends AppError {
+  constructor(message: string) {
+    super('NOT_FOUND', message);
+    this.name = 'NotFoundError';
+  }
+}
+
 export function isAppError(value: unknown): value is AppError {
   return value instanceof AppError;
 }

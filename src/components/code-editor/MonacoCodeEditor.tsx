@@ -36,8 +36,40 @@ export default function MonacoCodeEditor({
 
   const large = value.length > LARGE_FILE_CHARS;
 
+  /*
+   * The editor owns its text while the user types. Values it emitted itself are remembered until
+   * the parent echoes them back, so a late or stale echo (e.g. from a form library that updates on
+   * the next render) can never overwrite newer keystrokes. Any other value is an external change
+   * (load, reset, "use output as input") and replaces the content.
+   */
+  const emitted = useRef<string[]>([]);
+  const latestValue = useRef(value);
+  useEffect(() => {
+    latestValue.current = value;
+    const editor = editorRef.current;
+    if (!editor) return;
+    const echo = emitted.current.lastIndexOf(value);
+    if (echo >= 0) {
+      emitted.current = emitted.current.slice(echo + 1);
+      return;
+    }
+    emitted.current = [];
+    if (editor.getValue() === value) return;
+    if (readOnly) {
+      editor.setValue(value);
+      return;
+    }
+    const model = editor.getModel();
+    if (!model) return;
+    // An edit (not setValue) keeps the change undoable with Ctrl/⌘+Z.
+    editor.pushUndoStop();
+    editor.executeEdits('devstudio', [{ range: model.getFullModelRange(), text: value }]);
+    editor.pushUndoStop();
+  }, [value, readOnly]);
+
   const handleMount: OnMount = (editor) => {
     editorRef.current = editor;
+    if (editor.getValue() !== latestValue.current) editor.setValue(latestValue.current);
     editor.addAction({
       id: 'devstudio.run',
       label: 'Run tool',
@@ -77,11 +109,17 @@ export default function MonacoCodeEditor({
   return (
     <Box sx={{ height, minHeight: 0, width: '100%', overflow: 'hidden' }} data-testid="code-editor">
       <Editor
-        value={value}
+        defaultValue={value}
         language={language}
         theme={theme.palette.mode === 'dark' ? 'devstudio-dark' : 'devstudio-light'}
         onMount={handleMount}
-        onChange={(v) => onChange?.(v ?? '')}
+        onChange={(v) => {
+          if (!onChange) return;
+          const text = v ?? '';
+          emitted.current.push(text);
+          if (emitted.current.length > 100) emitted.current.shift();
+          onChange(text);
+        }}
         loading={null}
         options={{
           readOnly,

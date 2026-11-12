@@ -20,7 +20,8 @@ an API request.
 | Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)          | ✅ Done                   |
 | Developer Utilities (18 tools, JWT verification, hashing, time zones)    | ✅ Done                   |
 | Text Tools (diff, find & replace, counters, previews, XML/YAML)          | ✅ Done                   |
-| Snippets, SQL, API Studio, History/Backup                                | 🗓 Scheduled (Phases 8–11) |
+| Snippet Manager (categories, tags, search, VS Code import/export)        | ✅ Done                   |
+| SQL, API Studio, History/Backup                                          | 🗓 Scheduled (Phases 9–11) |
 
 Tools that are not implemented yet are listed (so you can search, favorite and pin them),
 and their pages clearly say which phase delivers them. No placeholder UI pretends to work.
@@ -64,7 +65,7 @@ npm run dev          # http://localhost:5173
 ## Tech stack
 
 React 19 · TypeScript 6 (strict) · Vite 8 · Material UI 9 · Iconsax (`iconsax-reactjs`) ·
-Zustand 5 · Dexie 4 (IndexedDB) · React Router 8 · Zod 4 · Apache ECharts 6 · date-fns 4 ·
+Zustand 5 · Dexie 4 (IndexedDB) · React Router 8 · React Hook Form + Zod 4 · Apache ECharts 6 · date-fns 4 ·
 Vitest 5 · React Testing Library · Playwright.
 
 Monaco Editor · `@cfworker/json-schema` · `jsonpath-plus` (safe evaluator) · PapaParse · FileSaver · JSZip · fast-xml-parser/-builder/-validator.

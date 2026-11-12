@@ -1,7 +1,7 @@
 {
   "name": "devstudio",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "description": "DevStudio — all-in-one browser-based developer productivity suite",
   "engines": {
@@ -29,6 +29,7 @@
     "@emotion/styled": "^11.14.1",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@hookform/resolvers": "^6.0.2",
     "@monaco-editor/react": "^4.7.0",
     "@mui/material": "^9.5.0",
     "@mui/system": "^9.5.0",
@@ -57,6 +58,7 @@
     "papaparse": "^5.7.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-hook-form": "^7.91.0",
     "react-router": "^8.5.1",
     "ua-parser-js": "^1.0.41",
     "uuid": "^14.0.3",

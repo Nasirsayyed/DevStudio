@@ -1,3 +1,4 @@
+import { NotFoundError } from '@/core/errors/AppError';
 import { describe, expect, it } from 'vitest';
 import { StorageError, StorageQuotaError } from '@/core/errors/AppError';
 import { isQuotaExceededError, safeWrite } from './safeWrite';
@@ -27,5 +28,10 @@ describe('safeWrite', () => {
     expect(isQuotaExceededError({ code: 22 })).toBe(true);
     expect(isQuotaExceededError(new Error('x'))).toBe(false);
     expect(isQuotaExceededError(null)).toBe(false);
+  });
+
+  it('passes application errors through unchanged', async () => {
+    const error = new NotFoundError('gone');
+    await expect(safeWrite(() => Promise.reject(error))).rejects.toBe(error);
   });
 });

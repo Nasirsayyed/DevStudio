@@ -156,6 +156,19 @@ switching tools and restored after a reload). Large inputs are processed in a We
 Previews are **sanitized** (no scripts, event handlers, `javascript:` URLs, frames or forms), never
 load external resources, and render in a **sandboxed iframe** with its own Content Security Policy.
 
+## Snippet Manager (✅ Phase 8)
+
+| Feature      | Details                                                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Snippets     | Title, description, code (Monaco, 27 languages), language, category, tags, favorite; create, edit, duplicate, delete with undo; download as a source file; copy code           |
+| Organization | Categories with counts (rename, delete → moved to "General"), languages, tags (case-insensitive), favorites                                                                    |
+| Search       | Titles, tags (`#tag`), categories, languages, descriptions and code; every word must match; title and tag hits rank first; sort by updated, created, title or language         |
+| Editing      | React Hook Form + Zod (same rules as storage), `Ctrl/⌘+S`, discard changes, guards for unsaved changes (switching snippets, leaving the page, closing the tab)                 |
+| Import       | DevStudio exports and VS Code snippet files (JSONC); per-item validation with a problem list; duplicates (same id, or same title and code) skipped, replaced or copied; atomic |
+| Export       | All or filtered snippets as JSON, or all as a VS Code `.code-snippets` file                                                                                                    |
+| Access       | `/snippets?snippet=<id>` deep links from the dashboard and command palette; "New snippet" palette action                                                                       |
+| Layout       | Filters · list · editor on large screens; filters in a drawer on tablets; list then editor (with Back) on phones                                                               |
+
 ## Modules
 
 70 tools are registered, searchable and favoritable. Tools of later phases show their delivery phase.
@@ -166,7 +179,7 @@ load external resources, and render in a **sandboxed iframe** with its own Conte
 | Code Generators             | JSON → C#, TypeScript, Java, Python, SQL table, XML; XML → JSON; JSON → CSV (alias of JSON Studio's)                                                                                          | ✅ 5  |
 | Developer Utilities         | Base64, URL, HTML entities, JWT decoder, JWT verifier, UUID, GUID, random string, password, hash, lorem ipsum, Unix timestamp, timezone, date diff, color, cron, MIME, user agent             | ✅ 6  |
 | Text Tools                  | Text diff, code diff, find & replace, counters, line tools, reverse, case converter, Markdown preview, HTML preview, XML formatter, YAML formatter                                            | ✅ 7  |
-| Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | 🗓 8   |
+| Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | ✅ 8  |
 | SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | 🗓 9   |
 | API Testing                 | Request builder, environments, collection runner, history, response compare                                                                                                                   | 🗓 10  |
 | History, backup and restore | Unified history, restore, full export/import                                                                                                                                                  | 🗓 11  |

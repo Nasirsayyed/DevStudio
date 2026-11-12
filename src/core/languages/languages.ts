@@ -1,6 +1,6 @@
 /**
- * Languages with syntax highlighting (registered in monacoSetup.ts). Kept free of Monaco imports
- * so option lists can be built without loading the editor.
+ * Languages with syntax highlighting (registered in components/code-editor/monacoSetup.ts).
+ * Pure data, so option lists, imports and exports work without loading the editor.
  */
 export const CODE_LANGUAGES: readonly { id: string; label: string }[] = [
   { id: 'plaintext', label: 'Plain text' },
@@ -85,4 +85,99 @@ export function languageForFile(name: string): string | null {
   if (base === 'dockerfile' || base.endsWith('.dockerfile')) return 'dockerfile';
   const ext = base.includes('.') ? base.slice(base.lastIndexOf('.') + 1) : '';
   return BY_EXTENSION[ext] ?? null;
+}
+
+/** Preferred file extension for downloads ("snippet.ts"). */
+const EXTENSION: Record<string, string> = {
+  plaintext: 'txt',
+  javascript: 'js',
+  typescript: 'ts',
+  json: 'json',
+  html: 'html',
+  css: 'css',
+  scss: 'scss',
+  less: 'less',
+  csharp: 'cs',
+  java: 'java',
+  kotlin: 'kt',
+  python: 'py',
+  go: 'go',
+  rust: 'rs',
+  php: 'php',
+  ruby: 'rb',
+  swift: 'swift',
+  cpp: 'cpp',
+  sql: 'sql',
+  shell: 'sh',
+  powershell: 'ps1',
+  xml: 'xml',
+  yaml: 'yaml',
+  markdown: 'md',
+  dockerfile: 'dockerfile',
+  ini: 'ini',
+  graphql: 'graphql',
+};
+
+export function extensionForLanguage(language: string): string {
+  return EXTENSION[language] ?? 'txt';
+}
+
+export function isKnownLanguage(language: string): boolean {
+  return CODE_LANGUAGES.some((l) => l.id === language);
+}
+
+export function languageLabel(language: string): string {
+  return CODE_LANGUAGES.find((l) => l.id === language)?.label ?? language;
+}
+
+/**
+ * Maps a VS Code snippet "scope" or a loose language name ("js", "C#", "bash") to a language id.
+ */
+const ALIASES: Record<string, string> = {
+  js: 'javascript',
+  javascriptreact: 'javascript',
+  jsx: 'javascript',
+  node: 'javascript',
+  ts: 'typescript',
+  typescriptreact: 'typescript',
+  tsx: 'typescript',
+  'c#': 'csharp',
+  cs: 'csharp',
+  py: 'python',
+  python3: 'python',
+  golang: 'go',
+  rs: 'rust',
+  rb: 'ruby',
+  c: 'cpp',
+  'c++': 'cpp',
+  objc: 'cpp',
+  sh: 'shell',
+  bash: 'shell',
+  zsh: 'shell',
+  shellscript: 'shell',
+  ps1: 'powershell',
+  pwsh: 'powershell',
+  yml: 'yaml',
+  md: 'markdown',
+  text: 'plaintext',
+  txt: 'plaintext',
+  plain: 'plaintext',
+  docker: 'dockerfile',
+  properties: 'ini',
+  toml: 'ini',
+  gql: 'graphql',
+  htm: 'html',
+  postgres: 'sql',
+  mysql: 'sql',
+  pgsql: 'sql',
+  tsql: 'sql',
+  sqlite: 'sql',
+  kt: 'kotlin',
+};
+
+export function normalizeLanguage(value: string | undefined | null): string {
+  const v = (value ?? '').trim().toLowerCase();
+  if (!v) return 'plaintext';
+  if (isKnownLanguage(v)) return v;
+  return ALIASES[v] ?? 'plaintext';
 }
