@@ -35,10 +35,12 @@ describe('DashboardPage', () => {
     renderApp('/');
     const stats = await screen.findByRole('region', { name: 'Workspace statistics' });
     expect(
-      within(stats).getByRole('link', { name: `Tools: ${CANONICAL_TOOLS.length}` }),
+      within(stats).getByRole('link', {
+        name: new RegExp(`^Tools ${String(CANONICAL_TOOLS.length)}\\b`),
+      }),
     ).toBeInTheDocument();
-    expect(await within(stats).findByRole('link', { name: 'JSON docs: 2' })).toBeInTheDocument();
-    expect(within(stats).getByRole('link', { name: 'Snippets: 0' })).toBeInTheDocument();
+    expect(await within(stats).findByRole('link', { name: /^JSON docs 2\b/ })).toBeInTheDocument();
+    expect(within(stats).getByRole('link', { name: /^Snippets 0\b/ })).toBeInTheDocument();
 
     const docs = screen.getByRole('region', { name: 'Saved JSON documents' });
     const items = await within(docs).findAllByRole('link');

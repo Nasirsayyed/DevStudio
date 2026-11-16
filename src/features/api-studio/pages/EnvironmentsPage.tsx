@@ -300,18 +300,19 @@ export default function EnvironmentsPage() {
           ) : (
             <List dense aria-label="Environments">
               {environments.map((e) => (
-                <ListItemButton
-                  key={e.id}
-                  selected={e.id === selected?.id}
-                  onClick={() => {
-                    setSelectedId(e.id);
-                  }}
-                >
-                  <ListItemText
-                    primary={e.name}
-                    secondary={`${String(e.variables.filter((v) => v.key).length)} variables${e.id === active?.id ? ' · active' : ''}`}
-                  />
-                </ListItemButton>
+                <li key={e.id}>
+                  <ListItemButton
+                    selected={e.id === selected?.id}
+                    onClick={() => {
+                      setSelectedId(e.id);
+                    }}
+                  >
+                    <ListItemText
+                      primary={e.name}
+                      secondary={`${String(e.variables.filter((v) => v.key).length)} variables${e.id === active?.id ? ' · active' : ''}`}
+                    />
+                  </ListItemButton>
+                </li>
               ))}
             </List>
           )}

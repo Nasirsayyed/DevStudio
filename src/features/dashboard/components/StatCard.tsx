@@ -26,7 +26,7 @@ export function StatCard({
         component={RouterLink}
         to={to}
         sx={{ p: 2, height: '100%' }}
-        aria-label={`${label}: ${value ?? 'loading'}`}
+        aria-busy={value === undefined}
       >
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <Box

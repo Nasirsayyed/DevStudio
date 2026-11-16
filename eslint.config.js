@@ -97,6 +97,33 @@ export default tseslint.config(
       'no-implied-eval': 'error',
       'no-new-func': 'error',
       'no-script-url': 'error',
+      // Security: randomness must be cryptographic; HTML only through the sanitizer + sandbox.
+      'no-restricted-properties': [
+        'error',
+        { object: 'Math', property: 'random', message: 'Use core/random/secureRandom.' },
+        { object: 'document', property: 'write', message: 'Never write HTML into the page.' },
+        {
+          object: 'window',
+          property: 'open',
+          message: 'Pop-ups must not keep window.opener; use openSignInWindow (oauthClient).',
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+          message: 'Render user HTML with sanitizeHtml() + previewDocument() in PreviewFrame.',
+        },
+        {
+          selector:
+            "AssignmentExpression[left.type='MemberExpression'][left.property.name=/^(innerHTML|outerHTML)$/]",
+          message: 'Never assign HTML strings to the DOM.',
+        },
+        {
+          selector: "CallExpression[callee.property.name='insertAdjacentHTML']",
+          message: 'Never insert HTML strings into the DOM.',
+        },
+      ],
       'no-console': ['error', { allow: ['warn', 'error'] }],
       eqeqeq: ['error', 'always'],
       '@typescript-eslint/consistent-type-imports': [
@@ -175,6 +202,11 @@ export default tseslint.config(
     rules: { 'no-restricted-imports': ['error', { patterns: [MONACO_BAN, EVAL_LIBS_BAN] }] },
   },
   ...featureIsolation,
+  // The one place that opens a pop-up (and severs window.opener).
+  {
+    files: ['src/services/http/oauthClient.ts'],
+    rules: { 'no-restricted-properties': 'off' },
+  },
   {
     files: ['**/*.test.{ts,tsx}', 'src/test/**', 'e2e/**'],
     rules: {

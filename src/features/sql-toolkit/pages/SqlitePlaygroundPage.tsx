@@ -445,30 +445,31 @@ export default function SqlitePlaygroundPage() {
               ) : (
                 <List dense aria-label="Tables and views">
                   {schema.map((o) => (
-                    <ListItemButton
-                      key={o.name}
-                      onClick={() => {
-                        set({
-                          playground: `SELECT * FROM "${o.name.replace(/"/g, '""')}" LIMIT 100;`,
-                        });
-                        notify.info(`Query for ${o.name} is in the editor; press Run.`);
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          <>
-                            <strong>{o.name}</strong>{' '}
-                            {o.type === 'view' ? '(view)' : `· ${String(o.rows ?? 0)} rows`}
-                          </>
-                        }
-                        secondary={o.columns
-                          .map(
-                            (c) =>
-                              `${c.name}${c.type ? ` ${c.type}` : ''}${c.primaryKey ? ' PK' : ''}${c.notNull ? ' NOT NULL' : ''}`,
-                          )
-                          .join(', ')}
-                      />
-                    </ListItemButton>
+                    <li key={o.name}>
+                      <ListItemButton
+                        onClick={() => {
+                          set({
+                            playground: `SELECT * FROM "${o.name.replace(/"/g, '""')}" LIMIT 100;`,
+                          });
+                          notify.info(`Query for ${o.name} is in the editor; press Run.`);
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <>
+                              <strong>{o.name}</strong>{' '}
+                              {o.type === 'view' ? '(view)' : `· ${String(o.rows ?? 0)} rows`}
+                            </>
+                          }
+                          secondary={o.columns
+                            .map(
+                              (c) =>
+                                `${c.name}${c.type ? ` ${c.type}` : ''}${c.primaryKey ? ' PK' : ''}${c.notNull ? ' NOT NULL' : ''}`,
+                            )
+                            .join(', ')}
+                        />
+                      </ListItemButton>
+                    </li>
                   ))}
                 </List>
               )}

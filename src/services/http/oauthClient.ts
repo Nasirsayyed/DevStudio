@@ -20,6 +20,19 @@ export function oauthRedirectUri(origin = window.location.origin): string {
   return `${origin}${OAUTH_CALLBACK_PATH}`;
 }
 
+/**
+ * Opens the provider's page in a pop-up without giving it `window.opener` (so it can never
+ * navigate this tab: no reverse tabnabbing), while still detecting a blocked pop-up. The window
+ * starts as same-origin about:blank, drops its opener, then navigates to the provider.
+ */
+export function openSignInWindow(url: string): Window | null {
+  const popup = window.open('about:blank', '_blank', 'popup,width=520,height=720');
+  if (!popup) return null;
+  popup.opener = null;
+  popup.location.href = url;
+  return popup;
+}
+
 async function exchange(
   config: OAuthConfig,
   grant: Parameters<typeof tokenRequest>[1],
@@ -58,8 +71,7 @@ export function clientCredentialsToken(
 export async function authorizationCodeToken(
   config: OAuthConfig,
   signal?: AbortSignal,
-  openWindow: (url: string) => Window | null = (url) =>
-    window.open(url, 'devstudio-oauth', 'popup,width=520,height=720'),
+  openWindow: (url: string) => Window | null = openSignInWindow,
 ): Promise<TokenResponse> {
   validateOAuthConfig(config);
   const { verifier, challenge } = await createPkce();

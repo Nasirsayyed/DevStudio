@@ -149,21 +149,22 @@ export default function JsonValidatorPage() {
                     Duplicate keys are legal but ambiguous: most parsers keep only the last value.
                     <List dense aria-label="Duplicate keys" sx={{ mt: 0.5 }}>
                       {a.duplicates.slice(0, 50).map((d) => (
-                        <ListItemButton
-                          key={`${d.line}:${d.column}`}
-                          onClick={() => {
-                            setReveal({ line: d.line, column: d.column, token: Date.now() });
-                          }}
-                          sx={{ borderRadius: 1 }}
-                        >
-                          <ListItemText
-                            primary={`"${d.key}" in ${toJsonPath(d.path)}`}
-                            secondary={`Line ${d.line}, column ${d.column}`}
-                            slotProps={{
-                              primary: { sx: { fontFamily: fontFamilies.mono, fontSize: 12.5 } },
+                        <li key={`${d.line}:${d.column}`}>
+                          <ListItemButton
+                            onClick={() => {
+                              setReveal({ line: d.line, column: d.column, token: Date.now() });
                             }}
-                          />
-                        </ListItemButton>
+                            sx={{ borderRadius: 1 }}
+                          >
+                            <ListItemText
+                              primary={`"${d.key}" in ${toJsonPath(d.path)}`}
+                              secondary={`Line ${d.line}, column ${d.column}`}
+                              slotProps={{
+                                primary: { sx: { fontFamily: fontFamilies.mono, fontSize: 12.5 } },
+                              }}
+                            />
+                          </ListItemButton>
+                        </li>
                       ))}
                     </List>
                   </Alert>

@@ -42,7 +42,6 @@ function GlobalSearchButton({ compact }: { compact: boolean }) {
       onClick={() => {
         openCommandPalette();
       }}
-      aria-label="Search tools and saved work"
       aria-keyshortcuts="Control+K Meta+K"
       sx={{
         width: { md: 260, lg: 340 },
@@ -62,9 +61,12 @@ function GlobalSearchButton({ compact }: { compact: boolean }) {
     >
       <SearchNormal1 size={16} color="currentColor" />
       <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
-        Search tools, requests, snippets…
+        Search tools and saved work
       </Typography>
-      <Kbd combo={SHORTCUTS.commandPalette.combo} size="small" />
+      {/* The shortcut is announced through aria-keyshortcuts; the name is the visible text. */}
+      <Box component="span" aria-hidden sx={{ display: 'inline-flex' }}>
+        <Kbd combo={SHORTCUTS.commandPalette.combo} size="small" />
+      </Box>
     </ButtonBase>
   );
 }

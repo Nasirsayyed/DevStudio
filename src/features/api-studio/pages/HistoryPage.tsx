@@ -364,38 +364,39 @@ export default function HistoryPage() {
             >
               <List dense aria-label="History">
                 {(entries ?? []).map((h) => (
-                  <ListItemButton
-                    key={h.id}
-                    selected={h.id === selected?.id}
-                    onClick={() => {
-                      setSelectedId(h.id);
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        width: 60,
-                        flexShrink: 0,
-                        fontSize: 11,
-                        fontWeight: 700,
-                        fontFamily: fontFamilies.mono,
+                  <li key={h.id}>
+                    <ListItemButton
+                      selected={h.id === selected?.id}
+                      onClick={() => {
+                        setSelectedId(h.id);
                       }}
                     >
-                      {h.method}
-                    </Typography>
-                    <ListItemText
-                      primary={h.url}
-                      secondary={formatDistanceToNowStrict(h.createdAt, { addSuffix: true })}
-                      slotProps={{
-                        primary: {
-                          noWrap: true,
-                          variant: 'body2',
-                          sx: { fontFamily: fontFamilies.mono },
-                        },
-                      }}
-                    />
-                    <Box sx={{ ml: 1 }}>{statusChip(h)}</Box>
-                  </ListItemButton>
+                      <Typography
+                        component="span"
+                        sx={{
+                          width: 60,
+                          flexShrink: 0,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          fontFamily: fontFamilies.mono,
+                        }}
+                      >
+                        {h.method}
+                      </Typography>
+                      <ListItemText
+                        primary={h.url}
+                        secondary={formatDistanceToNowStrict(h.createdAt, { addSuffix: true })}
+                        slotProps={{
+                          primary: {
+                            noWrap: true,
+                            variant: 'body2',
+                            sx: { fontFamily: fontFamilies.mono },
+                          },
+                        }}
+                      />
+                      <Box sx={{ ml: 1 }}>{statusChip(h)}</Box>
+                    </ListItemButton>
+                  </li>
                 ))}
               </List>
             </Paper>

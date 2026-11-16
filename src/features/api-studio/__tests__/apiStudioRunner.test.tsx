@@ -338,11 +338,9 @@ describe('OAuth 2.0', () => {
 
   it('runs the authorization code flow with PKCE through the callback page', async () => {
     fetchMock.mockResolvedValue(json({ access_token: 'pkce-token' }));
-    let authUrl = '';
-    const open = vi.spyOn(window, 'open').mockImplementation((url) => {
-      authUrl = String(url);
-      return window;
-    });
+    // The pop-up opens about:blank, drops its opener, then navigates to the provider.
+    const popup = { opener: window as Window | null, location: { href: 'about:blank' } };
+    const open = vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
     const { user } = renderApp('/api/requests');
     await chooseOAuth(user);
     await user.click(screen.getByRole('combobox', { name: 'Grant type' }));
@@ -352,9 +350,10 @@ describe('OAuth 2.0', () => {
     await paste(user, screen.getByLabelText('Client ID'), 'spa');
     await user.click(screen.getByRole('button', { name: 'Get access token' }));
     await waitFor(() => {
-      expect(authUrl).not.toBe('');
+      expect(popup.location.href).not.toBe('about:blank');
     });
-    const params = new URL(authUrl).searchParams;
+    expect(popup.opener).toBeNull();
+    const params = new URL(popup.location.href).searchParams;
     expect(params.get('code_challenge_method')).toBe('S256');
     expect(params.get('redirect_uri')).toBe(`${window.location.origin}/oauth/callback`);
 

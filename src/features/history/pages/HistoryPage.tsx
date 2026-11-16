@@ -441,48 +441,49 @@ export default function HistoryPage() {
               {filtered.slice(0, limit).map((e) => {
                 const tool = e.kind === 'tool' ? getTool(e.row.toolId) : undefined;
                 return (
-                  <ListItemButton
-                    key={e.id}
-                    selected={e.id === selected?.id}
-                    onClick={() => {
-                      setSelectedId(e.id);
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 32 }}>
-                      {tool ? (
-                        <ToolIcon tool={tool} size={18} />
-                      ) : (
-                        <Global size={18} color="currentColor" />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={e.kind === 'tool' ? e.row.label : `${e.row.method} ${e.row.url}`}
-                      secondary={`${e.kind === 'tool' ? toolTitle(e.row.toolId) : 'API request'} · ${formatDistanceToNowStrict(e.at, { addSuffix: true })}`}
-                      slotProps={{
-                        primary: {
-                          noWrap: true,
-                          variant: 'body2',
-                          sx: e.kind === 'api' ? { fontFamily: fontFamilies.mono } : undefined,
-                        },
-                        secondary: { noWrap: true },
+                  <li key={e.id}>
+                    <ListItemButton
+                      selected={e.id === selected?.id}
+                      onClick={() => {
+                        setSelectedId(e.id);
                       }}
-                    />
-                    {e.kind === 'api' && (
-                      <Chip
-                        size="small"
-                        variant="outlined"
-                        color={
-                          e.row.status === null
-                            ? 'error'
-                            : e.row.status >= 400
-                              ? 'warning'
-                              : 'success'
-                        }
-                        label={e.row.status === null ? 'Failed' : String(e.row.status)}
-                        sx={{ ml: 1 }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 32 }}>
+                        {tool ? (
+                          <ToolIcon tool={tool} size={18} />
+                        ) : (
+                          <Global size={18} color="currentColor" />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={e.kind === 'tool' ? e.row.label : `${e.row.method} ${e.row.url}`}
+                        secondary={`${e.kind === 'tool' ? toolTitle(e.row.toolId) : 'API request'} · ${formatDistanceToNowStrict(e.at, { addSuffix: true })}`}
+                        slotProps={{
+                          primary: {
+                            noWrap: true,
+                            variant: 'body2',
+                            sx: e.kind === 'api' ? { fontFamily: fontFamilies.mono } : undefined,
+                          },
+                          secondary: { noWrap: true },
+                        }}
                       />
-                    )}
-                  </ListItemButton>
+                      {e.kind === 'api' && (
+                        <Chip
+                          size="small"
+                          variant="outlined"
+                          color={
+                            e.row.status === null
+                              ? 'error'
+                              : e.row.status >= 400
+                                ? 'warning'
+                                : 'success'
+                          }
+                          label={e.row.status === null ? 'Failed' : String(e.row.status)}
+                          sx={{ ml: 1 }}
+                        />
+                      )}
+                    </ListItemButton>
+                  </li>
                 );
               })}
             </List>

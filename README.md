@@ -38,18 +38,19 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-| Script                            | Purpose                                                                         |
-| --------------------------------- | ------------------------------------------------------------------------------- |
-| `npm run dev`                     | Vite dev server with HMR                                                        |
-| `npm run build`                   | Typecheck + production build to `dist/`                                         |
-| `npm run preview`                 | Serve `dist/` with production security headers (CSP)                            |
-| `npm run typecheck`               | `tsc -b` across app, node configs and e2e                                       |
-| `npm run lint`                    | ESLint (strict type-checked, React hooks/compiler, a11y), zero warnings allowed |
-| `npm run format` / `format:check` | Prettier                                                                        |
-| `npm test`                        | Vitest unit + component tests                                                   |
-| `npm run test:coverage`           | Tests with V8 coverage                                                          |
-| `npm run e2e`                     | Playwright end-to-end tests against the production build                        |
-| `npm run check`                   | typecheck + lint + tests                                                        |
+| Script                            | Purpose                                                                            |
+| --------------------------------- | ---------------------------------------------------------------------------------- |
+| `npm run dev`                     | Vite dev server with HMR                                                           |
+| `npm run build`                   | Typecheck + production build to `dist/`                                            |
+| `npm run preview`                 | Serve `dist/` with production security headers (CSP)                               |
+| `npm run typecheck`               | `tsc -b` across app, node configs and e2e                                          |
+| `npm run lint`                    | ESLint (strict type-checked, React hooks/compiler, a11y), zero warnings allowed    |
+| `npm run format` / `format:check` | Prettier                                                                           |
+| `npm test`                        | Vitest unit + component tests                                                      |
+| `npm run test:coverage`           | Tests with V8 coverage                                                             |
+| `npm run e2e`                     | Playwright end-to-end tests (incl. axe accessibility) against the production build |
+| `npm run bundle:check`            | Gzip bundle budgets for `dist/` (run after `npm run build`)                        |
+| `npm run check`                   | typecheck + lint + tests                                                           |
 
 ## Keyboard shortcuts
 
@@ -83,16 +84,17 @@ library is loaded only with the page that needs it, so the initial bundle stays 
 
 ## Documentation
 
-| Document                                                   | Contents                                                    |
-| ---------------------------------------------------------- | ----------------------------------------------------------- |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)               | Layers, folder structure, module boundaries, routing, state |
-| [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)         | IndexedDB tables, indexes, migrations, localStorage keys    |
-| [docs/FEATURE_LIST.md](docs/FEATURE_LIST.md)               | Every feature and its status                                |
-| [docs/TESTING.md](docs/TESTING.md)                         | Test strategy, how to run, conventions                      |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                   | Vercel, security headers, CI                                |
-| [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | Roadmap, risks and decisions                                |
-| [CHANGELOG.md](CHANGELOG.md)                               | Release notes                                               |
-| [CLAUDE.md](CLAUDE.md)                                     | Conventions for AI-assisted development                     |
+| Document                                                   | Contents                                                        |
+| ---------------------------------------------------------- | --------------------------------------------------------------- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)               | Layers, folder structure, module boundaries, routing, state     |
+| [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)         | IndexedDB tables, indexes, migrations, localStorage keys        |
+| [docs/FEATURE_LIST.md](docs/FEATURE_LIST.md)               | Every feature and its status                                    |
+| [docs/TESTING.md](docs/TESTING.md)                         | Test strategy, how to run, conventions                          |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                   | Vercel, security headers, CI                                    |
+| [docs/SECURITY.md](docs/SECURITY.md)                       | Threat model, security controls, accessibility and bundle gates |
+| [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | Roadmap, risks and decisions                                    |
+| [CHANGELOG.md](CHANGELOG.md)                               | Release notes                                                   |
+| [CLAUDE.md](CLAUDE.md)                                     | Conventions for AI-assisted development                         |
 
 ## Privacy and security
 
@@ -106,3 +108,5 @@ library is loaded only with the page that needs it, so the initial bundle stays 
 - Tokens, keys, secrets and generated passwords are never stored or written to history. Random
   values come from `crypto.getRandomValues`. The JWT decoder never claims a signature is valid;
   only the verifier (Web Crypto) does.
+- API credentials and secret variables stay in memory unless you agree to store them; history,
+  drafts, exports and backups leave them out. See [docs/SECURITY.md](docs/SECURITY.md).

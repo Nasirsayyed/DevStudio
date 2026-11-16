@@ -121,3 +121,18 @@ describe('sendRequest', () => {
     expect(isAbortError(await pending.catch((e: unknown) => e))).toBe(true);
   });
 });
+
+describe('OAuth sign-in window', () => {
+  it('severs window.opener before navigating to the provider', async () => {
+    const { openSignInWindow } = await import('./oauthClient');
+    const popup = { opener: window as Window | null, location: { href: 'about:blank' } };
+    const open = vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    expect(openSignInWindow('https://auth.test/authorize?x=1')).toBe(popup);
+    expect(open).toHaveBeenCalledWith('about:blank', '_blank', 'popup,width=520,height=720');
+    expect(popup.opener).toBeNull();
+    expect(popup.location.href).toBe('https://auth.test/authorize?x=1');
+    open.mockReturnValue(null);
+    expect(openSignInWindow('https://auth.test/')).toBeNull();
+    open.mockRestore();
+  });
+});

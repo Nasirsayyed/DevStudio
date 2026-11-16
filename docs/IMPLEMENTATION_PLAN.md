@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–11 delivered (v0.9.0).** Next: Phase 12 (hardening).
+Status: **Approved. Phases 1–12 delivered (v0.10.0).** Next: Phase 13 (deployment).
 Date: 2026-11-11
 
 ---
@@ -416,3 +416,4 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 | 10a. API Studio (part 1) | Request Builder (all body modes, Basic/Bearer/API-key auth, settings), `{{variables}}`, response viewer (pretty/raw/tree/sandboxed HTML/images), collections and folders, cURL import, code snippets, environments with in-memory secrets, redacted history. 660 unit/component and 38 e2e tests passing |
 | 10b. API Studio (part 2) | Assertions and chaining, Collection Runner, DevStudio/Postman import and export, Response Compare, OAuth 2.0 (client credentials, authorization code + PKCE). 689 unit/component and 40 e2e tests passing                                                                                                |
 | 11. History and backup   | Unified history with restore, favorite snippets, validated JSON backup/restore (merge or replace, secrets opt-in), stored item counts, delete all data. 705 unit/component and 42 e2e tests passing                                                                                                      |
+| 12. Hardening            | Security review (opener fix, lint-enforced bans, file limits, docs/SECURITY.md), axe accessibility gate and fixes, bundle budgets, coverage thresholds and gap tests. 734 unit/component and 45 e2e tests passing                                                                                        |

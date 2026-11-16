@@ -36,32 +36,34 @@ function Item({
   action?: React.ReactNode;
 }) {
   return (
-    <ListItemButton
-      dense
-      selected={selected}
-      aria-current={selected ? 'true' : undefined}
-      onClick={onClick}
-      sx={{
-        borderRadius: 1.5,
-        mx: 0.75,
-        pr: action ? 0.5 : 1.5,
-        '&:hover .row-action': { opacity: 1 },
-      }}
-    >
-      {icon && (
-        <Box sx={{ display: 'flex', mr: 1, color: 'text.secondary' }} aria-hidden>
-          {icon}
-        </Box>
-      )}
-      <ListItemText
-        primary={label}
-        slotProps={{ primary: { noWrap: true, sx: { fontSize: 14 } } }}
-      />
-      <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-        {count}
-      </Typography>
-      {action}
-    </ListItemButton>
+    <li>
+      <ListItemButton
+        dense
+        selected={selected}
+        aria-current={selected ? 'true' : undefined}
+        onClick={onClick}
+        sx={{
+          borderRadius: 1.5,
+          mx: 0.75,
+          pr: action ? 0.5 : 1.5,
+          '&:hover .row-action': { opacity: 1 },
+        }}
+      >
+        {icon && (
+          <Box sx={{ display: 'flex', mr: 1, color: 'text.secondary' }} aria-hidden>
+            {icon}
+          </Box>
+        )}
+        <ListItemText
+          primary={label}
+          slotProps={{ primary: { noWrap: true, sx: { fontSize: 14 } } }}
+        />
+        <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+          {count}
+        </Typography>
+        {action}
+      </ListItemButton>
+    </li>
   );
 }
 

@@ -106,24 +106,25 @@ export default function SqlValidatorPage() {
                     </Typography>
                     <List dense aria-label="Problems">
                       {r.issues.map((i) => (
-                        <ListItemButton
-                          key={`${String(i.line)}:${String(i.column)}:${i.message}`}
-                          onClick={() => {
-                            setReveal({ line: i.line, column: i.column, token: Date.now() });
-                          }}
-                        >
-                          <Chip
-                            size="small"
-                            color={COLOR[i.severity]}
-                            variant="outlined"
-                            label={i.severity}
-                            sx={{ mr: 1, minWidth: 64 }}
-                          />
-                          <ListItemText
-                            primary={i.message}
-                            secondary={`Line ${String(i.line)}, column ${String(i.column)}`}
-                          />
-                        </ListItemButton>
+                        <li key={`${String(i.line)}:${String(i.column)}:${i.message}`}>
+                          <ListItemButton
+                            onClick={() => {
+                              setReveal({ line: i.line, column: i.column, token: Date.now() });
+                            }}
+                          >
+                            <Chip
+                              size="small"
+                              color={COLOR[i.severity]}
+                              variant="outlined"
+                              label={i.severity}
+                              sx={{ mr: 1, minWidth: 64 }}
+                            />
+                            <ListItemText
+                              primary={i.message}
+                              secondary={`Line ${String(i.line)}, column ${String(i.column)}`}
+                            />
+                          </ListItemButton>
+                        </li>
                       ))}
                     </List>
                   </Box>

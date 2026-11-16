@@ -443,7 +443,7 @@ export default function CollectionRunnerPage() {
             >
               <List dense aria-label="Results" sx={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
                 {results.map((r) => (
-                  <Box key={r.key}>
+                  <Box component="li" key={r.key}>
                     {iterations > 1 && r === results.find((x) => x.iteration === r.iteration) && (
                       <Typography variant="overline" sx={{ px: 2, display: 'block' }}>
                         Iteration {r.iteration}

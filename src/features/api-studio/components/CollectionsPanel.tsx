@@ -116,44 +116,48 @@ export function CollectionsPanel({
   };
 
   const requestRow = (r: ApiRequestEntity, depth: number) => (
-    <ListItemButton
-      key={r.id}
-      selected={r.id === activeId}
-      onClick={() => {
-        onOpen(r);
-      }}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        setMenu({ kind: 'request', request: r, anchor: e.currentTarget });
-      }}
-      sx={{ pl: 1 + depth * 1.5, py: 0.25, pr: 0.5 }}
-      aria-label={`${r.method} ${r.name}`}
-    >
-      <Typography
-        component="span"
-        sx={{
-          width: 52,
-          flexShrink: 0,
-          fontSize: 11,
-          fontWeight: 700,
-          fontFamily: fontFamilies.mono,
-          color: METHOD_COLOR[r.method] ?? 'text.secondary',
+    <li key={r.id}>
+      <ListItemButton
+        selected={r.id === activeId}
+        onClick={() => {
+          onOpen(r);
         }}
-      >
-        {r.method}
-      </Typography>
-      <ListItemText primary={r.name} slotProps={{ primary: { noWrap: true, variant: 'body2' } }} />
-      <IconButton
-        size="small"
-        aria-label={`Actions for ${r.name}`}
-        onClick={(e) => {
-          e.stopPropagation();
+        onContextMenu={(e) => {
+          e.preventDefault();
           setMenu({ kind: 'request', request: r, anchor: e.currentTarget });
         }}
+        sx={{ pl: 1 + depth * 1.5, py: 0.25, pr: 0.5 }}
+        aria-label={`${r.method} ${r.name}`}
       >
-        <More size={14} color="currentColor" />
-      </IconButton>
-    </ListItemButton>
+        <Typography
+          component="span"
+          sx={{
+            width: 52,
+            flexShrink: 0,
+            fontSize: 11,
+            fontWeight: 700,
+            fontFamily: fontFamilies.mono,
+            color: METHOD_COLOR[r.method] ?? 'text.secondary',
+          }}
+        >
+          {r.method}
+        </Typography>
+        <ListItemText
+          primary={r.name}
+          slotProps={{ primary: { noWrap: true, variant: 'body2' } }}
+        />
+        <IconButton
+          size="small"
+          aria-label={`Actions for ${r.name}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenu({ kind: 'request', request: r, anchor: e.currentTarget });
+          }}
+        >
+          <More size={14} color="currentColor" />
+        </IconButton>
+      </ListItemButton>
+    </li>
   );
 
   const folderTree = (c: CollectionEntity, parentId: string | null, depth: number): ReactNode[] => {
@@ -165,7 +169,7 @@ export function CollectionsPanel({
       ...folders.map((f) => {
         const open = !collapsed.has(f.id) || q !== '';
         return (
-          <Box key={f.id}>
+          <Box component="li" key={f.id}>
             <ListItemButton
               onClick={() => {
                 toggle(f.id);
@@ -195,7 +199,11 @@ export function CollectionsPanel({
                 <More size={14} color="currentColor" />
               </IconButton>
             </ListItemButton>
-            {open && folderTree(c, f.id, depth + 1)}
+            {open && (
+              <List dense disablePadding aria-label={`Folder ${f.name} contents`}>
+                {folderTree(c, f.id, depth + 1)}
+              </List>
+            )}
           </Box>
         );
       }),
@@ -264,7 +272,7 @@ export function CollectionsPanel({
             {(collections ?? []).map((c) => {
               const open = !collapsed.has(c.id) || q !== '';
               return (
-                <Box key={c.id}>
+                <Box component="li" key={c.id}>
                   <ListItemButton
                     onClick={() => {
                       toggle(c.id);
@@ -296,7 +304,11 @@ export function CollectionsPanel({
                       <More size={14} color="currentColor" />
                     </IconButton>
                   </ListItemButton>
-                  {open && folderTree(c, null, 0)}
+                  {open && (
+                    <List dense disablePadding aria-label={`Collection ${c.name} contents`}>
+                      {folderTree(c, null, 0)}
+                    </List>
+                  )}
                 </Box>
               );
             })}

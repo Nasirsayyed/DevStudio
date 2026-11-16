@@ -14,7 +14,9 @@ npm run check       # typecheck + lint + test
 ```
 
 Run `npm run check` before every commit. Run `npm run e2e` when touching routing, layout,
-security headers or anything user-visible across pages.
+security headers or anything user-visible across pages (it includes axe accessibility scans in
+`e2e/a11y.spec.ts`; add new pages there). After `npm run build`, `npm run bundle:check` enforces
+gzip budgets. Coverage thresholds in `vitest.config.ts` may be raised, never lowered.
 
 ## Architecture rules (enforced by ESLint `no-restricted-imports`)
 
@@ -40,6 +42,8 @@ security headers or anything user-visible across pages.
 
 ## Conventions
 
+- Accessibility: lists contain only `<li>` children (wrap `ListItemButton` in `<li>` or
+  `ListItem`); an accessible name must include the visible text; colours meet 4.5:1.
 - Strict TypeScript, `noUncheckedIndexedAccess`. No `any`, no non-null assertions in app code.
 - MUI v9 removed system props: put layout props in `sx` (`<Stack sx={{ alignItems: 'center' }}>`),
   and Typography styles in `slotProps={{ primary: { sx: {...} } }}`.

@@ -481,7 +481,7 @@ export function DesignEditor({
                 sx={{ width: 140 }}
                 disabled={!targetTable}
               >
-                {targetTable?.columns.map((c) => (
+                {(targetTable?.columns ?? []).map((c) => (
                   <MenuItem key={c.id} value={c.id}>
                     {c.name}
                   </MenuItem>

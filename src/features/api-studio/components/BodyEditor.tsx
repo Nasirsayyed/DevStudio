@@ -13,7 +13,9 @@ import {
 } from '@mui/material';
 import { DocumentUpload, Trash } from 'iconsax-reactjs';
 import { useRef } from 'react';
-import { CodeEditor } from '@/components';
+import { CodeEditor, useNotify } from '@/components';
+import { toUserMessage } from '@/core/errors/AppError';
+import { REQUEST_FILE_RULES, validateFileMeta } from '@/core/files/fileValidation';
 import { formatBytes } from '@/core/format/bytes';
 import {
   BODY_MODES,
@@ -46,6 +48,7 @@ function FilePicker({
   onFile: (f: File) => void;
 }) {
   const ref = useRef<HTMLInputElement>(null);
+  const notify = useNotify();
   return (
     <>
       <input
@@ -56,7 +59,13 @@ function FilePicker({
         onChange={(e) => {
           const f = e.target.files?.[0];
           e.target.value = '';
-          if (f) onFile(f);
+          if (!f) return;
+          try {
+            validateFileMeta(f, REQUEST_FILE_RULES);
+            onFile(f);
+          } catch (error) {
+            notify.error(toUserMessage(error));
+          }
         }}
       />
       <Button

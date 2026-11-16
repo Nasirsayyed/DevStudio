@@ -4,6 +4,37 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] - 2026-11-16
+
+Hardening (roadmap Phase 12).
+
+### Security
+
+- The OAuth sign-in pop-up no longer keeps `window.opener` (the provider page could otherwise
+  navigate DevStudio); blocked pop-ups are still detected.
+- ESLint now rejects `Math.random`, `dangerouslySetInnerHTML`, `innerHTML`/`outerHTML`
+  assignments, `insertAdjacentHTML`, `document.write` and `window.open` outside the OAuth client.
+- Files chosen as API request bodies are limited to 200 MB.
+- New `docs/SECURITY.md`: threat model and controls.
+
+### Accessibility
+
+- Automated axe checks (WCAG 2.1 A/AA) on 24 pages in light and dark themes, plus pages with data
+  and open overlays, run in the e2e suite.
+- Fixed: the search button and dashboard statistics are named after their visible text; lists
+  contain only list items (sidebar separator, collections tree, history, runner results, problem
+  lists, snippet filters, environments); loading spinners are labelled; toggle buttons and the
+  light theme's success and error colours meet 4.5:1 contrast.
+
+### Performance and quality
+
+- `npm run bundle:check` (also in CI) enforces gzip budgets: initial load 400 KB (now 360 KB) and
+  750 KB per lazy chunk.
+- Coverage thresholds (statements 85%, branches 78%, functions 80%, lines 86%) and new tests for
+  request bodies, response views, code snippets, the runner engine and history restore.
+- The test timeout allows for coverage instrumentation in CI.
+- Fixed a Schema Designer warning (a select without options).
+
 ## [0.9.0] - 2026-11-16
 
 History, favorites and backup (roadmap Phase 11).

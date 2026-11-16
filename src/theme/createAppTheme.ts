@@ -59,6 +59,10 @@ export function createAppTheme(mode: PaletteMode) {
       button: { textTransform: 'none', fontWeight: 600 },
     },
     components: {
+      // MUI's default (action.active, 54% black) misses WCAG AA on light backgrounds.
+      MuiToggleButton: {
+        styleOverrides: { root: { color: c.textSecondary } },
+      },
       MuiCssBaseline: {
         styleOverrides: {
           ':root': { colorScheme: mode },

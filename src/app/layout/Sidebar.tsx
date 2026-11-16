@@ -71,7 +71,12 @@ const NavList = memo(function NavList({ collapsed, onNavigate }: NavListProps) {
                   {label}
                 </ListSubheader>
               ) : sectionIndex > 0 ? (
-                <Divider sx={{ my: 1 }} />
+                // A list may only contain list items: the separator is a decorative <li>.
+                <Box
+                  component="li"
+                  aria-hidden
+                  sx={{ borderTop: 1, borderColor: 'divider', my: 1 }}
+                />
               ) : undefined
             }
           >

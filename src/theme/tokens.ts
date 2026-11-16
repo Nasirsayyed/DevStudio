@@ -47,9 +47,9 @@ export const lightColors: ColorTokens = {
   textPrimary: '#111827',
   textSecondary: '#4b5563',
   textMuted: '#6b7280',
-  success: '#15803d',
+  success: '#166534',
   warning: '#b45309',
-  error: '#dc2626',
+  error: '#b91c1c',
   info: '#2563eb',
   chart: ['#4f46e5', '#0891b2', '#d97706', '#db2777', '#059669', '#7c3aed', '#64748b', '#ea580c'],
 };

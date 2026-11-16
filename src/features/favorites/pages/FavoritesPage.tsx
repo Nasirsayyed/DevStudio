@@ -113,17 +113,18 @@ export default function FavoritesPage() {
               ) : (
                 <List dense aria-label="Favorite snippets">
                   {(snippets ?? []).map((s) => (
-                    <ListItemButton
-                      key={s.id}
-                      component={RouterLink}
-                      to={`/snippets?snippet=${s.id}`}
-                      sx={{ mx: 1 }}
-                    >
-                      <ListItemText
-                        primary={s.title}
-                        secondary={[s.language, s.category].filter(Boolean).join(' · ')}
-                      />
-                    </ListItemButton>
+                    <li key={s.id}>
+                      <ListItemButton
+                        component={RouterLink}
+                        to={`/snippets?snippet=${s.id}`}
+                        sx={{ mx: 1 }}
+                      >
+                        <ListItemText
+                          primary={s.title}
+                          secondary={[s.language, s.category].filter(Boolean).join(' · ')}
+                        />
+                      </ListItemButton>
+                    </li>
                   ))}
                 </List>
               )}

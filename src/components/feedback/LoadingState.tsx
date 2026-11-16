@@ -14,7 +14,7 @@ export function LoadingState({
       role="status"
       aria-live="polite"
     >
-      <CircularProgress size={28} />
+      <CircularProgress size={28} aria-label={label} />
       <Typography variant="body2" color="text.secondary">
         {label}
       </Typography>
