@@ -1,8 +1,11 @@
 import { render } from '@testing-library/react';
+import { resetEnvironmentDefaultsFlag } from '@/features/api-studio/hooks';
+import { secretVault } from '@/services/api/secretVault';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { resetJsonWorkspaceState } from '@/stores/jsonWorkspaceStore';
+import { resetApiWorkspaceState } from '@/stores/apiWorkspaceStore';
 import { resetSqlWorkspaceState } from '@/stores/sqlWorkspaceStore';
 import { resetTextWorkspaceState } from '@/stores/textWorkspaceStore';
 import { routes } from '@/app/router/routes';
@@ -17,6 +20,9 @@ export async function resetAppState(): Promise<void> {
   resetJsonWorkspaceState();
   resetTextWorkspaceState();
   resetSqlWorkspaceState();
+  resetApiWorkspaceState();
+  resetEnvironmentDefaultsFlag();
+  secretVault.clear();
   await clearDatabase(db);
   usePreferencesStore.setState(DEFAULT_PREFERENCES);
   useUiStore.setState({

@@ -13,6 +13,8 @@ export interface DraftPersistence {
    * loading are saved once loading completes.
    */
   hydrate(): Promise<void>;
+  /** Writes a pending (debounced) change now; resolves when it is stored. */
+  flush(): Promise<void>;
   /** Test helper: forgets hydration state and pending saves. */
   reset(): void;
 }
@@ -45,17 +47,35 @@ export function createDraftPersistence<S, D extends object>(config: {
   const changed = (a: D, b: D) =>
     (Object.keys(a) as (keyof D)[]).some((k) => !Object.is(a[k], b[k]));
 
+  const saveNow = (): Promise<void> => {
+    clearTimeout(timer);
+    timer = undefined;
+    return settingsRepository.set(key, select(store.getState())).catch((error: unknown) => {
+      console.warn(`Could not save the ${label} draft`, error);
+    });
+  };
   const saveSoon = () => {
     clearTimeout(timer);
-    timer = setTimeout(() => {
-      settingsRepository.set(key, select(store.getState())).catch((error: unknown) => {
-        console.warn(`Could not save the ${label} draft`, error);
-      });
-    }, DRAFT_DEBOUNCE_MS);
+    timer = setTimeout(() => void saveNow(), DRAFT_DEBOUNCE_MS);
   };
+  // A reload or tab switch right after a change must not lose it: write pending drafts at once.
+  const flush = (): Promise<void> => (timer !== undefined ? saveNow() : Promise.resolve());
+  const onPageHide = () => {
+    void flush();
+  };
+  const onVisibility = () => {
+    if (document.visibilityState === 'hidden') void flush();
+  };
+  let listening = false;
 
   return {
+    flush,
     hydrate() {
+      if (!listening && typeof window !== 'undefined') {
+        listening = true;
+        window.addEventListener('pagehide', onPageHide);
+        document.addEventListener('visibilitychange', onVisibility);
+      }
       unsubscribe ??= store.subscribe((state, prev) => {
         if (!changed(select(state), select(prev))) return;
         if (hydrated) saveSoon();
@@ -85,6 +105,12 @@ export function createDraftPersistence<S, D extends object>(config: {
       hydrated = false;
       pendingSave = false;
       clearTimeout(timer);
+      timer = undefined;
+      if (listening) {
+        listening = false;
+        window.removeEventListener('pagehide', onPageHide);
+        document.removeEventListener('visibilitychange', onVisibility);
+      }
     },
   };
 }

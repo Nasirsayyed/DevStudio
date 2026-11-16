@@ -9,8 +9,8 @@ test.describe('DevStudio shell', () => {
     await nav.getByRole('link', { name: 'API Testing' }).click();
     await expect(page).toHaveURL(/\/api$/);
     await expect(page.getByRole('heading', { level: 1, name: 'API Testing' })).toBeVisible();
-    await page.getByRole('link', { name: /Request Builder/ }).click();
-    await expect(page).toHaveURL(/\/api\/requests$/);
+    await page.getByRole('link', { name: /Collection Runner/ }).click();
+    await expect(page).toHaveURL(/\/api\/runner$/);
     await expect(page.getByText('Scheduled for Phase 10')).toBeVisible();
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText('API Testing');
   });

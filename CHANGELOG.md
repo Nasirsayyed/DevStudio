@@ -4,6 +4,40 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+API Testing, part 1 (roadmap Phase 10a).
+
+### Added
+
+- Request Builder: method, URL, query parameters, headers, bodies (JSON, text, XML,
+  form-urlencoded, multipart form data with files, GraphQL, binary file), Basic/Bearer/API-key
+  authentication, timeout, redirect and cookie settings. Requests go straight from the browser
+  with `fetch`; CORS is never bypassed, and blocked, mixed-content, timed-out and unreachable
+  requests are explained. Headers the browser forbids are dropped with a warning.
+- `{{variable}}` substitution from runtime values, the active environment and the collection, plus
+  dynamic `$guid`, `$uuid`, `$timestamp`, `$isoTimestamp` and `$randomInt` (secure random), with
+  hints for undefined variables.
+- Response viewer: status, time and size; pretty JSON (in a worker), raw, JSON tree, sanitized HTML
+  preview in a sandboxed frame, images; response headers and the request as sent; copy, download
+  and "Open in JSON Studio". Responses are capped at 50 MB.
+- Collections with nested folders: save, save as, rename, duplicate and delete; Ctrl/⌘+S and
+  Ctrl/⌘+Enter; command-palette links open saved requests. Credentials typed into the Auth tab are
+  only saved with explicit consent; `{{secret}}` references are always kept.
+- cURL import and code snippets (cURL, JavaScript fetch, Python requests, C# HttpClient).
+- Environments (Development, Testing, Staging, Production and custom): variables with secret flags.
+  Secret values live in memory only unless the user agrees to store them in plain text.
+- Request History: the last 500 requests with responses, redacted (credential headers, sensitive
+  query parameters, URL user info and secret values); filters; reopen in the builder.
+
+### Changed
+
+- The sandboxed preview frame moved to `components/preview` (shared by Text Tools and API Studio).
+- Drafts are written immediately when the page is hidden or closed, and can be flushed explicitly,
+  so a quick reload no longer loses the last change.
+- The preview server sends no CORS headers, like production, so e2e tests exercise real CORS
+  blocking.
+
 ## [0.7.0] - 2026-11-16
 
 SQL Tools (roadmap Phase 9).

@@ -15,7 +15,8 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: { port: 5173, strictPort: false },
-  preview: { port: 4173, headers: SECURITY_HEADERS },
+  // No CORS headers, like production: e2e tests rely on real cross-origin blocking.
+  preview: { port: 4173, headers: SECURITY_HEADERS, cors: false },
   build: {
     target: 'es2022',
     sourcemap: true,

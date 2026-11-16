@@ -10,19 +10,20 @@ an API request.
 
 ## Status
 
-| Area                                                                       | State                      |
-| -------------------------------------------------------------------------- | -------------------------- |
-| Foundation: project, tooling, CI, architecture                             | ✅ Done                    |
-| App shell: sidebar, top bar, routing, themes, command palette, shortcuts   | ✅ Done                    |
-| Dashboard, Favorites, Settings                                             | ✅ Done                    |
-| IndexedDB schema (all 11 tables), preferences, storage services            | ✅ Done                    |
-| JSON Studio (16 tools, Monaco, Web Workers, saved documents)               | ✅ Done                    |
-| Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)            | ✅ Done                    |
-| Developer Utilities (18 tools, JWT verification, hashing, time zones)      | ✅ Done                    |
-| Text Tools (diff, find & replace, counters, previews, XML/YAML)            | ✅ Done                    |
-| Snippet Manager (categories, tags, search, VS Code import/export)          | ✅ Done                    |
-| SQL Tools (format, validate, generate, Schema Designer, SQLite Playground) | ✅ Done                    |
-| API Studio, History/Backup                                                 | 🗓 Scheduled (Phases 10–11) |
+| Area                                                                               | State                                                             |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Foundation: project, tooling, CI, architecture                                     | ✅ Done                                                           |
+| App shell: sidebar, top bar, routing, themes, command palette, shortcuts           | ✅ Done                                                           |
+| Dashboard, Favorites, Settings                                                     | ✅ Done                                                           |
+| IndexedDB schema (all 11 tables), preferences, storage services                    | ✅ Done                                                           |
+| JSON Studio (16 tools, Monaco, Web Workers, saved documents)                       | ✅ Done                                                           |
+| Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)                    | ✅ Done                                                           |
+| Developer Utilities (18 tools, JWT verification, hashing, time zones)              | ✅ Done                                                           |
+| Text Tools (diff, find & replace, counters, previews, XML/YAML)                    | ✅ Done                                                           |
+| Snippet Manager (categories, tags, search, VS Code import/export)                  | ✅ Done                                                           |
+| SQL Tools (format, validate, generate, Schema Designer, SQLite Playground)         | ✅ Done                                                           |
+| API Studio: Request Builder, Environments, History (CORS-aware, secrets in memory) | 🚧 Phase 10a done; runner, import/export, compare, OAuth 2.0 next |
+| History/Backup                                                                     | 🗓 Scheduled (Phase 11)                                            |
 
 Tools that are not implemented yet are listed (so you can search, favorite and pin them),
 and their pages clearly say which phase delivers them. No placeholder UI pretends to work.

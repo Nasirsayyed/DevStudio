@@ -33,6 +33,7 @@ the `count` index instead of aggregating the whole history.
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
 | `dashboard.quickAccess` | `string[]` of tool ids (max 9, ordered, maps to Alt+1…9)                                                                                                                                                                       | Zod; unknown tool ids are dropped on read |
 | `jsonStudio.draft`      | `{ input, secondary, csv, xml, document: {id,name} \| null }`, the shared JSON workspace draft (JSON Studio and Code Generators; `xml` added in v0.3 and defaulted for older drafts) (fields above 5 M chars are stored empty) | Zod; invalid drafts are ignored           |
+| `apiStudio.draft`       | `{ draft, open: {id, collectionId, folderId} \| null, dirty }`, the Request Builder draft. Credentials are removed before it is stored (`withoutCredentials`); `{{variable}}` references are kept                              |
 
 ## Repositories
 
@@ -102,7 +103,14 @@ or full never breaks the app.
 
 ## Sensitive data policy
 
-- No passwords or API credentials are stored in this phase.
-- From Phase 10: environment variables marked `secret` and auth credentials stay in memory unless
-  the user explicitly opts in per environment (`persistSecrets`), with optional passphrase
-  encryption (WebCrypto AES-GCM). Backups exclude secrets unless explicitly included.
+- Environment variables marked `secret` keep their values in memory (`services/api/secretVault`)
+  and are stored as empty strings, unless the user turns on "Remember secret values on this
+  device" for that environment (`persistSecrets`) after a consent dialog that explains the values
+  are stored unencrypted.
+- Saved requests (`apiRequests.config.auth`) drop literal passwords, tokens and API keys unless
+  the user ticks the consent checkbox in the Save dialog; `{{variable}}` references are kept.
+  Drafts (`apiStudio.draft`) never contain credentials.
+- `apiHistory` snapshots redact credential headers (Authorization, Cookie, API-key headers),
+  sensitive query parameters, URL user info and every secret variable value wherever it was
+  substituted. Response bodies are truncated to 256 KB; only the last 500 entries are kept.
+- Utilities never persist secrets (tokens, keys, generated passwords and random values).

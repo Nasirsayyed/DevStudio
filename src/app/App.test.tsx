@@ -91,15 +91,15 @@ describe('application shell', () => {
 
 describe('tool routes', () => {
   it('renders a scheduled tool honestly and records usage', async () => {
-    renderApp('/api/requests');
+    renderApp('/api/runner');
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Request Builder' }),
+      await screen.findByRole('heading', { level: 1, name: 'Collection Runner' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Scheduled for Phase 10')).toBeInTheDocument();
     await waitFor(async () => {
-      expect((await db.toolUsage.get('api.requests'))?.count).toBeGreaterThanOrEqual(1);
+      expect((await db.toolUsage.get('api.runner'))?.count).toBeGreaterThanOrEqual(1);
     });
-    expect(usePreferencesStore.getState().recentToolIds[0]).toBe('api.requests');
+    expect(usePreferencesStore.getState().recentToolIds[0]).toBe('api.runner');
   });
 
   it('redirects alias tools to their canonical tool', async () => {

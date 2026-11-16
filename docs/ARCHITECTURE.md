@@ -279,6 +279,22 @@ stores/sqlWorkspaceStore: script, compare right side, schema, data, playground, 
 - Saved scripts, designs and databases share the `savedQueries` table; listings use summaries so
   large databases are not loaded until opened.
 
+## API Studio
+
+- `core/http` is pure: the request model (Zod), `{{variable}}` interpolation, `buildRequest`
+  (URL, params, headers, auth, bodies; forbidden headers dropped with a warning), cURL import and
+  export, code snippets and redaction helpers.
+- `services/http/executor` sends a prepared request with `fetch` (no proxy, `credentials: 'omit'`
+  unless enabled, `no-referrer`), streams the body with a 50 MB cap, and turns network failures into
+  `AppError`s that explain CORS, mixed content, timeouts and unreachable hosts. CORS is never
+  bypassed; the CSP allows `connect-src https: http:` for this reason.
+- Variable scopes resolve in order: runtime values, active environment, collection. Secret values
+  live in `services/api/secretVault` unless the user consents to storing them.
+- `stores/apiWorkspaceStore` holds the open request (draft without credentials persisted through
+  `createDraftPersistence`), chosen files and runtime values. Pages: Request Builder,
+  Environments and History (`features/api-studio`).
+- Sanitized HTML responses render in the shared `components/preview/PreviewFrame`.
+
 ## Snippet Manager
 
 ```

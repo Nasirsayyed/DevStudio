@@ -49,7 +49,7 @@ security headers or anything user-visible across pages.
 - Parse untrusted JSON with `safeJsonParse()` and validate it with Zod.
 - Never use `eval`, `new Function`, or `dangerouslySetInnerHTML` with unsanitized content.
 - Render user HTML only through `sanitizeHtml()` + `previewDocument()` (`services/html/sanitize`)
-  in a sandboxed iframe (see `features/text-tools/components/PreviewFrame.tsx`). Never add
+  in a sandboxed iframe (see `components/preview/PreviewFrame.tsx`). Never add
   `allow-scripts` or `allow-same-origin` to that sandbox.
 - User-supplied regular expressions must run in a worker with a timeout
   (`runner.run(op, p, { preferWorker: true, timeoutMs })`), never on the main thread.
@@ -64,6 +64,10 @@ security headers or anything user-visible across pages.
   node-sql-parser grammars only through `loadSqlParser()`.
 - List saved items with summaries (no contents); fetch the content by id when opening.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
+- API Studio: never bypass CORS or add a proxy. Literal credentials are saved only with the Save
+  dialog's consent; drafts and history use `withoutCredentials`/`redact*`. Secret environment values
+  stay in `secretVault` unless `persistSecrets`. Test requests with a stubbed `fetch` (RTL) or
+  `page.route` (e2e; routed responses skip CORS, so CORS e2e tests use a real cross-origin URL).
 - Secrets (tokens, keys, HMAC keys, passwords, generated random values) are never persisted: no
   `usePersistentOptions`, IndexedDB or history entries. Use `core/random/secureRandom` for any
   random value; never `Math.random()`. Never call a JWT "verified" unless `verifyJwt` said so.

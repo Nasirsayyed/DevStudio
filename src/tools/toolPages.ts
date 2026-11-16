@@ -78,6 +78,9 @@ export const TOOL_PAGES: Readonly<Partial<Record<string, ToolPageLoader>>> = {
   'sql.compare': () => import('@/features/sql-toolkit/pages/SqlComparePage'),
   'sql.schema-designer': () => import('@/features/sql-toolkit/pages/SchemaDesignerPage'),
   'sql.playground': () => import('@/features/sql-toolkit/pages/SqlitePlaygroundPage'),
+  'api.requests': () => import('@/features/api-studio/pages/RequestBuilderPage'),
+  'api.environments': () => import('@/features/api-studio/pages/EnvironmentsPage'),
+  'api.history': () => import('@/features/api-studio/pages/HistoryPage'),
 };
 
 export function getToolPageLoader(toolId: string): ToolPageLoader | undefined {

@@ -186,6 +186,21 @@ script and the CREATE TABLE schema, kept as a draft. Scripts can be saved and re
 | Schema Designer                                      | Tables, columns, keys, auto-increment, defaults, relationships; ER diagram; DDL per dialect in dependency order; problem list; import CREATE TABLE; save/open/export designs; run in the playground or generate C#                                       |
 | SQLite Playground                                    | SQLite (WebAssembly) in a worker; result grids with CSV export; schema browser; Stop; open/download `.sqlite` files; save databases in the browser                                                                                                       |
 
+## API Testing (🚧 Phase 10: Request Builder, Environments and History shipped)
+
+Requests are sent directly from the browser with `fetch`. DevStudio has no backend and never routes
+requests through a proxy: an API must allow this site with CORS headers, and failures explain why.
+
+| Tool            | Features                                                                                                                                                                                                                                                                                              |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Request Builder | GET/POST/PUT/PATCH/DELETE/HEAD/OPTIONS; query params, headers, body (JSON, text, XML, form-urlencoded, multipart with files, GraphQL, binary file); Basic, Bearer and API-key auth; timeout, redirects, cookies; `{{variables}}` and `$guid`/`$timestamp`/`$randomInt`… with undefined-variable hints |
+| Response viewer | Status, time and size; pretty JSON (worker), raw, JSON tree, sanitized HTML preview in a sandboxed frame, images; headers; the request as sent; copy/download; open in JSON Studio; CORS, mixed-content, timeout and network errors explained                                                         |
+| Collections     | Collections, nested folders and saved requests: create, rename, duplicate, delete; save/save as; Ctrl/⌘+S and Ctrl/⌘+Enter; command-palette links; credentials are only saved with explicit consent                                                                                                   |
+| Import and code | cURL import (`-X -H -d --data-* --json -F -u -A -b -G -I`…, unsupported options listed); code snippets for cURL, fetch, Python requests and C# HttpClient                                                                                                                                             |
+| Environments    | Development, Testing, Staging, Production and custom ones; variables with secret flags; secret values stay in memory unless you agree to store them unencrypted                                                                                                                                       |
+| Request History | Last 500 requests with responses (bodies up to 256 KB); credential headers, sensitive parameters and secret values redacted; search, method and status filters; reopen in the builder; delete and clear                                                                                               |
+| Still scheduled | Collection Runner (assertions, chaining), Postman/native collection import and export, Response Compare, OAuth 2.0 (Phase 10b)                                                                                                                                                                        |
+
 ## Modules
 
 70 tools are registered, searchable and favoritable. Tools of later phases show their delivery phase.
@@ -198,7 +213,7 @@ script and the CREATE TABLE schema, kept as a draft. Scripts can be saved and re
 | Text Tools                  | Text diff, code diff, find & replace, counters, line tools, reverse, case converter, Markdown preview, HTML preview, XML formatter, YAML formatter                                            | ✅ 7  |
 | Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | ✅ 8  |
 | SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | ✅ 9  |
-| API Testing                 | Request builder, environments, collection runner, history, response compare                                                                                                                   | 🗓 10  |
+| API Testing                 | Request builder, environments, history (✅); collection runner, response compare (🗓 10b)                                                                                                      | 🚧 10 |
 | History, backup and restore | Unified history, restore, full export/import                                                                                                                                                  | 🗓 11  |
 
 ## Persistence (✅ foundation)
