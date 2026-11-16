@@ -76,7 +76,20 @@ snippet files. Files from a newer format version are refused.
 - Add `this.version(n + 1).stores({...}).upgrade(tx => ...)` in `DevStudioDatabase`'s constructor,
   bump `CURRENT_SCHEMA_VERSION`, and add a migration test that seeds data at version n and asserts
   the upgraded shape.
-- Backups (Phase 11) record the schema version and are migrated on import.
+- Backups record the schema version. Files from a newer schema are accepted with a warning:
+  rows are validated against the current table schemas and unknown fields are dropped.
+
+## Backup format
+
+`devstudio-backup-YYYY-MM-DD.json`:
+`{ format: "devstudio.backup", version: 1, app: { version, schemaVersion }, exportedAt,
+includesSecrets, sections, tables: { <table>: rows[] }, preferences? }`.
+Sections: `work` (collections, apiRequests, environments, jsonDocuments, savedQueries,
+codeSnippets, favorites), `history` (toolHistory, apiHistory), `settings` (settings, toolUsage and
+the localStorage preferences). Binary SQLite databases are stored as `{ "$devstudioBytes": base64 }`.
+Without `includesSecrets`, request credentials are removed (`withoutCredentials`) and secret
+environment values are blanked (`persistSecrets: false`). Restore (`services/backup`) validates
+each row with Zod (core/backup), skips invalid rows, and writes in a single transaction.
 
 ## localStorage
 

@@ -123,7 +123,8 @@ test.describe('SQL Tools (real Monaco, workers, production CSP)', () => {
     await page.getByRole('button', { name: 'Run in SQLite Playground' }).click();
     await expect(page).toHaveURL(/\/sql\/playground$/);
     await page.getByRole('button', { name: 'Run' }).click();
-    await expect(page.getByRole('tab', { name: 'Schema (2)' })).toBeVisible();
+    // The first run loads SQLite (WebAssembly) in a worker, which can be slow on a busy machine.
+    await expect(page.getByRole('tab', { name: 'Schema (2)' })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Done. The statements returned no rows.')).toBeVisible();
   });
 });

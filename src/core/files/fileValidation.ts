@@ -17,6 +17,8 @@ export const JSON_FILE_RULES: FileRules = {
   extensions: ['.json', '.txt', '.geojson', '.har', '.map'],
   maxBytes: 50 * 1024 * 1024,
 };
+/** DevStudio backups (JSON). */
+export const BACKUP_FILE_RULES: FileRules = { extensions: ['.json'], maxBytes: 500 * 1024 * 1024 };
 /** API collections (DevStudio or Postman JSON). */
 export const COLLECTION_FILE_RULES: FileRules = {
   extensions: ['.json', '.postman_collection'],

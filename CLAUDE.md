@@ -64,6 +64,9 @@ security headers or anything user-visible across pages.
   node-sql-parser grammars only through `loadSqlParser()`.
 - List saved items with summaries (no contents); fetch the content by id when opening.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
+- New IndexedDB tables must be added to `core/backup` (`BACKUP_SECTIONS` and a row schema) so
+  backups stay complete; keep secrets out of backups unless `includeSecrets`.
+- A new tool whose input lives in a shared store should be mapped in `features/history/restore.ts`.
 - API Studio: never bypass CORS or add a proxy. Literal credentials are saved only with the Save
   dialog's consent; drafts and history use `withoutCredentials`/`redact*`. Secret environment values
   stay in `secretVault` unless `persistSecrets`. Test requests with a stubbed `fetch` (RTL) or

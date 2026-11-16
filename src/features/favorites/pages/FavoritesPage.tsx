@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Star1 } from 'iconsax-reactjs';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
@@ -25,6 +26,7 @@ import {
 } from '@/components';
 import { toUserMessage } from '@/core/errors/AppError';
 import { useFavoriteTools } from '@/hooks/useFavoriteTools';
+import { snippetsRepository } from '@/services/db/repositories/snippetsRepository';
 import { getModule } from '@/tools/modules';
 import { getToolModule, toolPath } from '@/tools/toolRegistry';
 import { searchTools } from '@/tools/toolSearch';
@@ -35,6 +37,7 @@ export default function FavoritesPage() {
   const notify = useNotify();
   const [query, setQuery] = useState('');
   const browse = useMemo(() => searchTools(query), [query]);
+  const snippets = useLiveQuery(() => snippetsRepository.favorites(), []);
 
   const onToggle = (toolId: string) => {
     toggle(toolId).catch((error: unknown) => {
@@ -91,6 +94,41 @@ export default function FavoritesPage() {
               </Grid>
             )}
           </SectionCard>
+          <Box sx={{ mt: 3 }}>
+            <SectionCard
+              id="favorite-snippets"
+              title="Favorite snippets"
+              subtitle={snippets ? `${String(snippets.length)} saved` : undefined}
+              flush
+            >
+              {snippets?.length === 0 ? (
+                <Box sx={{ px: 2, pb: 2 }}>
+                  <EmptyState
+                    dense
+                    icon={Star1}
+                    title="No favorite snippets"
+                    description="Star snippets in the Snippet Manager to list them here."
+                  />
+                </Box>
+              ) : (
+                <List dense aria-label="Favorite snippets">
+                  {(snippets ?? []).map((s) => (
+                    <ListItemButton
+                      key={s.id}
+                      component={RouterLink}
+                      to={`/snippets?snippet=${s.id}`}
+                      sx={{ mx: 1 }}
+                    >
+                      <ListItemText
+                        primary={s.title}
+                        secondary={[s.language, s.category].filter(Boolean).join(' · ')}
+                      />
+                    </ListItemButton>
+                  ))}
+                </List>
+              )}
+            </SectionCard>
+          </Box>
         </Grid>
         <Grid size={{ xs: 12, lg: 5 }}>
           <SectionCard

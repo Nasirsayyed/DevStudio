@@ -90,8 +90,8 @@ describe('application shell', () => {
 });
 
 describe('tool routes', () => {
-  it('records tool usage and shows scheduled modules honestly', async () => {
-    const { router } = renderApp('/api/compare');
+  it('records tool usage', async () => {
+    renderApp('/api/compare');
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Response Compare' }),
     ).toBeInTheDocument();
@@ -99,9 +99,6 @@ describe('tool routes', () => {
       expect((await db.toolUsage.get('api.compare'))?.count).toBeGreaterThanOrEqual(1);
     });
     expect(usePreferencesStore.getState().recentToolIds[0]).toBe('api.compare');
-
-    await act(() => router.navigate('/history'));
-    expect(await screen.findByText('Scheduled for Phase 11')).toBeInTheDocument();
   });
 
   it('redirects alias tools to their canonical tool', async () => {

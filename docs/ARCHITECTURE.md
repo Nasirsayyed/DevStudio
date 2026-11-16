@@ -304,6 +304,15 @@ stores/sqlWorkspaceStore: script, compare right side, schema, data, playground, 
   the app layout, `app/router/OAuthCallbackPage`) only relays the query string, and the opener
   accepts it only when `state` matches.
 
+## History and backup
+
+- `features/history`: one timeline over `toolHistory` and `apiHistory`. Restoring writes the input
+  into the shared workspace stores (`features/history/restore.ts` maps tool ids to store fields),
+  then navigates to the tool; tools without a shared store are not restorable.
+- `core/backup` defines the file format and per-table Zod schemas (pure, testable);
+  `services/backup/backupService` reads tables, restores in one Dexie transaction (merge or
+  replace) and clears all data. The UI lives in `features/settings/components/BackupSection`.
+
 ## Snippet Manager
 
 ```

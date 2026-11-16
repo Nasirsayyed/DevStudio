@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–10 delivered (v0.8.0).** Next: Phase 11 (history, backup and restore).
+Status: **Approved. Phases 1–11 delivered (v0.9.0).** Next: Phase 12 (hardening).
 Date: 2026-11-11
 
 ---
@@ -415,3 +415,4 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 | 9. SQL Tools             | 13 tools: formatter, minifier, validator (per-dialect parser in a worker), compare, SQL → C#/TS, statement generators, Schema Designer (ERD + DDL), SQLite Playground (sql.js in a worker); MySQL escaping fix. 627 unit/component and 35 e2e tests passing                                              |
 | 10a. API Studio (part 1) | Request Builder (all body modes, Basic/Bearer/API-key auth, settings), `{{variables}}`, response viewer (pretty/raw/tree/sandboxed HTML/images), collections and folders, cURL import, code snippets, environments with in-memory secrets, redacted history. 660 unit/component and 38 e2e tests passing |
 | 10b. API Studio (part 2) | Assertions and chaining, Collection Runner, DevStudio/Postman import and export, Response Compare, OAuth 2.0 (client credentials, authorization code + PKCE). 689 unit/component and 40 e2e tests passing                                                                                                |
+| 11. History and backup   | Unified history with restore, favorite snippets, validated JSON backup/restore (merge or replace, secrets opt-in), stored item counts, delete all data. 705 unit/component and 42 e2e tests passing                                                                                                      |

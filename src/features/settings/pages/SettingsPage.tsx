@@ -28,6 +28,7 @@ import {
 } from '@/services/storage/storageEstimate';
 import { usePreferencesStore } from '@/stores/preferencesStore';
 import { useUiStore } from '@/stores/uiStore';
+import { BackupSection } from '../components/BackupSection';
 import { getModule } from '@/tools/modules';
 
 function AppearanceSection() {
@@ -230,9 +231,6 @@ function StorageSection() {
             Reset usage statistics
           </Button>
         </Stack>
-        <Alert severity="info" variant="outlined">
-          Full backup, restore and data export arrive in Phase 11.
-        </Alert>
       </Stack>
     </SectionCard>
   );
@@ -282,6 +280,9 @@ export default function SettingsPage() {
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <AboutSection />
+        </Grid>
+        <Grid size={12}>
+          <BackupSection />
         </Grid>
       </Grid>
     </PageContainer>

@@ -39,6 +39,16 @@ export function createSnippetsRepository(db: DevStudioDatabase = defaultDb) {
       return table.get(id);
     },
 
+    /** Favorite snippets as summaries (no code), by title. */
+    async favorites(): Promise<
+      { id: string; title: string; language: string; category: string }[]
+    > {
+      const rows = await table.where('isFavorite').equals(1).toArray();
+      return rows
+        .map(({ id, title, language, category }) => ({ id, title, language, category }))
+        .sort((a, b) => a.title.localeCompare(b.title));
+    },
+
     async save(input: SaveSnippetInput): Promise<CodeSnippetEntity> {
       const draft = prepareSnippet(input);
       return safeWrite(() =>

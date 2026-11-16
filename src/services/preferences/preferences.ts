@@ -71,6 +71,20 @@ export function loadPreferences(storage: Storage | null = getStorage()): Prefere
   }
 }
 
+/** Validates imported preferences (e.g. from a backup) field by field; null when unusable. */
+export function parsePreferences(value: unknown): Preferences | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const input = value as Record<string, unknown>;
+  const out: Record<string, unknown> = { ...DEFAULT_PREFERENCES };
+  for (const [key, schema] of Object.entries(preferencesSchema.shape)) {
+    if (!(key in input)) continue;
+    const field = (schema as z.ZodType).safeParse(input[key]);
+    if (field.success) out[key] = field.data;
+  }
+  const parsed = preferencesSchema.safeParse(out);
+  return parsed.success ? parsed.data : null;
+}
+
 /** Saves preferences. Returns false if storage is unavailable or full. */
 export function savePreferences(
   prefs: Preferences,

@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] - 2026-11-16
+
+History, favorites and backup (roadmap Phase 11).
+
+### Added
+
+- History page: tool runs (recorded when a result is copied or downloaded) and API requests in
+  one timeline; search, source and module filters, paging; input and output views; restore the
+  input into JSON, Code Generator, Text and SQL tools (with the SQL dialect); reopen API requests
+  in the builder or compare them; delete entries; clear tool, API or all history.
+- Backup and restore (Settings): per-table item counts; download a JSON backup of saved work,
+  history and/or settings and preferences. Saved credentials and stored secret values are left
+  out unless explicitly included. Restore validates every row (invalid ones are skipped and
+  reported), previews the contents, and merges (respecting unique environment names and
+  favorites) or replaces the included tables in one transaction. SQLite databases are kept
+  (base64).
+- Delete all data (with confirmation).
+- Favorites: favorite snippets are listed next to favorite tools.
+
+### Removed
+
+- The "scheduled module" placeholder page: every module is now available.
+
 ## [0.8.0] - 2026-11-16
 
 API Testing (roadmap Phase 10).

@@ -43,10 +43,23 @@ Legend: ✅ implemented and tested · 🗓 scheduled (roadmap phase in brackets)
 ## Favorites (✅) and Settings (✅)
 
 - Favorites page: list and remove favorite tools; browse and star any tool; favorites also toggle
-  from every tool header.
+  from every tool header; favorite snippets are listed and open in the Snippet Manager.
 - Settings: theme, sidebar mode, code-editor preferences (font size, tab size, word wrap, minimap;
   applied to editors from Phase 4), storage usage and quota, request persistent storage,
   reset usage statistics (with confirmation), and the about panel.
+- Backup and restore: stored item counts per table; JSON backup of saved work, history and
+  settings (credentials and stored secrets only on request); validated restore with preview,
+  merge or replace in one transaction; delete all data.
+
+## History (✅ Phase 11)
+
+- One timeline of tool runs (recorded on copy/download, last 1000) and API requests (last 500).
+- Search by label, tool or URL; filter by source (tools / API requests) and module; paging.
+- Tool entries show input and output; "Restore in <tool>" puts the input back into JSON Studio,
+  Code Generators, Text Tools and SQL tools (and the SQL dialect). Other tools offer copy and
+  "Open tool".
+- API entries reopen in the Request Builder or open Response Compare.
+- Delete entries; clear tool, API or all history (with confirmation).
 
 ## JSON Studio (✅ Phase 4)
 
@@ -79,7 +92,7 @@ Cross-cutting:
 - Files are validated (type, 50 MB limit, binary detection, BOM removal).
 - Saved documents are stored in IndexedDB and appear on the dashboard and in the command palette
   (`/json/formatter?document=<id>` deep links).
-- Copy and Download record a tool-history entry (shown in the Phase 11 History page).
+- Copy and Download record a tool-history entry (shown in the History page).
 - Tool options and pane sizes are remembered per tool.
 
 ## Code Generators (✅ Phase 5)
@@ -218,7 +231,7 @@ requests through a proxy: an API must allow this site with CORS headers, and fai
 | Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | ✅ 8  |
 | SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | ✅ 9  |
 | API Testing                 | Request builder, environments, collections (import/export), runner, history, response compare, OAuth 2.0                                                                                      | ✅ 10 |
-| History, backup and restore | Unified history, restore, full export/import                                                                                                                                                  | 🗓 11  |
+| History, backup and restore | Unified history with restore, favorites, full backup/restore, delete all data                                                                                                                 | ✅ 11 |
 
 ## Persistence (✅ foundation)
 
