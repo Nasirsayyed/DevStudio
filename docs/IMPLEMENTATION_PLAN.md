@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–8 delivered (v0.6.0).** Next: Phase 9 (SQL Tools).
+Status: **Approved. Phases 1–9 delivered (v0.7.0).** Next: Phase 10 (API Testing).
 Date: 2026-11-11
 
 ---
@@ -402,13 +402,14 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 
 ## 11. Delivery log
 
-| Phase                  | Result                                                                                                                                                                                                                              |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Architecture        | This document                                                                                                                                                                                                                       |
-| 2. Scaffold            | Vite 8 / React 19 / TS 6 strict, ESLint layer rules, Prettier, Vitest, Playwright, CI, Dexie schema v1, preferences service                                                                                                         |
-| 3. Shell and dashboard | Sidebar, top bar, routing, themes, command palette, shortcuts, dashboard, favorites, settings. 115 unit/component and 7 e2e tests passing                                                                                           |
-| 4. JSON Studio         | 16 tools, Monaco (self-hosted, CSP-safe), worker pool with cancellation, virtualized tree and grid, saved documents, drafts, tool history. 275 unit/component and 13 e2e tests passing                                              |
-| 5. Code Generators     | One type model, five emitters (C#, TS, Java, Python, SQL), XML ⇄ JSON, ZIP export, worker; shared workspace refactor. 346 unit/component and 16 e2e tests passing                                                                   |
-| 6. Developer Utilities | 18 utilities; JWT verification (jose + Web Crypto: secret, PEM, JWK, JWKS), secure random, chunked file hashing, IANA time zones with DST notes. 454 unit/component and 20 e2e tests passing                                        |
-| 7. Text Tools          | 11 tools; jsdiff, marked + DOMPurify (sandboxed previews, external resources blocked), token-level XML formatter, `yaml`; regex worker with timeout; shared text workspace with drafts. 555 unit/component and 25 e2e tests passing |
-| 8. Snippet Manager     | CRUD, categories, tags, favorites, search, DevStudio/VS Code import and export, react-hook-form + Zod, unsaved-changes guards; fixed lost keystrokes in form-bound editors. 581 unit/component and 30 e2e tests passing             |
+| Phase                  | Result                                                                                                                                                                                                                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Architecture        | This document                                                                                                                                                                                                                                               |
+| 2. Scaffold            | Vite 8 / React 19 / TS 6 strict, ESLint layer rules, Prettier, Vitest, Playwright, CI, Dexie schema v1, preferences service                                                                                                                                 |
+| 3. Shell and dashboard | Sidebar, top bar, routing, themes, command palette, shortcuts, dashboard, favorites, settings. 115 unit/component and 7 e2e tests passing                                                                                                                   |
+| 4. JSON Studio         | 16 tools, Monaco (self-hosted, CSP-safe), worker pool with cancellation, virtualized tree and grid, saved documents, drafts, tool history. 275 unit/component and 13 e2e tests passing                                                                      |
+| 5. Code Generators     | One type model, five emitters (C#, TS, Java, Python, SQL), XML ⇄ JSON, ZIP export, worker; shared workspace refactor. 346 unit/component and 16 e2e tests passing                                                                                           |
+| 6. Developer Utilities | 18 utilities; JWT verification (jose + Web Crypto: secret, PEM, JWK, JWKS), secure random, chunked file hashing, IANA time zones with DST notes. 454 unit/component and 20 e2e tests passing                                                                |
+| 7. Text Tools          | 11 tools; jsdiff, marked + DOMPurify (sandboxed previews, external resources blocked), token-level XML formatter, `yaml`; regex worker with timeout; shared text workspace with drafts. 555 unit/component and 25 e2e tests passing                         |
+| 8. Snippet Manager     | CRUD, categories, tags, favorites, search, DevStudio/VS Code import and export, react-hook-form + Zod, unsaved-changes guards; fixed lost keystrokes in form-bound editors. 581 unit/component and 30 e2e tests passing                                     |
+| 9. SQL Tools           | 13 tools: formatter, minifier, validator (per-dialect parser in a worker), compare, SQL → C#/TS, statement generators, Schema Designer (ERD + DDL), SQLite Playground (sql.js in a worker); MySQL escaping fix. 627 unit/component and 35 e2e tests passing |

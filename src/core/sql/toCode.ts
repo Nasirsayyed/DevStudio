@@ -12,8 +12,7 @@ import type { ColumnModel, TableModel } from './schema';
 export function sqlTypeToRef(c: ColumnModel): TypeRef {
   const t = c.type.toUpperCase();
   const nullable = c.nullable;
-  if (/^(BIG)?SERIAL8?$|^BIGINT$|^INT8$/.test(t) || t === 'BIGSERIAL')
-    return { kind: 'integer', long: true, nullable };
+  if (/^(BIGSERIAL|SERIAL8|BIGINT|INT8)$/.test(t)) return { kind: 'integer', long: true, nullable };
   if (/^(BIT|BOOL|BOOLEAN)$/.test(t) || (t === 'TINYINT' && c.length === 1))
     return { kind: 'boolean', nullable };
   if (/^(SMALL|TINY|MEDIUM)?INT(EGER)?\d?$|^(SMALL)?SERIAL\d?$/.test(t))

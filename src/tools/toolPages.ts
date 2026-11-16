@@ -76,6 +76,8 @@ export const TOOL_PAGES: Readonly<Partial<Record<string, ToolPageLoader>>> = {
   'sql.to-csharp': () => import('@/features/sql-toolkit/pages/SqlToCSharpPage'),
   'sql.to-typescript': () => import('@/features/sql-toolkit/pages/SqlToTypeScriptPage'),
   'sql.compare': () => import('@/features/sql-toolkit/pages/SqlComparePage'),
+  'sql.schema-designer': () => import('@/features/sql-toolkit/pages/SchemaDesignerPage'),
+  'sql.playground': () => import('@/features/sql-toolkit/pages/SqlitePlaygroundPage'),
 };
 
 export function getToolPageLoader(toolId: string): ToolPageLoader | undefined {

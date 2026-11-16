@@ -169,6 +169,23 @@ load external resources, and render in a **sandboxed iframe** with its own Conte
 | Access       | `/snippets?snippet=<id>` deep links from the dashboard and command palette; "New snippet" palette action                                                                       |
 | Layout       | Filters · list · editor on large screens; filters in a drawer on tablets; list then editor (with Back) on phones                                                               |
 
+## SQL Tools (✅ Phase 9)
+
+Every SQL tool shares the dialect (SQL Server, PostgreSQL, MySQL/MariaDB, SQLite), the working
+script and the CREATE TABLE schema, kept as a draft. Scripts can be saved and reopened.
+
+| Tool                                                 | Highlights                                                                                                                                                                                                                                               |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SQL Formatter                                        | Keyword, data type and function case; 2/4 spaces or tabs; standard or aligned styles; AND/OR placement; blank lines between statements; errors with position                                                                                             |
+| SQL Minifier                                         | Removes comments and whitespace safely (strings, quoted identifiers, dollar quotes untouched); optional optimizer hints; size savings                                                                                                                    |
+| SQL Validator                                        | Parses each statement with the dialect grammar (in a worker); errors with line/column and jump to position; warnings for UPDATE/DELETE without WHERE, SELECT *, INSERT without columns; statement list with tables                                       |
+| SQL Query Compare                                    | Normalizes formatting (and optionally comments) before a Monaco diff; detects equivalent scripts                                                                                                                                                         |
+| SQL to C#                                            | Entities from CREATE TABLE: EF Core data annotations ([Table], [Key], [Column], [MaxLength], [Required], identity), decimal/double, Guid, DateTime/DateTimeOffset, byte[], records, ZIP per class                                                        |
+| SQL to TypeScript                                    | Interfaces or types, camelCase or column names, nullable columns as `\| null`, string or Date                                                                                                                                                            |
+| Query / SELECT / INSERT / UPDATE / DELETE generators | Table from CREATE TABLE; joins from foreign keys; WHERE builder; ORDER BY; paging per dialect; parameters per dialect or literal values; INSERT from JSON/CSV (batched, upserts); guarded UPDATE/DELETE; soft delete; affected-row preview; transactions |
+| Schema Designer                                      | Tables, columns, keys, auto-increment, defaults, relationships; ER diagram; DDL per dialect in dependency order; problem list; import CREATE TABLE; save/open/export designs; run in the playground or generate C#                                       |
+| SQLite Playground                                    | SQLite (WebAssembly) in a worker; result grids with CSV export; schema browser; Stop; open/download `.sqlite` files; save databases in the browser                                                                                                       |
+
 ## Modules
 
 70 tools are registered, searchable and favoritable. Tools of later phases show their delivery phase.
@@ -180,7 +197,7 @@ load external resources, and render in a **sandboxed iframe** with its own Conte
 | Developer Utilities         | Base64, URL, HTML entities, JWT decoder, JWT verifier, UUID, GUID, random string, password, hash, lorem ipsum, Unix timestamp, timezone, date diff, color, cron, MIME, user agent             | ✅ 6  |
 | Text Tools                  | Text diff, code diff, find & replace, counters, line tools, reverse, case converter, Markdown preview, HTML preview, XML formatter, YAML formatter                                            | ✅ 7  |
 | Snippet Manager             | CRUD, tags, categories, languages, favorites, search, import/export                                                                                                                           | ✅ 8  |
-| SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | 🗓 9   |
+| SQL Tools                   | Formatter, minifier, validator, query/SELECT/INSERT/UPDATE/DELETE generators, SQL→C#, SQL→TS, compare, schema designer, SQLite playground                                                     | ✅ 9  |
 | API Testing                 | Request builder, environments, collection runner, history, response compare                                                                                                                   | 🗓 10  |
 | History, backup and restore | Unified history, restore, full export/import                                                                                                                                                  | 🗓 11  |
 

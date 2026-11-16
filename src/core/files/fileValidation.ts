@@ -42,6 +42,10 @@ export const SQL_FILE_RULES: FileRules = {
   extensions: ['.sql', '.ddl', '.txt', '.psql', '.mysql'],
   maxBytes: 50 * 1024 * 1024,
 };
+export const SQLITE_FILE_RULES: FileRules = {
+  extensions: ['.sqlite', '.sqlite3', '.db', '.db3'],
+  maxBytes: 100 * 1024 * 1024,
+};
 /** Any text file (binary content is still rejected when read). */
 export const TEXT_FILE_RULES: FileRules = { extensions: [], maxBytes: 50 * 1024 * 1024 };
 export const MARKDOWN_FILE_RULES: FileRules = {

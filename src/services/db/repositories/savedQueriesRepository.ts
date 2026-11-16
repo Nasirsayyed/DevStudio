@@ -8,6 +8,18 @@ import { safeWrite } from '../safeWrite';
 export const MAX_SAVED_QUERY_CHARS = 10_000_000;
 export const MAX_SQLITE_DB_BYTES = 100 * 1024 * 1024;
 
+/** A saved item without its content (listing large databases must not load them). */
+export interface SavedQuerySummary {
+  id: string;
+  name: string;
+  dialect: SqlDialect;
+  kind: SavedQueryKind;
+  tags: string[];
+  updatedAt: number;
+  /** Characters of SQL/JSON, or bytes of a database file. */
+  size: number;
+}
+
 export interface SaveQueryInput {
   id?: string;
   name: string;
@@ -33,6 +45,20 @@ export function createSavedQueriesRepository(db: DevStudioDatabase = defaultDb) 
       );
     },
 
+    /** Newest first, filtered by kind and name/tag; contents are not returned. */
+    async summaries(kind?: SavedQueryKind, query = ''): Promise<SavedQuerySummary[]> {
+      const items = await this.list(kind, query);
+      return items.map((s) => ({
+        id: s.id,
+        name: s.name,
+        dialect: s.dialect,
+        kind: s.kind,
+        tags: s.tags,
+        updatedAt: s.updatedAt,
+        size: s.sizeBytes ?? (typeof s.content === 'string' ? s.content.length : 0),
+      }));
+    },
+
     get(id: string): Promise<SavedQueryEntity | undefined> {
       return table.get(id);
     },
@@ -43,7 +69,7 @@ export function createSavedQueriesRepository(db: DevStudioDatabase = defaultDb) 
       if (name.length > 200) throw new ValidationError('Names can have at most 200 characters.');
       if (typeof input.content === 'string' && input.content.length > MAX_SAVED_QUERY_CHARS)
         throw new ValidationError('Scripts larger than 10 million characters cannot be saved.');
-      if (input.content instanceof Uint8Array && input.content.byteLength > MAX_SQLITE_DB_BYTES)
+      if (typeof input.content !== 'string' && input.content.byteLength > MAX_SQLITE_DB_BYTES)
         throw new ValidationError('Databases larger than 100 MB cannot be saved in the browser.');
       return safeWrite(() =>
         db.transaction('rw', table, async () => {
@@ -58,6 +84,8 @@ export function createSavedQueriesRepository(db: DevStudioDatabase = defaultDb) 
             dialect: input.dialect,
             kind: input.kind,
             content: input.content,
+            sizeBytes:
+              typeof input.content === 'string' ? input.content.length : input.content.byteLength,
             tags: normalizeTags(input.tags ?? existing?.tags ?? []),
           };
           await table.put(entity);

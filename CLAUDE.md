@@ -59,6 +59,10 @@ security headers or anything user-visible across pages.
   (see `core/snippets/model.ts`). Read field values with `useWatch`, not `watch()` (React Compiler).
 - Import repositories that pull in feature logic (e.g. `snippetsRepository`) by path, not from the
   `services/db/repositories` barrel, which is part of the initial bundle.
+- SQL: generate literals with `core/sql/literals` and identifiers with `quoteIdentifier()`; never
+  concatenate user values into SQL by hand. Read CREATE TABLE with `parseTables()`; load
+  node-sql-parser grammars only through `loadSqlParser()`.
+- List saved items with summaries (no contents); fetch the content by id when opening.
 - Never ship placeholder controls that pretend to work. Unimplemented tools show `ScheduledNotice`.
 - Secrets (tokens, keys, HMAC keys, passwords, generated random values) are never persisted: no
   `usePersistentOptions`, IndexedDB or history entries. Use `core/random/secureRandom` for any

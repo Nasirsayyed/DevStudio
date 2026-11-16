@@ -72,4 +72,58 @@ test.describe('SQL Tools (real Monaco, workers, production CSP)', () => {
     await expect(statement).toContainText('o.CustomerId');
     await expect(statement).toContainText('c.Email');
   });
+
+  test('SQLite Playground runs SQL with WebAssembly in a worker and can stop a runaway query', async ({
+    page,
+  }) => {
+    await page.goto('/sql/playground');
+    await page.getByRole('button', { name: 'Load sample' }).click();
+    await page.getByRole('button', { name: 'Run' }).click();
+    const result = page.getByRole('region', { name: 'Result 1' });
+    await expect(result).toContainText('Result 1: 3 rows');
+    await expect(result.getByRole('grid')).toContainText('Ahmed');
+    await expect(page.getByRole('tab', { name: 'Schema (2)' })).toBeVisible();
+
+    // An endless recursive query keeps the worker busy; Stop terminates it and the page stays usable.
+    await setEditor(
+      page,
+      'SQL script',
+      'WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n) SELECT COUNT(*) FROM n;',
+    );
+    await page.getByRole('button', { name: 'Run' }).click();
+    await page.getByRole('button', { name: 'Stop' }).click();
+    await expect(page.getByText(/The query was stopped/)).toBeVisible();
+    await setEditor(page, 'SQL script', 'SELECT 41 + 1 AS answer;');
+    await page.getByRole('button', { name: 'Run' }).click();
+    await expect(page.getByRole('region', { name: 'Result 1' }).getByRole('grid')).toContainText(
+      '42',
+    );
+
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Database' }).click();
+    await page.getByRole('menuitem', { name: 'Download .sqlite file' }).click();
+    const file = await download;
+    expect(file.suggestedFilename()).toMatch(/\.sqlite$/);
+  });
+
+  test('Schema Designer draws the diagram and generates DDL that runs in the playground', async ({
+    page,
+  }) => {
+    await page.goto('/sql/schema-designer');
+    await page.getByRole('combobox', { name: 'Dialect' }).click();
+    await page.getByRole('option', { name: 'SQLite' }).click();
+    await page.getByRole('button', { name: 'Design', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Load the sample design' }).click();
+    const diagram = page.getByRole('img', { name: /Diagram of 2 tables: customers, orders/ });
+    await expect(diagram).toBeVisible();
+    await expect(
+      diagram.locator('svg text').filter({ hasText: 'customers' }).first(),
+    ).toBeVisible();
+    await page.getByRole('tab', { name: 'DDL' }).click();
+    await page.getByRole('button', { name: 'Run in SQLite Playground' }).click();
+    await expect(page).toHaveURL(/\/sql\/playground$/);
+    await page.getByRole('button', { name: 'Run' }).click();
+    await expect(page.getByRole('tab', { name: 'Schema (2)' })).toBeVisible();
+    await expect(page.getByText('Done. The statements returned no rows.')).toBeVisible();
+  });
 });

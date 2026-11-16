@@ -24,6 +24,13 @@ export function useSqlOperation<K extends SqlOperationName>(
   );
 }
 
+/** Restores the SQL draft (once per session). */
+export function useSqlDraft(): void {
+  useEffect(() => {
+    void hydrateSqlWorkspaceDraft();
+  }, []);
+}
+
 /**
  * Restores the SQL draft and opens `?query=<id>` (links from the command palette): scripts load
  * into the shared workspace; schema designs and databases open in their own tools.
@@ -34,10 +41,7 @@ export function useSqlWorkspace(): void {
   const set = useSqlWorkspaceStore((s) => s.set);
   const notify = useNotify();
   const id = params.get('query');
-
-  useEffect(() => {
-    void hydrateSqlWorkspaceDraft();
-  }, []);
+  useSqlDraft();
 
   useEffect(() => {
     if (!id) return;

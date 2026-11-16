@@ -88,3 +88,21 @@ export const SAMPLE_ROWS = `[
   { "email": "lea@example.com", "full_name": "Léa Martin", "country": "FR" },
   { "email": "kim@example.com", "full_name": null, "country": "KR" }
 ]`;
+
+export const SAMPLE_PLAYGROUND = `-- A small shop. Press Run (Ctrl/⌘+Enter); the database lives only in this tab until you save it.
+CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY, name TEXT NOT NULL, country TEXT);
+CREATE TABLE IF NOT EXISTS orders (
+  id INTEGER PRIMARY KEY,
+  customer_id INTEGER NOT NULL REFERENCES customers(id),
+  total REAL NOT NULL,
+  placed_at TEXT NOT NULL
+);
+INSERT INTO customers (name, country) VALUES ('Ahmed', 'DE'), ('Léa', 'FR'), ('Kim', 'KR');
+INSERT INTO orders (customer_id, total, placed_at) VALUES
+  (1, 120.5, '2024-03-01'), (1, 80, '2024-03-09'), (2, 42, '2024-03-10'), (3, 310, '2024-04-02');
+
+SELECT c.name, c.country, COUNT(o.id) AS orders, ROUND(SUM(o.total), 2) AS revenue
+FROM customers c LEFT JOIN orders o ON o.customer_id = c.id
+GROUP BY c.id
+ORDER BY revenue DESC;
+`;

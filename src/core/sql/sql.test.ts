@@ -274,6 +274,8 @@ describe('CREATE TABLE parsing and code generation', () => {
     expect(code).toContain(
       '    [Required]\n    [MaxLength(255)]\n    public string Email { get; set; } = string.Empty;',
     );
+    // SERIAL is a 32-bit integer; only BIGSERIAL maps to long.
+    expect(code).toContain('    [Column("id")]\n    public int Id { get; set; }');
     expect(files.map((f) => f.path)).toEqual(['Customer.cs', 'OrderItem.cs']);
   });
 

@@ -49,7 +49,7 @@ export function SqlInput({
   const [saveDialog, setSaveDialog] = useState(false);
   const [query, setQuery] = useState('');
   const items = useLiveQuery(
-    () => (openDialog ? savedQueriesRepository.list('query', query) : Promise.resolve([])),
+    () => (openDialog ? savedQueriesRepository.summaries('query', query) : Promise.resolve([])),
     [openDialog, query],
   );
 
@@ -115,20 +115,25 @@ export function SqlInput({
             onQueryChange={setQuery}
             items={items?.map((q) => ({
               ...q,
-              description: `${DIALECTS[q.dialect].label} · ${formatBytes(typeof q.content === 'string' ? q.content.length : q.content.byteLength)} · updated ${formatDistanceToNowStrict(q.updatedAt, { addSuffix: true })}`,
+              description: `${DIALECTS[q.dialect].label} · ${formatBytes(q.size)} · updated ${formatDistanceToNowStrict(q.updatedAt, { addSuffix: true })}`,
             }))}
             onClose={() => {
               setOpenDialog(false);
             }}
-            onOpen={(q) => {
-              if (typeof q.content !== 'string') return;
-              set({
-                [field]: q.content,
-                dialect: q.dialect,
-                ...(field === 'sql' ? { query: { id: q.id, name: q.name } } : {}),
-              });
+            onOpen={(summary) => {
               setOpenDialog(false);
-              notify.info(`Opened "${q.name}"`);
+              void savedQueriesRepository.get(summary.id).then((q) => {
+                if (!q || typeof q.content !== 'string') {
+                  notify.warning('That saved query no longer exists.');
+                  return;
+                }
+                set({
+                  [field]: q.content,
+                  dialect: q.dialect,
+                  ...(field === 'sql' ? { query: { id: q.id, name: q.name } } : {}),
+                });
+                notify.info(`Opened "${q.name}"`);
+              });
             }}
             onDelete={(q) => savedQueriesRepository.remove(q.id)}
           />

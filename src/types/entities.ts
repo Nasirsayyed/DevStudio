@@ -84,6 +84,8 @@ export interface SavedQueryEntity extends BaseEntity {
   tags: string[];
   /** SQL text, schema-designer JSON, or (kind = sqliteDb) a SQLite database file. */
   content: string | Uint8Array;
+  /** Characters of text or bytes of the database file (set on save; not indexed). */
+  sizeBytes?: number;
 }
 
 export interface CodeSnippetEntity extends BaseEntity {

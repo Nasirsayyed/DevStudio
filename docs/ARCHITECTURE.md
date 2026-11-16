@@ -256,6 +256,29 @@ stores/textWorkspaceStore  shared working text + drafts (via stores/draftPersist
 - Drafts: `createDraftPersistence` restores a store's fields from the settings table once per
   session (only into empty fields) and saves changes, debounced; JSON Studio and Text Tools use it.
 
+## SQL Tools
+
+```
+core/sql: dialects, tokenize (lexer, minify, split), format (sql-formatter), parser (node-sql-parser,
+          one dynamic chunk per dialect), validate, schema (tolerant CREATE TABLE parser), toCode,
+          generators, compare, design (Schema Designer model + DDL), operations
+workers/sql.worker.ts ◄── services/workers/sqlTasks ◄── features/sql-toolkit/hooks (useSqlOperation)
+workers/sqlite.worker.ts ◄── services/sqlite (engine + SqliteClient / InlineSqliteConnection)
+stores/sqlWorkspaceStore: script, compare right side, schema, data, playground, design, dialect
+```
+
+- Task workers support asynchronous operations, so a worker loads only the grammar of the active
+  dialect. CREATE TABLE statements are read by DevStudio's own tolerant parser, which handles every
+  dialect's DDL and skips vendor options; node-sql-parser is used for validation.
+- SQL → C#/TS maps tables to the shared code-generation model (`tablesToModel`) and reuses the
+  emitters (`generateCSharpFromModel`, `generateTypeScriptFromModel`).
+- The SQLite Playground keeps one database open in a dedicated worker (sql.js; the `.wasm` file is
+  self-hosted and needs only `'wasm-unsafe-eval'`). Stop terminates the worker and reopens the last
+  snapshot (opened file or last save). Without workers (and in tests) the same engine runs in
+  process.
+- Saved scripts, designs and databases share the `savedQueries` table; listings use summaries so
+  large databases are not loaded until opened.
+
 ## Snippet Manager
 
 ```

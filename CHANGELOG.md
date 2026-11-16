@@ -4,6 +4,47 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.7.0] - 2026-11-16
+
+SQL Tools (roadmap Phase 9).
+
+### Added
+
+- SQL Formatter (sql-formatter: keyword/type/function case, indentation, aligned styles, operator
+  placement), SQL Minifier (own lexer: strings, quoted identifiers, dollar quotes and comments are
+  handled correctly; optimizer hints optional) and SQL Validator (node-sql-parser, one grammar per
+  dialect, loaded on demand in a worker) with positioned errors and warnings for UPDATE/DELETE
+  without WHERE, `SELECT *` and INSERT without a column list.
+- SQL Query Compare on normalized formatting (comments optional) in a Monaco diff.
+- SQL to C# (EF Core data annotations, `decimal`/`double`, `Guid`, `byte[]`, records, nullable
+  reference types, ZIP per class) and SQL to TypeScript, through the shared code-generation model.
+- SQL Query Generator plus SELECT, INSERT, UPDATE and DELETE generators: joins from foreign keys,
+  WHERE conditions (`IN`, `BETWEEN`, `IS NULL`…), ordering, dialect-specific paging, parameters
+  per dialect (`@p`, `$1`, `?`, `:p`) or literals, INSERT from JSON/CSV with batching and upserts,
+  UPDATE/DELETE refused without WHERE unless confirmed, soft delete, affected-row preview and
+  transactions.
+- Schema Designer: tables, columns (portable types), keys, auto-increment, defaults and foreign
+  keys; ER diagram (ECharts); DDL for SQL Server, PostgreSQL, MySQL and SQLite in dependency order
+  (cycles become `ALTER TABLE`); problem list; import CREATE TABLE; save, open and export designs;
+  "Run in SQLite Playground" and "Generate C#".
+- SQLite Playground (sql.js/WebAssembly in a worker): run scripts, result grids with CSV export,
+  schema browser, Stop for runaway queries, open/download `.sqlite` files and save databases in
+  the browser.
+- Shared SQL workspace (script, schema, data, dialect, design) with drafts; saved queries, designs
+  and databases with Open/Save dialogs and command-palette links.
+
+### Changed
+
+- Task workers accept asynchronous operations (parsers load on demand).
+- Open/Save dialogs and the two-input compare layout are shared components.
+- The code generators' C#/TypeScript emitters accept a prepared type model.
+
+### Fixed
+
+- MySQL string literals in generated SQL now escape backslashes (the JSON → SQL table generator
+  could emit a literal that ended early).
+- Saved-item listings no longer load file contents.
+
 ## [0.6.0] - 2026-11-12
 
 Snippet Manager (roadmap Phase 8).
