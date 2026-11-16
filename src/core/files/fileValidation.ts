@@ -17,6 +17,11 @@ export const JSON_FILE_RULES: FileRules = {
   extensions: ['.json', '.txt', '.geojson', '.har', '.map'],
   maxBytes: 50 * 1024 * 1024,
 };
+/** API collections (DevStudio or Postman JSON). */
+export const COLLECTION_FILE_RULES: FileRules = {
+  extensions: ['.json', '.postman_collection'],
+  maxBytes: 20 * 1024 * 1024,
+};
 export const XML_FILE_RULES: FileRules = {
   extensions: [
     '.xml',

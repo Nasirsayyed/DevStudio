@@ -294,6 +294,15 @@ stores/sqlWorkspaceStore: script, compare right side, schema, data, playground, 
   `createDraftPersistence`), chosen files and runtime values. Pages: Request Builder,
   Environments and History (`features/api-studio`).
 - Sanitized HTML responses render in the shared `components/preview/PreviewFrame`.
+- `core/http/assertions` evaluates assertions and extractions; `core/http/collections` imports and
+  exports DevStudio and Postman collections (tolerant readers, never executes scripts);
+  `core/http/compare` compares responses; `core/http/oauth` builds PKCE and token requests.
+- The Collection Runner (`features/api-studio/runner.ts`) sends requests sequentially through the
+  same executor; extracted values are layered above the environment and collection scopes.
+- OAuth authorization code: the opener tab keeps the PKCE verifier in memory, opens the provider in
+  a popup and waits on a same-origin `BroadcastChannel`; `/oauth/callback` (a tiny route outside
+  the app layout, `app/router/OAuthCallbackPage`) only relays the query string, and the opener
+  accepts it only when `state` matches.
 
 ## Snippet Manager
 

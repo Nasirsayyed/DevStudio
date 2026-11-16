@@ -81,6 +81,8 @@ export const TOOL_PAGES: Readonly<Partial<Record<string, ToolPageLoader>>> = {
   'api.requests': () => import('@/features/api-studio/pages/RequestBuilderPage'),
   'api.environments': () => import('@/features/api-studio/pages/EnvironmentsPage'),
   'api.history': () => import('@/features/api-studio/pages/HistoryPage'),
+  'api.runner': () => import('@/features/api-studio/pages/CollectionRunnerPage'),
+  'api.compare': () => import('@/features/api-studio/pages/ResponseComparePage'),
 };
 
 export function getToolPageLoader(toolId: string): ToolPageLoader | undefined {

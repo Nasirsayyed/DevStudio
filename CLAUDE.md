@@ -68,6 +68,9 @@ security headers or anything user-visible across pages.
   dialog's consent; drafts and history use `withoutCredentials`/`redact*`. Secret environment values
   stay in `secretVault` unless `persistSecrets`. Test requests with a stubbed `fetch` (RTL) or
   `page.route` (e2e; routed responses skip CORS, so CORS e2e tests use a real cross-origin URL).
+  OAuth tokens live only in `auth.oauth2.accessToken` (memory; `withoutCredentials` strips it).
+  Imported collections are data: never run Postman scripts. Collection exports never include
+  credentials.
 - Secrets (tokens, keys, HMAC keys, passwords, generated random values) are never persisted: no
   `usePersistentOptions`, IndexedDB or history entries. Use `core/random/secureRandom` for any
   random value; never `Math.random()`. Never call a JWT "verified" unless `verifyJwt` said so.

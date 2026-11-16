@@ -12,14 +12,18 @@ import {
   Typography,
 } from '@mui/material';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Add, ArrowDown2, ArrowRight2, Folder2, More } from 'iconsax-reactjs';
+import { Add, ArrowDown2, ArrowRight2, DocumentDownload, Folder2, More } from 'iconsax-reactjs';
+import { useNavigate } from 'react-router';
 import { type ReactNode, useState } from 'react';
 import { EmptyState, SearchInput, useConfirm, useNotify } from '@/components';
 import { SaveNameDialog } from '@/components/workspace/SavedItemDialogs';
 import { toUserMessage } from '@/core/errors/AppError';
+import { exportNative, exportPostman } from '@/core/http/collections';
+import { downloadText } from '@/services/files/textFiles';
 import { apiCollectionsRepository } from '@/services/db/repositories/apiCollectionsRepository';
 import { fontFamilies } from '@/theme/tokens';
 import type { ApiRequestEntity, CollectionEntity, CollectionFolder } from '@/types/entities';
+import { ImportCollectionDialog } from './ImportCollectionDialog';
 
 type NameAction =
   | { kind: 'new-collection' }
@@ -71,6 +75,8 @@ export function CollectionsPanel({
   const [query, setQuery] = useState('');
   const [menu, setMenu] = useState<MenuTarget | null>(null);
   const [naming, setNaming] = useState<NameAction | null>(null);
+  const [importing, setImporting] = useState(false);
+  const navigate = useNavigate();
   const confirm = useConfirm();
   const notify = useNotify();
 
@@ -90,6 +96,20 @@ export function CollectionsPanel({
     try {
       await fn();
       if (message) notify.success(message);
+    } catch (error) {
+      notify.error(toUserMessage(error));
+    }
+  };
+
+  const exportAs = async (c: CollectionEntity, format: 'devstudio' | 'postman') => {
+    try {
+      const bundle = await apiCollectionsRepository.exportBundle(c.id);
+      const base = c.name.replace(/[^\p{L}\p{N}._-]+/gu, '-') || 'collection';
+      if (format === 'postman')
+        downloadText(exportPostman(bundle), `${base}.postman_collection.json`, 'application/json');
+      else
+        downloadText(exportNative(bundle), `${base}.devstudio-collection.json`, 'application/json');
+      notify.success('Exported without credentials (variables like {{token}} are kept).');
     } catch (error) {
       notify.error(toUserMessage(error));
     }
@@ -196,6 +216,17 @@ export function CollectionsPanel({
         <Typography variant="subtitle2" component="h2" sx={{ flex: 1 }}>
           Collections
         </Typography>
+        <Tooltip title="Import collection">
+          <IconButton
+            size="small"
+            aria-label="Import collection"
+            onClick={() => {
+              setImporting(true);
+            }}
+          >
+            <DocumentDownload size={18} color="currentColor" />
+          </IconButton>
+        </Tooltip>
         <Tooltip title="New collection">
           <IconButton
             size="small"
@@ -308,6 +339,36 @@ export function CollectionsPanel({
             }}
           >
             Rename
+          </MenuItem>,
+          <MenuItem
+            key="run"
+            onClick={() => {
+              const id = menu.collection.id;
+              setMenu(null);
+              void navigate(`/api/runner?collection=${id}`);
+            }}
+          >
+            Run collection
+          </MenuItem>,
+          <MenuItem
+            key="export"
+            onClick={() => {
+              const c = menu.collection;
+              setMenu(null);
+              void exportAs(c, 'devstudio');
+            }}
+          >
+            Export (DevStudio JSON)
+          </MenuItem>,
+          <MenuItem
+            key="export-postman"
+            onClick={() => {
+              const c = menu.collection;
+              setMenu(null);
+              void exportAs(c, 'postman');
+            }}
+          >
+            Export (Postman v2.1)
           </MenuItem>,
           <MenuItem
             key="delete"
@@ -454,6 +515,12 @@ export function CollectionsPanel({
         ]}
       </Menu>
 
+      <ImportCollectionDialog
+        open={importing}
+        onClose={() => {
+          setImporting(false);
+        }}
+      />
       <SaveNameDialog
         open={naming !== null}
         title={name?.title ?? ''}

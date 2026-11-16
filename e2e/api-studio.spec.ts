@@ -87,4 +87,91 @@ test.describe('API Studio (real fetch and CORS, production CSP)', () => {
     ).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'URL' })).toHaveValue(`${API}/page`);
   });
+
+  test('runs a collection with chained values and compares responses', async ({ page }) => {
+    await page.route(`${API}/**`, (route) => {
+      const url = route.request().url();
+      const auth = route.request().headers().authorization;
+      const body = url.endsWith('/login')
+        ? { token: 'tok-1' }
+        : auth === 'Bearer tok-1'
+          ? { name: 'Ada', role: 'admin' }
+          : { error: 'unauthorized' };
+      return route.fulfill({
+        status: url.endsWith('/login') || auth === 'Bearer tok-1' ? 200 : 401,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify(body),
+      });
+    });
+    await page.goto('/api/requests');
+    await page.getByRole('button', { name: 'Import collection' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Import collection' });
+    await dialog.getByLabel('Choose file').setInputFiles({
+      name: 'shop.postman_collection.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(
+        JSON.stringify({
+          info: {
+            name: 'Shop',
+            schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+          },
+          item: [
+            { name: 'Login', request: { method: 'POST', url: `${API}/login` } },
+            {
+              name: 'Profile',
+              request: {
+                method: 'GET',
+                url: `${API}/me`,
+                auth: { type: 'bearer', bearer: [{ key: 'token', value: '{{token}}' }] },
+              },
+            },
+          ],
+        }),
+      ),
+    });
+    await expect(dialog.getByLabel('Import preview')).toContainText('2 requests');
+    await dialog.getByRole('button', { name: 'Import' }).click();
+
+    // Add an extraction to Login, then run the collection.
+    await page.getByRole('button', { name: 'POST Login' }).click();
+    await page.getByRole('tab', { name: 'Tests' }).click();
+    await page.getByRole('button', { name: 'Add extraction' }).click();
+    await page.getByRole('textbox', { name: 'Extraction 1 variable' }).fill('token');
+    await page.getByRole('textbox', { name: 'Extraction 1 path' }).fill('$.token');
+    await page.keyboard.press('ControlOrMeta+s');
+    await expect(page.getByText('Saved "Login"')).toBeVisible();
+
+    await page.goto('/api/runner');
+    await page.getByRole('button', { name: 'Run (2)' }).click();
+    const results = page.getByRole('region', { name: 'Run results' });
+    await expect(results).toContainText('2 passed · 0 failed · 2/2');
+
+    // Two different responses from the builder, compared with the real Monaco diff editor.
+    await page.goto('/api/requests');
+    await page.getByRole('button', { name: 'GET Profile' }).click();
+    await page.getByRole('button', { name: 'Send' }).click();
+    await expect(page.getByRole('region', { name: 'Response' }).getByLabel('Status')).toHaveText(
+      /401/,
+    );
+    await page.getByRole('button', { name: 'POST Login' }).click();
+    await page.getByRole('button', { name: 'Send' }).click();
+    await expect(page.getByRole('region', { name: 'Response' }).getByLabel('Status')).toHaveText(
+      /200/,
+    );
+    await page.goto('/api/history');
+    await page.getByRole('button', { name: 'Compare with…' }).click();
+    await page.getByRole('combobox', { name: 'Right response' }).click();
+    await page.getByRole('option', { name: /^401 GET/ }).click();
+    await expect(page.getByRole('status', { name: 'Comparison summary' })).toContainText(
+      'Bodies differ',
+    );
+    await expect(page.locator('.monaco-diff-editor')).toBeVisible();
+  });
+
+  test('the OAuth callback page works in the production build', async ({ page }) => {
+    await page.goto('/oauth/callback?code=abc&state=xyz');
+    await expect(page.getByRole('heading', { name: 'Sign-in finished' })).toBeVisible();
+    await expect(page).toHaveURL(/\/oauth\/callback$/);
+  });
 });

@@ -155,6 +155,54 @@ describe('apiCollectionsRepository', () => {
   });
 });
 
+describe('collection import, export and run order', () => {
+  it('imports a bundle atomically with new ids and exports it in run order', async () => {
+    const repo = createApiCollectionsRepository(database);
+    const c = await repo.importBundle({
+      name: 'Imported',
+      description: '',
+      variables: [],
+      folders: [
+        { id: 'x', name: 'Auth', parentId: null },
+        { id: 'y', name: 'Deep', parentId: 'x' },
+      ],
+      requests: [
+        { folderId: 'y', draft: emptyRequest({ name: 'Zeta login', url: 'https://a.test' }) },
+        { folderId: null, draft: emptyRequest({ name: 'Alpha profile', url: 'https://b.test' }) },
+      ],
+    });
+    expect(c.folders.map((f) => f.id)).not.toContain('x');
+    expect(c.folders[1]?.parentId).toBe(c.folders[0]?.id);
+    // The file order is kept (not the alphabetical one).
+    expect((await repo.runOrder(c.id)).map((r) => r.name)).toEqual(['Zeta login', 'Alpha profile']);
+
+    const extra = await repo.saveRequest({
+      collectionId: c.id,
+      folderId: null,
+      draft: emptyRequest({ name: 'Added later' }),
+    });
+    expect((await repo.runOrder(c.id)).at(-1)?.id).toBe(extra.id);
+    await repo.setRunOrder(c.id, [extra.id]);
+    const order = (await repo.runOrder(c.id)).map((r) => r.name);
+    expect(order).toEqual(['Added later', 'Alpha profile', 'Zeta login']);
+
+    const bundle = await repo.exportBundle(c.id);
+    expect(bundle.requests.map((r) => r.draft.name)).toEqual(order);
+    expect(bundle.requests.find((r) => r.draft.name === 'Zeta login')?.folderId).toBe(
+      c.folders[1]?.id,
+    );
+    await expect(repo.exportBundle('missing')).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it('rolls back an import that fails', async () => {
+    const repo = createApiCollectionsRepository(database);
+    await expect(
+      repo.importBundle({ name: '  ', description: '', variables: [], folders: [], requests: [] }),
+    ).rejects.toBeInstanceOf(ValidationError);
+    expect(await repo.listCollections()).toEqual([]);
+  });
+});
+
 describe('apiHistoryRepository', () => {
   const snapshot = (url: string, status: number | null): ApiHistorySnapshot => ({
     request: { method: 'GET', url, headers: [], body: null },

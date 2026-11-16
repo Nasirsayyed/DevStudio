@@ -91,10 +91,12 @@ function bodyLanguage(contentType: string): string {
 function Detail({
   entry,
   onOpen,
+  onCompare,
   onDelete,
 }: {
   entry: ApiHistoryEntity;
   onOpen: () => void;
+  onCompare: () => void;
   onDelete: () => void;
 }) {
   const s = entry.snapshot as unknown as ApiHistorySnapshot;
@@ -110,6 +112,9 @@ function Detail({
         </Typography>
         <Button variant="contained" size="small" disabled={!s.draft} onClick={onOpen}>
           Open in Request Builder
+        </Button>
+        <Button size="small" disabled={!s.response} onClick={onCompare}>
+          Compare with…
         </Button>
         <Tooltip title="Delete entry">
           <IconButton size="small" color="error" aria-label="Delete entry" onClick={onDelete}>
@@ -410,6 +415,7 @@ export default function HistoryPage() {
                   key={selected.id}
                   entry={selected}
                   onOpen={() => void open(selected)}
+                  onCompare={() => void navigate(`/api/compare?left=${selected.id}`)}
                   onDelete={() => void remove(selected)}
                 />
               )}

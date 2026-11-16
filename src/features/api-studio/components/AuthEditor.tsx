@@ -2,6 +2,7 @@ import { Alert, Stack, TextField } from '@mui/material';
 import { SelectOption } from '@/components/workspace/OptionControls';
 import type { RequestAuth } from '@/core/http/model';
 import { fontFamilies } from '@/theme/tokens';
+import { OAuth2Editor } from './OAuth2Editor';
 
 const mono = {
   htmlInput: { spellCheck: false, autoComplete: 'off', style: { fontFamily: fontFamilies.mono } },
@@ -10,9 +11,11 @@ const mono = {
 export function AuthEditor({
   auth,
   onChange,
+  resolve,
 }: {
   auth: RequestAuth;
   onChange: (a: RequestAuth) => void;
+  resolve: (text: string) => string;
 }) {
   const set = (patch: Partial<RequestAuth>) => {
     onChange({ ...auth, ...patch });
@@ -28,6 +31,7 @@ export function AuthEditor({
           { value: 'basic', label: 'Basic' },
           { value: 'bearer', label: 'Bearer token' },
           { value: 'apikey', label: 'API key' },
+          { value: 'oauth2', label: 'OAuth 2.0' },
         ]}
         onChange={(type) => {
           set({ type });
@@ -118,6 +122,15 @@ export function AuthEditor({
             slotProps={mono}
           />
         </>
+      )}
+      {auth.type === 'oauth2' && (
+        <OAuth2Editor
+          config={auth.oauth2}
+          resolve={resolve}
+          onChange={(oauth2) => {
+            set({ oauth2 });
+          }}
+        />
       )}
       {auth.type !== 'none' && (
         <Alert severity="info" variant="outlined">

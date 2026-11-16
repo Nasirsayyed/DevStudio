@@ -90,16 +90,18 @@ describe('application shell', () => {
 });
 
 describe('tool routes', () => {
-  it('renders a scheduled tool honestly and records usage', async () => {
-    renderApp('/api/runner');
+  it('records tool usage and shows scheduled modules honestly', async () => {
+    const { router } = renderApp('/api/compare');
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Collection Runner' }),
+      await screen.findByRole('heading', { level: 1, name: 'Response Compare' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Scheduled for Phase 10')).toBeInTheDocument();
     await waitFor(async () => {
-      expect((await db.toolUsage.get('api.runner'))?.count).toBeGreaterThanOrEqual(1);
+      expect((await db.toolUsage.get('api.compare'))?.count).toBeGreaterThanOrEqual(1);
     });
-    expect(usePreferencesStore.getState().recentToolIds[0]).toBe('api.runner');
+    expect(usePreferencesStore.getState().recentToolIds[0]).toBe('api.compare');
+
+    await act(() => router.navigate('/history'));
+    expect(await screen.findByText('Scheduled for Phase 11')).toBeInTheDocument();
   });
 
   it('redirects alias tools to their canonical tool', async () => {

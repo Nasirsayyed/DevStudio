@@ -2,7 +2,13 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toUserMessage } from '@/core/errors/AppError';
 import { buildRequest, type PreparedRequest } from '@/core/http/build';
-import type { VariableScope } from '@/core/http/interpolate';
+import {
+  type AssertionResult,
+  evaluateAssertions,
+  type ExtractionResult,
+  extractValues,
+} from '@/core/http/assertions';
+import { interpolate, type VariableScope } from '@/core/http/interpolate';
 import { type RequestDraft, withoutCredentials } from '@/core/http/model';
 import { maskValues, redactHeaders, redactUrl } from '@/core/http/redact';
 import { apiCollectionsRepository } from '@/services/db/repositories/apiCollectionsRepository';
@@ -82,6 +88,10 @@ export interface SendState {
   response: HttpResponseSnapshot | null;
   error: string | null;
   errorCode: string | null;
+  /** Assertion results of the last response (empty without assertions). */
+  tests: AssertionResult[];
+  /** Variables extracted from the last response, and extraction problems. */
+  extracted: ExtractionResult | null;
 }
 
 const IDLE: SendState = {
@@ -90,6 +100,8 @@ const IDLE: SendState = {
   response: null,
   error: null,
   errorCode: null,
+  tests: [],
+  extracted: null,
 };
 
 /** Builds, sends and records requests; one at a time, cancellable. */
@@ -155,7 +167,22 @@ export function useSendRequest() {
           binaryFile,
         });
         if (controller.current !== c) return;
-        setState({ ...IDLE, status: 'done', prepared, response });
+        const facts = {
+          status: response.status,
+          headers: response.headers,
+          text: response.text,
+          timeMs: response.timings.totalMs,
+        };
+        const resolve = (t: string) => interpolate(t, scopes).text;
+        const tests = evaluateAssertions(draft.assertions, facts, resolve);
+        const extracted = draft.extract.some((e) => e.enabled)
+          ? extractValues(draft.extract, facts)
+          : null;
+        if (extracted && Object.keys(extracted.values).length > 0) {
+          const store = useApiWorkspaceStore.getState();
+          store.set({ runtime: { ...store.runtime, ...extracted.values } });
+        }
+        setState({ ...IDLE, status: 'done', prepared, response, tests, extracted });
         const body = truncateBody(response.text);
         void apiHistoryRepository
           .record({

@@ -35,6 +35,7 @@ import { jsonTasks } from '@/services/workers/jsonTasks';
 import { useJsonWorkspaceStore } from '@/stores/jsonWorkspaceStore';
 import { fontFamilies } from '@/theme/tokens';
 import type { SendState } from '../hooks';
+import { TestResults } from './TestResults';
 
 type View = 'pretty' | 'raw' | 'tree' | 'preview';
 
@@ -329,6 +330,8 @@ function ResponseBody({ r }: { r: HttpResponseSnapshot }) {
 export function ResponseViewer({ state, onCancel }: { state: SendState; onCancel: () => void }) {
   const [tab, setTab] = useState(0);
   const r = state.response;
+  const hasTests = state.tests.length > 0 || state.extracted !== null;
+  const current = !r ? 2 : tab === 3 && !hasTests ? 0 : tab;
   return (
     <Panel
       title="Response"
@@ -395,7 +398,7 @@ export function ResponseViewer({ state, onCancel }: { state: SendState; onCancel
       {(r || (state.status === 'error' && state.prepared)) && (
         <>
           <Tabs
-            value={r ? tab : 2}
+            value={current}
             onChange={(_, v: number) => {
               setTab(v);
             }}
@@ -408,14 +411,28 @@ export function ResponseViewer({ state, onCancel }: { state: SendState; onCancel
               sx={{ minHeight: 40 }}
             />
             <Tab label="Request" sx={{ minHeight: 40 }} />
+            {r && hasTests && (
+              <Tab
+                value={3}
+                label={
+                  state.tests.length > 0
+                    ? `Tests (${String(state.tests.filter((t) => t.passed).length)}/${String(state.tests.length)})`
+                    : 'Tests'
+                }
+                sx={{
+                  minHeight: 40,
+                  color: state.tests.some((t) => !t.passed) ? 'error.main' : undefined,
+                }}
+              />
+            )}
           </Tabs>
-          {r && tab === 0 && (
+          {r && current === 0 && (
             <ResponseBody
               key={`${String(r.timings.totalMs)}-${String(r.sizeBytes)}-${r.url}`}
               r={r}
             />
           )}
-          {r && tab === 1 && (
+          {r && current === 1 && (
             <Box sx={{ overflow: 'auto', p: 1 }}>
               <KvTable label="Response headers" rows={r.headers} />
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', p: 1 }}>
@@ -424,7 +441,8 @@ export function ResponseViewer({ state, onCancel }: { state: SendState; onCancel
               </Typography>
             </Box>
           )}
-          {(!r || tab === 2) && state.prepared && <SentRequest p={state.prepared} />}
+          {current === 2 && state.prepared && <SentRequest p={state.prepared} />}
+          {r && current === 3 && <TestResults tests={state.tests} extracted={state.extracted} />}
         </>
       )}
     </Panel>

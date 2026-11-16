@@ -49,6 +49,7 @@ export default function RequestBuilderPage() {
   const load = useApiWorkspaceStore((s) => s.load);
   const setDraft = useApiWorkspaceStore((s) => s.setDraft);
   const setState = useApiWorkspaceStore((s) => s.set);
+  const runtimeCount = useApiWorkspaceStore((s) => Object.keys(s.runtime).length);
   const { scopes, secrets } = useVariableScopes(openRef?.collectionId ?? null);
   const sender = useSendRequest();
   const resetSender = sender.reset;
@@ -262,6 +263,16 @@ export default function RequestBuilderPage() {
               }}
             >
               Save as…
+            </MenuItem>
+            <MenuItem
+              disabled={runtimeCount === 0}
+              onClick={() => {
+                setMoreMenu(null);
+                setState({ runtime: {} });
+                notify.info('Runtime variables cleared.');
+              }}
+            >
+              Clear runtime variables ({runtimeCount})
             </MenuItem>
             <MenuItem
               onClick={() => {

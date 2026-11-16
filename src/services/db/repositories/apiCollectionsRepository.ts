@@ -1,4 +1,5 @@
 import { NotFoundError, ValidationError } from '@/core/errors/AppError';
+import type { CollectionBundle } from '@/core/http/collections';
 import { parseRequestDraft, type RequestDraft } from '@/core/http/model';
 import type {
   ApiRequestEntity,
@@ -211,6 +212,92 @@ export function createApiCollectionsRepository(db: DevStudioDatabase = defaultDb
 
     async removeRequest(id: string): Promise<void> {
       await safeWrite(() => requests.delete(id));
+    },
+
+    /** Requests of a collection in run order: `runOrder` first, then folder by folder, by name. */
+    async runOrder(collectionId: string): Promise<ApiRequestEntity[]> {
+      const c = await collections.get(collectionId);
+      if (!c) throw new NotFoundError('This collection no longer exists.');
+      const all = await this.listRequests(collectionId);
+      const byId = new Map(all.map((r) => [r.id, r]));
+      const ordered = (c.runOrder ?? []).flatMap((id) => byId.get(id) ?? []);
+      const seen = new Set(ordered.map((r) => r.id));
+      const walk = (parentId: string | null): ApiRequestEntity[] => [
+        ...all.filter((r) => (r.folderId ?? null) === parentId && !seen.has(r.id)),
+        ...c.folders.filter((f) => f.parentId === parentId).flatMap((f) => walk(f.id)),
+      ];
+      const rest = walk(null);
+      // Requests in folders that no longer exist still run, last.
+      const placed = new Set([...seen, ...rest.map((r) => r.id)]);
+      return [...ordered, ...rest, ...all.filter((r) => !placed.has(r.id))];
+    },
+
+    async setRunOrder(collectionId: string, ids: readonly string[]): Promise<void> {
+      await safeWrite(() =>
+        collections.update(collectionId, { runOrder: [...ids].slice(0, 10_000) }),
+      );
+    },
+
+    /** Creates a collection with its folders and requests in one transaction (new ids). */
+    async importBundle(bundle: CollectionBundle): Promise<CollectionEntity> {
+      const n = name(bundle.name, 'collection');
+      return safeWrite(() =>
+        db.transaction('rw', collections, requests, async () => {
+          const now = Date.now();
+          const ids = new Map(bundle.folders.map((f) => [f.id, createId()]));
+          const folders: CollectionFolder[] = bundle.folders.map((f) => ({
+            id: ids.get(f.id) ?? createId(),
+            name: f.name.trim().slice(0, 200) || 'Folder',
+            parentId: f.parentId ? (ids.get(f.parentId) ?? null) : null,
+          }));
+          const entities: ApiRequestEntity[] = bundle.requests.map((r, i) => {
+            const draft = parseRequestDraft(r.draft);
+            const { name: requestName, method, url, ...config } = draft;
+            return {
+              id: createId(),
+              createdAt: now + i,
+              updatedAt: now + i,
+              collectionId: '',
+              folderId: r.folderId ? (ids.get(r.folderId) ?? null) : null,
+              name: requestName.trim().slice(0, 200) || 'Request',
+              method,
+              url,
+              config,
+            };
+          });
+          const collection: CollectionEntity = {
+            id: createId(),
+            createdAt: now,
+            updatedAt: now,
+            name: n,
+            description: bundle.description.slice(0, 100_000),
+            folders,
+            variables: bundle.variables,
+            runOrder: entities.map((e) => e.id),
+          };
+          await collections.add(collection);
+          await requests.bulkAdd(entities.map((e) => ({ ...e, collectionId: collection.id })));
+          return collection;
+        }),
+      );
+    },
+
+    /** A collection with its folders and requests, in run order, for export. */
+    async exportBundle(collectionId: string): Promise<CollectionBundle> {
+      const c = await collections.get(collectionId);
+      if (!c) throw new NotFoundError('This collection no longer exists.');
+      const ordered = await this.runOrder(collectionId);
+      const folderIds = new Set(c.folders.map((f) => f.id));
+      return {
+        name: c.name,
+        description: c.description,
+        variables: c.variables,
+        folders: c.folders,
+        requests: ordered.map((r) => ({
+          folderId: r.folderId && folderIds.has(r.folderId) ? r.folderId : null,
+          draft: this.draftOf(r),
+        })),
+      };
     },
   };
 }

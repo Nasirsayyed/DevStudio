@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–9 delivered (v0.7.0); Phase 10a delivered.** Next: Phase 10b (runner, import/export, response compare, OAuth 2.0).
+Status: **Approved. Phases 1–10 delivered (v0.8.0).** Next: Phase 11 (history, backup and restore).
 Date: 2026-11-11
 
 ---
@@ -388,7 +388,7 @@ Implementation proceeded with the recommended options:
 3. **Zod only** (no Yup). ✅
 4. **Secrets in memory by default**, with opt-in persistence (unencrypted, after a consent dialog). ✅ (Phase 10a)
 5. **Optional CORS proxy URL**: not built. Requests go directly from the browser; CORS failures are explained instead.
-6. **Postman v2.1 import**: planned for Phase 10.
+6. **Postman v2.1 import**: delivered in Phase 10 (v2.0 too), plus Postman v2.1 export. Scripts are never run. ✅
 
 Deviation in Phase 4: **`@cfworker/json-schema` instead of Ajv** for JSON Schema validation. Ajv
 compiles schemas with `new Function`, which the CSP (no `unsafe-eval`) blocks. `@cfworker/json-schema`
@@ -414,3 +414,4 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 | 8. Snippet Manager       | CRUD, categories, tags, favorites, search, DevStudio/VS Code import and export, react-hook-form + Zod, unsaved-changes guards; fixed lost keystrokes in form-bound editors. 581 unit/component and 30 e2e tests passing                                                                                  |
 | 9. SQL Tools             | 13 tools: formatter, minifier, validator (per-dialect parser in a worker), compare, SQL → C#/TS, statement generators, Schema Designer (ERD + DDL), SQLite Playground (sql.js in a worker); MySQL escaping fix. 627 unit/component and 35 e2e tests passing                                              |
 | 10a. API Studio (part 1) | Request Builder (all body modes, Basic/Bearer/API-key auth, settings), `{{variables}}`, response viewer (pretty/raw/tree/sandboxed HTML/images), collections and folders, cURL import, code snippets, environments with in-memory secrets, redacted history. 660 unit/component and 38 e2e tests passing |
+| 10b. API Studio (part 2) | Assertions and chaining, Collection Runner, DevStudio/Postman import and export, Response Compare, OAuth 2.0 (client credentials, authorization code + PKCE). 689 unit/component and 40 e2e tests passing                                                                                                |

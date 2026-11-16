@@ -11,6 +11,7 @@ import {
   SnippetsPage,
   ToolRoutePage,
 } from './lazyPages';
+import OAuthCallbackPage from './OAuthCallbackPage';
 import { RouteErrorPage } from './RouteErrorPage';
 
 /** Multi-tool modules: `/<module>` overview + `/<module>/:toolSlug` tool pages. */
@@ -24,6 +25,8 @@ const TOOL_MODULES: { id: ModuleId; path: string }[] = [
 ];
 
 export const routes: RouteObject[] = [
+  // OAuth 2.0 redirect target (no app chrome; relays the result to the opener tab).
+  { path: '/oauth/callback', element: <OAuthCallbackPage />, errorElement: <RouteErrorPage /> },
   {
     path: '/',
     element: <AppLayout />,

@@ -29,6 +29,8 @@ export interface CollectionEntity extends BaseEntity {
   description: string;
   folders: CollectionFolder[];
   variables: KeyValueEntry[];
+  /** Request ids in the order the Collection Runner sends them (others follow, by folder and name). */
+  runOrder?: string[];
 }
 
 /** Request shape is finalized in Phase 10; only fields needed for listing/search are fixed here. */

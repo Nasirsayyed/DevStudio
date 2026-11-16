@@ -17,13 +17,14 @@ import { Kbd } from '@/components';
 import { SwitchOption } from '@/components/workspace/OptionControls';
 import { HTTP_METHODS, type KeyValue, type RequestDraft } from '@/core/http/model';
 import { buildRequest } from '@/core/http/build';
-import type { VariableScope } from '@/core/http/interpolate';
+import { interpolate, type VariableScope } from '@/core/http/interpolate';
 import { toUserMessage } from '@/core/errors/AppError';
 import { fontFamilies } from '@/theme/tokens';
 import type { HttpMethod } from '@/types/entities';
 import { AuthEditor } from './AuthEditor';
 import { BodyEditor } from './BodyEditor';
 import { KeyValueEditor } from './KeyValueEditor';
+import { TestsEditor } from './TestsEditor';
 
 const METHOD_COLORS: Record<HttpMethod, string> = {
   GET: 'success.main',
@@ -69,6 +70,12 @@ export function RequestEditor({
     { label: 'Headers', n: count(draft.headers) },
     { label: 'Body', n: draft.body.mode === 'none' ? 0 : 1 },
     { label: 'Auth', n: draft.auth.type === 'none' ? 0 : 1 },
+    {
+      label: 'Tests',
+      n:
+        draft.assertions.filter((a) => a.enabled).length +
+        draft.extract.filter((e) => e.enabled).length,
+    },
     { label: 'Settings', n: 0 },
   ];
 
@@ -248,12 +255,16 @@ export function RequestEditor({
         {tab === 3 && (
           <AuthEditor
             auth={draft.auth}
+            resolve={(t) => interpolate(t, scopes).text}
             onChange={(auth) => {
               onChange({ auth });
             }}
           />
         )}
         {tab === 4 && (
+          <TestsEditor assertions={draft.assertions} extract={draft.extract} onChange={onChange} />
+        )}
+        {tab === 5 && (
           <Stack spacing={1.5} sx={{ maxWidth: 560 }}>
             <TextField
               size="small"

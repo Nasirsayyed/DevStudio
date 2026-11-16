@@ -4,11 +4,30 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.8.0] - 2026-11-16
 
-API Testing, part 1 (roadmap Phase 10a).
+API Testing (roadmap Phase 10).
 
 ### Added
+
+- Tests tab: assertions (status, status range, JSON value equals/exists/contains via JSONPath,
+  header contains, body contains, response time) and variable extraction (JSONPath, header,
+  status) for chaining. Results appear after each send; extracted values become runtime variables
+  (memory only) that later requests use.
+- Collection Runner: runs a collection in a saved, reorderable order with iterations, delay, stop
+  on failure and optional starting runtime values; per-request results with assertions; JSON
+  report export (redacted). Runs are not added to the request history.
+- Collection import (DevStudio format, Postman v2.0/v2.1: folders, URL objects, headers, raw,
+  urlencoded, form-data and GraphQL bodies, Basic/Bearer/API-key/OAuth 2.0 auth with folder
+  inheritance, variables) with a preview and warnings. Postman scripts are ignored, never run.
+  Export as DevStudio JSON or Postman v2.1, always without credentials.
+- Response Compare: two history responses or pasted bodies; status, size and type; header
+  differences (volatile headers optional); JSON bodies compared structurally (key order and
+  array order optional) with a path list and a Monaco diff.
+- OAuth 2.0: client credentials and authorization code with PKCE (S256, `state` check, popup and
+  `/oauth/callback` relay over a same-origin BroadcastChannel). Tokens stay in memory and are
+  never saved, exported or written to history.
+- History: "Compare with…".
 
 - Request Builder: method, URL, query parameters, headers, bodies (JSON, text, XML,
   form-urlencoded, multipart form data with files, GraphQL, binary file), Basic/Bearer/API-key
