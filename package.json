@@ -37,7 +37,7 @@
     "@mui/system": "^9.5.0",
     "@tanstack/react-virtual": "^3.14.26",
     "cron-parser": "^5.10.2",
-    "cronstrue": "^3.38.0",
+    "cronstrue": "^3.39.0",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.4.0",
     "dexie": "^4.4.7",
