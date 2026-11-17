@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-11-17
+
+Deployment (roadmap Phase 13). All roadmap phases are complete.
+
+### Added
+
+- Deployment workflow (`.github/workflows/deploy.yml`): a Vercel preview for every pull request
+  from the repository (smoke-tested, linked in a PR comment) and a production deployment of the
+  exact commit after CI passes on `main` (or manually), followed by smoke tests. Fork pull
+  requests never receive secrets; without secrets the jobs skip with a notice. Pinned Vercel CLI.
+- Smoke tests (`e2e/smoke`, `npm run smoke` with `SMOKE_URL`): security headers, cache rules,
+  hashed assets, SPA deep links and the OAuth callback, and SQLite (WebAssembly) running under the
+  CSP. They also run in the e2e suite against the local preview.
+- Dependabot for npm packages and GitHub Actions.
+
+### Changed
+
+- `Strict-Transport-Security` header; `index.html` and SPA routes are served with
+  `Cache-Control: no-cache` so new deployments are picked up immediately (hashed assets stay
+  immutable). `vite preview` applies the same cache rules.
+- `docs/DEPLOYMENT.md` covers the one-time Vercel and GitHub setup, the smoke tests and other
+  static hosts.
+
 ## [0.10.0] - 2026-11-16
 
 Hardening (roadmap Phase 12).

@@ -1,6 +1,6 @@
 # DevStudio — Phase 1: Architecture & Implementation Plan
 
-Status: **Approved. Phases 1–12 delivered (v0.10.0).** Next: Phase 13 (deployment).
+Status: **Complete. Phases 1–13 delivered (v1.0.0).**
 Date: 2026-11-11
 
 ---
@@ -417,3 +417,4 @@ Deviation found during installation: **ESLint 9.39** instead of 10, because
 | 10b. API Studio (part 2) | Assertions and chaining, Collection Runner, DevStudio/Postman import and export, Response Compare, OAuth 2.0 (client credentials, authorization code + PKCE). 689 unit/component and 40 e2e tests passing                                                                                                |
 | 11. History and backup   | Unified history with restore, favorite snippets, validated JSON backup/restore (merge or replace, secrets opt-in), stored item counts, delete all data. 705 unit/component and 42 e2e tests passing                                                                                                      |
 | 12. Hardening            | Security review (opener fix, lint-enforced bans, file limits, docs/SECURITY.md), axe accessibility gate and fixes, bundle budgets, coverage thresholds and gap tests. 734 unit/component and 45 e2e tests passing                                                                                        |
+| 13. Deployment           | Vercel deploy workflow (previews per PR, production after CI), smoke tests against deployments, HSTS and HTML revalidation, Dependabot, deployment docs. 735 unit/component and 49 e2e tests passing (incl. 4 smoke tests)                                                                               |

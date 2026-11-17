@@ -31,4 +31,12 @@ export const SECURITY_HEADERS: Record<string, string> = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
   'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
   'X-Frame-Options': 'DENY',
+  // Browsers ignore HSTS over plain http (local preview), so it is safe to send everywhere.
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains',
 };
+
+/** Hashed build assets never change; everything else (index.html, SPA routes) must revalidate. */
+export const CACHE_HEADERS = {
+  assets: 'public, max-age=31536000, immutable',
+  html: 'no-cache',
+} as const;

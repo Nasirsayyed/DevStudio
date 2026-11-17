@@ -32,7 +32,8 @@ test runs under it) and mirrored in `vercel.json` (a unit test keeps them identi
 - `connect-src 'self' https: http:` because API Studio sends user-initiated requests anywhere.
 - `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
   `Permissions-Policy` (camera, microphone, geolocation, payment off), `X-Frame-Options: DENY`,
-  `Cross-Origin-Opener-Policy: same-origin-allow-popups` (OAuth pop-up).
+  `Cross-Origin-Opener-Policy: same-origin-allow-popups` (OAuth pop-up),
+  `Strict-Transport-Security: max-age=63072000; includeSubDomains`.
 - The Playwright fixture fails any test that logs a CSP violation or an uncaught page error.
 
 ### No dynamic code, no raw HTML
@@ -96,9 +97,15 @@ navigate DevStudio (no reverse tab-napping) while blocked pop-ups are still dete
 accepts it when `state` matches (a forged `state` is ignored, tested). `window.open` anywhere else
 is a lint error.
 
+### Deployment
+
+The deploy workflow never runs for fork pull requests with secrets (no `pull_request_target`),
+pins the Vercel CLI, deploys exactly the commit CI tested, and smoke-tests every deployment's
+headers and CSP. Secrets live only in GitHub repository secrets.
+
 ### Dependencies
 
-`npm audit --omit=dev --audit-level=high` runs in CI. Monaco's bundled DOMPurify is pinned to a
+`npm audit --omit=dev --audit-level=high` runs in CI, and Dependabot proposes updates weekly. Monaco's bundled DOMPurify is pinned to a
 patched version through `package.json` `overrides`.
 
 ## Accessibility and performance gates (Phase 12)

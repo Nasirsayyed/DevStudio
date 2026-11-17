@@ -1,15 +1,29 @@
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
-import { defineConfig } from 'vite';
-import { SECURITY_HEADERS } from './config/security-headers.ts';
+import { defineConfig, type Plugin } from 'vite';
+import { CACHE_HEADERS, SECURITY_HEADERS } from './config/security-headers.ts';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string;
 };
 
+/** Same Cache-Control rules as vercel.json, so `vite preview` (e2e, smoke tests) matches production. */
+function previewCacheHeaders(): Plugin {
+  return {
+    name: 'devstudio-preview-cache-headers',
+    configurePreviewServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const assets = (req.url ?? '').startsWith('/assets/');
+        res.setHeader('Cache-Control', assets ? CACHE_HEADERS.assets : CACHE_HEADERS.html);
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), previewCacheHeaders()],
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

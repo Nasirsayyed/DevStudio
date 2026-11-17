@@ -10,20 +10,22 @@ an API request.
 
 ## Status
 
-| Area                                                                           | State   |
-| ------------------------------------------------------------------------------ | ------- |
-| Foundation: project, tooling, CI, architecture                                 | ✅ Done |
-| App shell: sidebar, top bar, routing, themes, command palette, shortcuts       | ✅ Done |
-| Dashboard, Favorites, Settings                                                 | ✅ Done |
-| IndexedDB schema (all 11 tables), preferences, storage services                | ✅ Done |
-| JSON Studio (16 tools, Monaco, Web Workers, saved documents)                   | ✅ Done |
-| Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)                | ✅ Done |
-| Developer Utilities (18 tools, JWT verification, hashing, time zones)          | ✅ Done |
-| Text Tools (diff, find & replace, counters, previews, XML/YAML)                | ✅ Done |
-| Snippet Manager (categories, tags, search, VS Code import/export)              | ✅ Done |
-| SQL Tools (format, validate, generate, Schema Designer, SQLite Playground)     | ✅ Done |
-| API Studio (requests, environments, runner, import/export, compare, OAuth 2.0) | ✅ Done |
-| History, favorites, backup and restore                                         | ✅ Done |
+| Area                                                                            | State   |
+| ------------------------------------------------------------------------------- | ------- |
+| Foundation: project, tooling, CI, architecture                                  | ✅ Done |
+| App shell: sidebar, top bar, routing, themes, command palette, shortcuts        | ✅ Done |
+| Dashboard, Favorites, Settings                                                  | ✅ Done |
+| IndexedDB schema (all 11 tables), preferences, storage services                 | ✅ Done |
+| JSON Studio (16 tools, Monaco, Web Workers, saved documents)                    | ✅ Done |
+| Code Generators (C#, TypeScript, Java, Python, SQL, XML ⇄ JSON)                 | ✅ Done |
+| Developer Utilities (18 tools, JWT verification, hashing, time zones)           | ✅ Done |
+| Text Tools (diff, find & replace, counters, previews, XML/YAML)                 | ✅ Done |
+| Snippet Manager (categories, tags, search, VS Code import/export)               | ✅ Done |
+| SQL Tools (format, validate, generate, Schema Designer, SQLite Playground)      | ✅ Done |
+| API Studio (requests, environments, runner, import/export, compare, OAuth 2.0)  | ✅ Done |
+| History, favorites, backup and restore                                          | ✅ Done |
+| Hardening: security review, accessibility (axe), bundle budgets, coverage gates | ✅ Done |
+| Deployment: Vercel previews per PR, production after CI, smoke tests            | ✅ Done |
 
 All modules and tools are implemented. No placeholder UI pretends to work.
 See [docs/FEATURE_LIST.md](docs/FEATURE_LIST.md) and
@@ -51,6 +53,13 @@ npm run dev          # http://localhost:5173
 | `npm run e2e`                     | Playwright end-to-end tests (incl. axe accessibility) against the production build |
 | `npm run bundle:check`            | Gzip bundle budgets for `dist/` (run after `npm run build`)                        |
 | `npm run check`                   | typecheck + lint + tests                                                           |
+
+## Deployment
+
+The build is static (`dist/`). GitHub Actions deploys to Vercel: every pull request gets a
+smoke-tested preview, and `main` goes to production after CI passes. One-time setup (three
+repository secrets) and hosting elsewhere are described in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Check any deployment with `SMOKE_URL=https://… npm run smoke`.
 
 ## Keyboard shortcuts
 

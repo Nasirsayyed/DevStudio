@@ -15,5 +15,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["config", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
+  "include": [
+    "config",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "playwright.smoke.config.ts"
+  ]
 }

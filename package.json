@@ -1,7 +1,7 @@
 {
   "name": "devstudio",
   "private": true,
-  "version": "0.10.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "DevStudio — all-in-one browser-based developer productivity suite",
   "engines": {
@@ -21,6 +21,7 @@
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
     "bundle:check": "node scripts/check-bundle.mjs",
+    "smoke": "playwright test -c playwright.smoke.config.ts",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {

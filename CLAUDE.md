@@ -57,7 +57,9 @@ gzip budgets. Coverage thresholds in `vitest.config.ts` may be raised, never low
   `allow-scripts` or `allow-same-origin` to that sandbox.
 - User-supplied regular expressions must run in a worker with a timeout
   (`runner.run(op, p, { preferWorker: true, timeoutMs })`), never on the main thread.
-- The CSP lives in `config/security-headers.ts` and must match `vercel.json` (a test enforces this).
+- The CSP and security/cache headers live in `config/security-headers.ts` and must match
+  `vercel.json` (a test enforces this; `vite preview` uses the same values). Deployments are
+  checked by `e2e/smoke` (`npm run smoke` with `SMOKE_URL`); keep it passing against production.
 - Errors shown to users: throw or convert to `AppError` subclasses; display with `toUserMessage()`.
 - Forms: React Hook Form with `zodResolver` and the same Zod schema the repository validates with
   (see `core/snippets/model.ts`). Read field values with `useWatch`, not `watch()` (React Compiler).
