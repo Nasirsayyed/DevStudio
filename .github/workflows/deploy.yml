@@ -87,7 +87,7 @@ jobs:
         run: npm run smoke
       - if: steps.configured.outputs.ok == 'true'
         name: Link the preview in the pull request
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           URL: ${{ steps.deploy.outputs.url }}
         with:
