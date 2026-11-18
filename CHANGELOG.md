@@ -1,0 +1,402 @@
+# Changelog
+
+All notable changes to this project are documented here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
+[Semantic Versioning](https://semver.org/).
+
+## [1.0.0] - 2026-11-17
+
+Deployment (roadmap Phase 13). All roadmap phases are complete.
+
+### Added
+
+- Deployment workflow (`.github/workflows/deploy.yml`): a Vercel preview for every pull request
+  from the repository (smoke-tested, linked in a PR comment) and a production deployment of the
+  exact commit after CI passes on `main` (or manually), followed by smoke tests. Fork pull
+  requests never receive secrets; without secrets the jobs skip with a notice. Pinned Vercel CLI.
+- Smoke tests (`e2e/smoke`, `npm run smoke` with `SMOKE_URL`): security headers, cache rules,
+  hashed assets, SPA deep links and the OAuth callback, and SQLite (WebAssembly) running under the
+  CSP. They also run in the e2e suite against the local preview.
+- Dependabot for npm packages and GitHub Actions.
+
+### Changed
+
+- `Strict-Transport-Security` header; `index.html` and SPA routes are served with
+  `Cache-Control: no-cache` so new deployments are picked up immediately (hashed assets stay
+  immutable). `vite preview` applies the same cache rules.
+- `docs/DEPLOYMENT.md` covers the one-time Vercel and GitHub setup, the smoke tests and other
+  static hosts.
+
+## [0.10.0] - 2026-11-16
+
+Hardening (roadmap Phase 12).
+
+### Security
+
+- The OAuth sign-in pop-up no longer keeps `window.opener` (the provider page could otherwise
+  navigate DevStudio); blocked pop-ups are still detected.
+- ESLint now rejects `Math.random`, `dangerouslySetInnerHTML`, `innerHTML`/`outerHTML`
+  assignments, `insertAdjacentHTML`, `document.write` and `window.open` outside the OAuth client.
+- Files chosen as API request bodies are limited to 200 MB.
+- New `docs/SECURITY.md`: threat model and controls.
+
+### Accessibility
+
+- Automated axe checks (WCAG 2.1 A/AA) on 24 pages in light and dark themes, plus pages with data
+  and open overlays, run in the e2e suite.
+- Fixed: the search button and dashboard statistics are named after their visible text; lists
+  contain only list items (sidebar separator, collections tree, history, runner results, problem
+  lists, snippet filters, environments); loading spinners are labelled; toggle buttons and the
+  light theme's success and error colours meet 4.5:1 contrast.
+
+### Performance and quality
+
+- `npm run bundle:check` (also in CI) enforces gzip budgets: initial load 400 KB (now 360 KB) and
+  750 KB per lazy chunk.
+- Coverage thresholds (statements 85%, branches 78%, functions 80%, lines 86%) and new tests for
+  request bodies, response views, code snippets, the runner engine and history restore.
+- The test timeout allows for coverage instrumentation in CI.
+- Fixed a Schema Designer warning (a select without options).
+
+## [0.9.0] - 2026-11-16
+
+History, favorites and backup (roadmap Phase 11).
+
+### Added
+
+- History page: tool runs (recorded when a result is copied or downloaded) and API requests in
+  one timeline; search, source and module filters, paging; input and output views; restore the
+  input into JSON, Code Generator, Text and SQL tools (with the SQL dialect); reopen API requests
+  in the builder or compare them; delete entries; clear tool, API or all history.
+- Backup and restore (Settings): per-table item counts; download a JSON backup of saved work,
+  history and/or settings and preferences. Saved credentials and stored secret values are left
+  out unless explicitly included. Restore validates every row (invalid ones are skipped and
+  reported), previews the contents, and merges (respecting unique environment names and
+  favorites) or replaces the included tables in one transaction. SQLite databases are kept
+  (base64).
+- Delete all data (with confirmation).
+- Favorites: favorite snippets are listed next to favorite tools.
+
+### Removed
+
+- The "scheduled module" placeholder page: every module is now available.
+
+## [0.8.0] - 2026-11-16
+
+API Testing (roadmap Phase 10).
+
+### Added
+
+- Tests tab: assertions (status, status range, JSON value equals/exists/contains via JSONPath,
+  header contains, body contains, response time) and variable extraction (JSONPath, header,
+  status) for chaining. Results appear after each send; extracted values become runtime variables
+  (memory only) that later requests use.
+- Collection Runner: runs a collection in a saved, reorderable order with iterations, delay, stop
+  on failure and optional starting runtime values; per-request results with assertions; JSON
+  report export (redacted). Runs are not added to the request history.
+- Collection import (DevStudio format, Postman v2.0/v2.1: folders, URL objects, headers, raw,
+  urlencoded, form-data and GraphQL bodies, Basic/Bearer/API-key/OAuth 2.0 auth with folder
+  inheritance, variables) with a preview and warnings. Postman scripts are ignored, never run.
+  Export as DevStudio JSON or Postman v2.1, always without credentials.
+- Response Compare: two history responses or pasted bodies; status, size and type; header
+  differences (volatile headers optional); JSON bodies compared structurally (key order and
+  array order optional) with a path list and a Monaco diff.
+- OAuth 2.0: client credentials and authorization code with PKCE (S256, `state` check, popup and
+  `/oauth/callback` relay over a same-origin BroadcastChannel). Tokens stay in memory and are
+  never saved, exported or written to history.
+- History: "Compare with…".
+
+- Request Builder: method, URL, query parameters, headers, bodies (JSON, text, XML,
+  form-urlencoded, multipart form data with files, GraphQL, binary file), Basic/Bearer/API-key
+  authentication, timeout, redirect and cookie settings. Requests go straight from the browser
+  with `fetch`; CORS is never bypassed, and blocked, mixed-content, timed-out and unreachable
+  requests are explained. Headers the browser forbids are dropped with a warning.
+- `{{variable}}` substitution from runtime values, the active environment and the collection, plus
+  dynamic `$guid`, `$uuid`, `$timestamp`, `$isoTimestamp` and `$randomInt` (secure random), with
+  hints for undefined variables.
+- Response viewer: status, time and size; pretty JSON (in a worker), raw, JSON tree, sanitized HTML
+  preview in a sandboxed frame, images; response headers and the request as sent; copy, download
+  and "Open in JSON Studio". Responses are capped at 50 MB.
+- Collections with nested folders: save, save as, rename, duplicate and delete; Ctrl/⌘+S and
+  Ctrl/⌘+Enter; command-palette links open saved requests. Credentials typed into the Auth tab are
+  only saved with explicit consent; `{{secret}}` references are always kept.
+- cURL import and code snippets (cURL, JavaScript fetch, Python requests, C# HttpClient).
+- Environments (Development, Testing, Staging, Production and custom): variables with secret flags.
+  Secret values live in memory only unless the user agrees to store them in plain text.
+- Request History: the last 500 requests with responses, redacted (credential headers, sensitive
+  query parameters, URL user info and secret values); filters; reopen in the builder.
+
+### Changed
+
+- The sandboxed preview frame moved to `components/preview` (shared by Text Tools and API Studio).
+- Drafts are written immediately when the page is hidden or closed, and can be flushed explicitly,
+  so a quick reload no longer loses the last change.
+- The preview server sends no CORS headers, like production, so e2e tests exercise real CORS
+  blocking.
+
+## [0.7.0] - 2026-11-16
+
+SQL Tools (roadmap Phase 9).
+
+### Added
+
+- SQL Formatter (sql-formatter: keyword/type/function case, indentation, aligned styles, operator
+  placement), SQL Minifier (own lexer: strings, quoted identifiers, dollar quotes and comments are
+  handled correctly; optimizer hints optional) and SQL Validator (node-sql-parser, one grammar per
+  dialect, loaded on demand in a worker) with positioned errors and warnings for UPDATE/DELETE
+  without WHERE, `SELECT *` and INSERT without a column list.
+- SQL Query Compare on normalized formatting (comments optional) in a Monaco diff.
+- SQL to C# (EF Core data annotations, `decimal`/`double`, `Guid`, `byte[]`, records, nullable
+  reference types, ZIP per class) and SQL to TypeScript, through the shared code-generation model.
+- SQL Query Generator plus SELECT, INSERT, UPDATE and DELETE generators: joins from foreign keys,
+  WHERE conditions (`IN`, `BETWEEN`, `IS NULL`…), ordering, dialect-specific paging, parameters
+  per dialect (`@p`, `$1`, `?`, `:p`) or literals, INSERT from JSON/CSV with batching and upserts,
+  UPDATE/DELETE refused without WHERE unless confirmed, soft delete, affected-row preview and
+  transactions.
+- Schema Designer: tables, columns (portable types), keys, auto-increment, defaults and foreign
+  keys; ER diagram (ECharts); DDL for SQL Server, PostgreSQL, MySQL and SQLite in dependency order
+  (cycles become `ALTER TABLE`); problem list; import CREATE TABLE; save, open and export designs;
+  "Run in SQLite Playground" and "Generate C#".
+- SQLite Playground (sql.js/WebAssembly in a worker): run scripts, result grids with CSV export,
+  schema browser, Stop for runaway queries, open/download `.sqlite` files and save databases in
+  the browser.
+- Shared SQL workspace (script, schema, data, dialect, design) with drafts; saved queries, designs
+  and databases with Open/Save dialogs and command-palette links.
+
+### Changed
+
+- Task workers accept asynchronous operations (parsers load on demand).
+- Open/Save dialogs and the two-input compare layout are shared components.
+- The code generators' C#/TypeScript emitters accept a prepared type model.
+
+### Fixed
+
+- MySQL string literals in generated SQL now escape backslashes (the JSON → SQL table generator
+  could emit a literal that ended early).
+- Saved-item listings no longer load file contents.
+
+## [0.6.0] - 2026-11-12
+
+Snippet Manager (roadmap Phase 8).
+
+### Added
+
+- Snippet Manager at `/snippets`: create, edit, duplicate and delete (with undo) snippets with a
+  title, description, language (27, with syntax highlighting), category and tags; favorites.
+- Library navigation by category (rename and delete), language and tag, with counts; search across
+  titles, tags, categories, descriptions and code (all words must match, title hits rank first);
+  four sort orders; a virtualized, keyboard-navigable list.
+- Forms use react-hook-form with the same Zod schema as the repository; `Ctrl/⌘+S` saves.
+- Unsaved changes are protected when switching snippets, navigating away (router blocker) and
+  closing or reloading the tab.
+- Import of DevStudio exports and VS Code snippet files (`.code-snippets`, `<language>.json`,
+  comments and trailing commas allowed): every item is validated, invalid items are listed and
+  skipped, and duplicates can be skipped, replaced or imported as copies. Imports are atomic.
+- Export of all or the filtered snippets as JSON, or as a VS Code snippets file; download a single
+  snippet as a source file with the right extension.
+- "New snippet" in the command palette; dashboard and palette links open snippets directly.
+- Responsive layout: three panes on large screens, two on tablets, list then editor on phones.
+
+### Fixed
+
+- Typing quickly into a code editor inside a form could lose characters, because a late echo of
+  an older value overwrote newer keystrokes. The editor now ignores echoes of values it emitted.
+- `safeWrite` no longer rewrites intentional application errors (validation, not found), also
+  when Dexie wraps them.
+- A Code Generator test waited for only one of two option changes (flaky).
+
+### Security
+
+- ESLint forbids importing Ajv anywhere (it needs `unsafe-eval`); it is only present on disk as an
+  optional peer of `@hookform/resolvers` and is not bundled.
+- Imported snippet files are parsed with prototype-pollution protection and validated with Zod
+  (at most 10,000 snippets, 1,000,000 characters of code each, 20 MB per file).
+
+## [0.5.0] - 2026-11-12
+
+Text Tools (roadmap Phase 7).
+
+### Added
+
+- Text Diff: side-by-side or inline, changed words or characters highlighted, ignore whitespace
+  and case, collapsible unchanged regions, swap, unified diff copy/download; large inputs are
+  compared in a Web Worker with a time limit.
+- Code Diff: Monaco diff editor with 27 languages (language picked from opened file names), inline
+  or side by side, whitespace and wrap options.
+- Find and Replace: plain text or regular expressions (Unicode, whole words, `^$` per line, dotAll),
+  `$1`/`$<name>` replacements, `\n`/`\t` escapes, a match list with line, column and context,
+  "Apply to text".
+- Word & Character Counter (graphemes, code points, UTF-16 units, UTF-8 bytes, words, sentences,
+  paragraphs, lines, reading/speaking time, top words, character limits), Line Tools (sort
+  alphabetically/naturally/numerically/by length, secure shuffle, dedupe, trim, filter, prefix/
+  suffix, numbering), Reverse Text (emoji-safe) and a Case Converter with 15 styles.
+- Markdown Preview (GitHub-flavoured, copy/download HTML) and HTML Preview (viewport sizes), both
+  sanitized and rendered in a sandboxed frame.
+- XML Formatter (format/minify; comments, CDATA, DOCTYPE and mixed content kept; attribute
+  wrapping) and YAML Formatter (format with comments kept, sort keys, YAML ⇄ JSON, multiple
+  documents, merge keys).
+- The working text of the Text Tools is shared between tools and kept as a draft. The XML Formatter
+  shares its XML with XML → JSON, and JSON → YAML reads the JSON document.
+
+### Changed
+
+- Draft persistence is a reusable helper (`stores/draftPersistence.ts`), used by JSON Studio and
+  Text Tools.
+- Task runners accept `preferWorker` and `timeoutMs` (the worker is terminated on timeout).
+
+### Security
+
+- HTML from Markdown or pasted HTML is sanitized with DOMPurify: scripts, event handlers,
+  `javascript:` URLs, frames, forms and `<base>`/`<meta>` are removed, form controls are disabled,
+  and every external resource (images, CSS `url()`/`@import`, media) is blocked so previews never
+  contact other servers. Previews run in a sandboxed iframe with its own restrictive CSP. A
+  22-payload XSS corpus is part of the tests.
+- User regular expressions run in a worker with a 5-second limit, so catastrophic backtracking
+  cannot freeze the page.
+- YAML alias expansion is capped (billion-laughs protection) and `__proto__`/`constructor` keys
+  are dropped.
+
+### Fixed
+
+- A unified diff no longer reports the last line as changed when only a final newline differs.
+
+## [0.4.0] - 2026-11-12
+
+Developer Utilities (roadmap Phase 6).
+
+### Added
+
+- 18 utilities: Base64 (UTF-8, URL-safe, line wrapping, binary detection with hex dump and
+  download, file → Base64/data URL), URL encode/decode with a URL and query-string parser, HTML
+  entities, JWT decoder, JWT signature verifier, UUID (v1/v4/v5/v6/v7/nil/max, inspector), .NET
+  GUID formats, random strings, passwords with entropy meter, hashes (MD5, SHA-1/224/256/384/512,
+  Keccak, RIPEMD-160, HMAC, chunked file hashing with progress and cancel, compare), lorem ipsum,
+  Unix timestamps (auto unit detection), time zone converter with DST notes, date difference
+  (calendar, totals, business days, ISO 8601 duration), color converter with WCAG contrast, cron
+  explainer with next runs in any time zone, MIME type lookup and User-Agent parser.
+- JWT verification with `jose` and Web Crypto: HMAC secrets (text, Base64, hex), PEM public keys
+  and X.509 certificates, JWK and JWKS, issuer/audience/clock-tolerance checks. The decoder always
+  states that it has **not** verified the signature.
+
+### Security
+
+- Random values (passwords, strings, UUIDs, lorem) come from `crypto.getRandomValues` with
+  rejection sampling (no modulo bias).
+- Tokens, keys, secrets, HMAC keys and generated passwords/strings are never persisted or written
+  to history. `alg: none`, private keys and PKCS#1 keys are refused by the verifier, and private
+  JWK members are stripped.
+- A verification result is tied to the exact inputs it was computed for; editing the token or key
+  hides it.
+
+### Fixed
+
+- Number fields can be cleared and retyped (they used to snap to the minimum).
+
+## [0.3.0] - 2026-11-11
+
+Code Generators (roadmap Phase 5).
+
+### Added
+
+- JSON → C#: nullable reference/value types, lists, nested classes, dictionaries,
+  `JsonPropertyName`/`JsonProperty`, PascalCase, root class name, namespace (file-scoped or block),
+  automatic usings, class/record, `required` members, decimal/DateTimeOffset/Guid options, and a
+  ZIP with one file per class.
+- JSON → TypeScript, Java (class/record/Lombok, Jackson), Python (dataclass/Pydantic v2/TypedDict)
+  and SQL tables (SQL Server/PostgreSQL/MySQL/SQLite, keys, child tables with foreign keys,
+  JSON columns, INSERTs).
+- JSON → XML and XML → JSON, with syntax errors located and entity-expansion protection.
+- One language-neutral type model shared by all generators (formats, nullability, optional,
+  unions, dictionaries, merged identical classes, unique valid names).
+- Code-generation worker; ZIP export (JSZip, loaded on demand); Monaco syntax highlighting for C#,
+  TypeScript, Java, Python, SQL, XML, YAML, Markdown and HTML.
+
+### Changed
+
+- Shared workspace: the JSON document store, drafts, input/output panels, document dialogs and the
+  operation hook moved from JSON Studio to shared layers, so generators reuse them. JSON Studio and
+  the generators work on the same document.
+- `useTaskOperation` is generic over any task runner.
+- Generated code is shown without word wrap.
+
+### Security
+
+- `fast-xml-parser` 5.12.0 (fixes GHSA-474x-hrwr-fgx4); XML DTD entity declarations are rejected.
+
+## [0.2.0] - 2026-11-11
+
+JSON Studio (roadmap Phase 4).
+
+### Added
+
+- JSON Studio with 16 tools: Formatter, Validator, Minifier, Beautifier, Tree Viewer, Compare,
+  Path Finder, JSONPath Tester, Schema Generator, Schema Validator, Flatten, Unflatten, Search,
+  Sort Keys, JSON → CSV and CSV → JSON.
+- Strict RFC 8259 analyzer with precise, friendly error messages, duplicate-key detection and statistics.
+- Self-hosted Monaco editor (CSP-safe, offline) with error markers, Go-to-error, live editor
+  preferences and a large-file mode; Monaco diff editor.
+- Web Worker task runner with a worker pool, cancellation, typed error transport and main-thread
+  fallback; large inputs run on demand.
+- Reusable components: `CodeEditor`, `DiffEditor`, `JsonViewer` (virtualized ARIA tree), `DataGrid`
+  (virtualized, sortable), `SplitPane`, `ToolWorkspace`, `ToolSidebar`, `Panel`, `FileDropZone`,
+  `UploadButton`, `DownloadButton`.
+- Saved JSON documents (open, save, save as, delete, deep links), working drafts restored after
+  reload, per-tool remembered options, and tool-history recording on copy/download.
+
+### Changed
+
+- JSON Schema validation uses `@cfworker/json-schema` (interpreting, CSP-safe) instead of the
+  planned Ajv, which requires `unsafe-eval`.
+- Heavy components are no longer exported from the `@/components` barrel, which keeps the initial
+  bundle small.
+- ESLint enforces that only the code-editor components import Monaco.
+
+### Security
+
+- Overrode Monaco's pinned DOMPurify 3.4.15 with the patched 3.4.17 (critical DOM-XSS advisories,
+  GHSA-p98j-92pf-mc4p and related). `npm audit --omit=dev` now reports 0 vulnerabilities, and CI
+  fails on any high or critical production advisory.
+
+### Fixed
+
+- A notification arriving while another was closing re-opened the old toast and delayed the new one.
+- `SearchInput` with `debounceMs={0}` could revert newer input with a stale value.
+- Breadcrumbs overlapped the top-bar actions on phones.
+- MUI tooltips replaced the accessible name of buttons with visible labels (now `describeChild`).
+- The e2e suite could silently test a stale build through a reused preview server.
+
+## [0.1.0] - 2026-11-11
+
+Foundation release: roadmap Phases 1–3 (architecture, scaffold, application shell and dashboard).
+
+### Added
+
+- React 19 + TypeScript 6 (strict) + Vite 8 project with feature-based architecture and
+  ESLint-enforced layer boundaries (pure `core/`, `services/`, isolated `features/`).
+- Tooling: ESLint 9 (typescript-eslint strict type-checked, React hooks and compiler rules,
+  jsx-a11y), Prettier, Vitest 5, React Testing Library, Playwright, GitHub Actions CI.
+- Material UI 9 theme with light, dark and system modes, design tokens, self-hosted Inter and
+  JetBrains Mono, and reduced-motion support.
+- Tool registry: 11 modules and 70 tools as the single source of truth for navigation, search,
+  breadcrumbs, favorites and statistics.
+- Application shell: collapsible persisted sidebar, mobile drawer, top bar with breadcrumbs,
+  global search, recent tools, theme menu, shortcuts dialog and settings.
+- Command palette (`Ctrl/⌘ K`) with fuzzy tool search, IndexedDB entity search, `>` action mode
+  and full keyboard/ARIA support.
+- Global shortcuts: `Ctrl/⌘ B`, `Ctrl/⌘ Shift L`, `?`, `Alt 0`, `Alt 1…9`.
+- Dashboard: tool and workspace statistics, customizable quick access, recently used and
+  favorite tools, a usage chart (ECharts), recent requests, documents and snippets, and inline
+  tool search.
+- Favorites page and Settings page (appearance, editor preferences, storage usage, persistent
+  storage request, usage reset).
+- Module overview pages and tool routes with lazy loading, alias redirects and honest
+  "scheduled for Phase N" states for tools not yet implemented.
+- IndexedDB schema v1 (Dexie) with all 10 required tables plus `toolUsage`; repositories;
+  quota-aware writes.
+- Validated localStorage preferences with prototype-pollution protection.
+- Reusable components: ToolHeader, PageContainer, SectionCard, ToolCard, ToolIcon, EmptyState,
+  LoadingState, ErrorBoundary, ConfirmationDialog, NotificationProvider, SearchInput, CopyButton,
+  Kbd, EChart.
+- Content Security Policy and security headers for `vite preview` and Vercel.
+- Documentation: README, CLAUDE.md, ARCHITECTURE, DATABASE_SCHEMA, FEATURE_LIST, TESTING,
+  DEPLOYMENT.

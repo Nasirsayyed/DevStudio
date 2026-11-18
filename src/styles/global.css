@@ -1,0 +1,17 @@
+/* Global, framework-independent styles. Theme-dependent styles live in the MUI theme. */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 2000;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 120ms;
+}
+.skip-link:focus {
+  top: 8px;
+}
